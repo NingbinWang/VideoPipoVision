@@ -127,15 +127,6 @@ typedef unsigned long ULONG;
 #define STATUS    int
 #endif
 
-#ifndef ERROR
-#define ERROR               -1
-#endif
-
-#ifndef OK
-#define OK                  0
-#endif
-
-
 #ifndef MIN
 #define MIN(a, b)    ((a) > (b) ? (b) : (a))
 #endif/* MIN*/

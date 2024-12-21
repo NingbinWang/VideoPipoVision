@@ -129,7 +129,6 @@ typedef struct
 } VI_CFG_PARAM_T;
 
 
-VI_CFG_PARAM_T *Media_Get_ViParam(void);
 
 #define MEDIA_VI_MAX_DEV_NUM	4
 #define MEDIA_VI_MAX_CHN_NUM	4

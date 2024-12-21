@@ -11,10 +11,6 @@
 extern "C" {
 #endif/*__cplusplus*/
 
-
-
-
-
 /*日期、时间*/
 #ifndef _DATE_TIME_
 #define _DATE_TIME_
@@ -30,9 +26,6 @@ typedef struct
     short milliSecond;
 } DATE_TIME_T;
 #endif
-
-
-
 
 /*特殊应用*/
 typedef enum 
@@ -235,11 +228,6 @@ typedef struct
 #define MEDIA_SHARE_SEGMENT_ID	(100)
 
 #define SHMSHARE 0
-
-int Media_Ipcinit(void);
-int Media_Init(void);
-//int Media_Exit(void);
-int Media_Memalloc(unsigned int *phy_addr, void **virt_addr,unsigned int size);
 
 
 #ifdef __cplusplus

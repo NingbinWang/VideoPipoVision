@@ -16,10 +16,12 @@ OUTPUT_DIR= $(CURDIR)/output
 
 TARGET_MEDIA = mpp
 TARGET_SOC = rk3566
-TARGET_OPENCV = n
+TARGET_OPENCV = y
+TARGET_ROCKCHIP = y
 export SOC     := $(TARGET_SOC)
 export $(TARGET_MEDIA)
 export $(TARGET_OPENCV)
+export $(TARGET_ROCKCHIP)
 # cross host
 TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
 
@@ -61,23 +63,24 @@ LIB_VAR += opencv_stitching
 LIB_VAR += opencv_video
 LIB_VAR += opencv_videoio
 endif
-
+ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 LIB_VAR += rga
 LIB_VAR += rockchip_mpp
 LIB_VAR += rockchip_vpu
+endif
 
 PROJECT_LIB_VAR += $(LIB_VAR)
 ifneq ($(PROJECT_LIB_VAR), "")
 PROJECTLIB_VAR += $(patsubst %,-l%,$(PROJECT_LIB_VAR))
 endif
 
-
-
 INC_PATH = $(APP_DIR)/inc
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/mpp/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/rga/include
-INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/isp/include
+ifneq (,$(findstring y,$(TARGET_OPENCV)))
 INC_PATH += $(LIB_DIR)/opencv/include
+endif
+INC_PATH += $(UTILS_DIR)/inc
 INC_PATH += $(UTILS_DIR)/logger
 
 
@@ -88,8 +91,9 @@ PROJECT_INC_DIRS = $(shell find $(PROJECT_INC_PATH) -maxdepth 0 -type d)
 PROJECTINC_PATH += $(patsubst %,-I%,$(PROJECT_INC_DIRS))
 endif
 BUILD_ALL = Utils
-BUILD_ALL += App
 BUILD_ALL += Media
+BUILD_ALL += App
+
 
 .PHONY: App App_Clean  Media  Media_Clean Utils Utils_Clean
 
