@@ -24,6 +24,7 @@ class V4l2Capture : public V4l2Access
 	
 	public:
 		static V4l2Capture* create(const V4L2DeviceParameters & param);
+		static V4l2Capture* create(const V4L2DeviceParameters & param,v4l2_buf_type type);
 		virtual ~V4l2Capture();
 	
 		size_t read(char* buffer, size_t bufferSize);

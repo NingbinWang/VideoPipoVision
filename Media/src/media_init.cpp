@@ -45,7 +45,7 @@ VI_CFG_PARAM_T *Media_Get_ViParam(void)
 
 int Media_Init(void)
 {
-	int ret = -1;
+	//int ret = -1;
 #ifdef HDAL_DEF
     ret = hdal_system_init(HDAL_PROFUCT_ID_A30051);
 	if(ret != 0)

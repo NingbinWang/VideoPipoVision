@@ -23,10 +23,7 @@ typedef enum
 
 typedef enum
 {
-    CMOS_OV_OS05A20 = 0,
-    CMOS_OV_OS04C10 = 1,
-    CMOS_OV_9284    = 2,
-    CMOS_YUV422_TVI = 3,
+    CMOS_OV_5969 = 0,
 	VI_SENSOR_TYPE_MAX,
 }VI_SENSOR_TYPE_E;
 
@@ -100,9 +97,9 @@ typedef struct
     unsigned int                          enable;            //是否进行配置 只管数组0上面的值
     unsigned int                          ctlid;         //Media中的配置 只管数组0上面的值
     VI_VIEW_FLIP_E                        viewMirror;   // 镜像选择方式 默认为0
-    unsigned int                                image_viW; //前端原始图像有效宽
-    unsigned int                                image_viH; //前端原始图像有效高
-    unsigned int                                frame_rate; //前端帧率
+    unsigned int                          image_viW; //前端原始图像有效宽
+    unsigned int                          image_viH; //前端原始图像有效高
+    unsigned int                          frame_rate; //前端帧率
     VI_SENSOR_TYPE_E                      vSensorType; //Sensor类型
     VIDEO_LENS_TYPE_E                     vLensType; //镜头类型
     VI_DATNIGHT_INFO_T                    dayNightInfo; //日夜模式   	0-day 1-night 2-自动模式 默认为2
@@ -129,15 +126,24 @@ typedef struct
 } VI_CFG_PARAM_T;
 
 
+class Media_vi
+{
+private:
+    /* data */
+public:
+    Media_vi(const VI_CFG_PARAM_T &params);
+    ~Media_vi();
+    bool init(void);
 
-#define MEDIA_VI_MAX_DEV_NUM	4
-#define MEDIA_VI_MAX_CHN_NUM	4
-#define MEDIA_VI_MAX_PATH_NUM	8
 
-#define MEDIA_VI_MAX_CHIP_CNT			2           /*芯片内部VI 硬件chip个数*/
-#define MEDIA_VI_MAX_VCAP_PER_CHIP	1           /*每个VI硬件chip内部包含的VCAP个数*/
-#define MEDIA_VI_MAX_VI_PER_VCAP		4           /*每个VCAP内部包含的VI设备个数*/
-#define MEDIA_VI_MAX_CHN_PER_VI		4           /*每个VI设备内部包含的通道个数*/
+protected:
+    VI_CFG_PARAM_T m_params;
+    
+
+
+
+};
+
 
 
 #ifdef __cplusplus

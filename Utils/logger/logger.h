@@ -103,6 +103,7 @@ inline void setLogLevel(int verbose) {
 
 inline void initLogger(int verbose)
 {
+	std::cout << "verbose:" << verbose << std::endl;
 	setLogLevel(verbose);
 	std::cout << "log level:" << LogLevel << std::endl;
 }

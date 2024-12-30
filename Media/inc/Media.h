@@ -225,9 +225,6 @@ typedef struct
     ENC_STATUS_T              encStatus[MAX_ENC_CHAN];
 }MEDIA_PARAM_T;
 
-#define MEDIA_SHARE_SEGMENT_ID	(100)
-
-#define SHMSHARE 0
 
 
 #ifdef __cplusplus

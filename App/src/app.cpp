@@ -1,5 +1,11 @@
 #include "app.h"
+#include  "Media_vi.h"
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <signal.h>
 
+#include "logger.h"
 
 #include "opencv2/opencv.hpp"
 #include <iostream>
@@ -10,7 +16,7 @@ using namespace std;
 int opencv_demo()
 {
     // 创建VideoCapture对象，参数为0表示打开默认摄像头
-    VideoCapture cap(0);
+    VideoCapture cap(1);
 
     // 检查摄像头是否成功打开
     if (!cap.isOpened())
@@ -38,9 +44,24 @@ int opencv_demo()
     cap.release();
     return 0;
 }
+int media_demo()
+{
+    VI_CFG_PARAM_T param;
+    param.vSensorType = CMOS_OV_5969;
+    param.image_viH = 1920;
+    param.image_viW = 1080;
+    param.frame_rate = 30;
+    initLogger(2);
+    Media_vi *vi = new Media_vi(param);
+    vi->init();
+    return 0;
+}
+
+
 
 int app_main(void)
 {
-    opencv_demo();
+  //  opencv_demo();
+  media_demo();
     return 0;
 }
