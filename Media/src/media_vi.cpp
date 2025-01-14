@@ -32,7 +32,7 @@ bool Media_vi::init(){
         fps =m_params.frame_rate;
     }
     V4L2DeviceParameters param(in_devname, format, width, height, fps, ioTypeIn);
-	V4l2Capture* videoCapture = V4l2Capture::create(param,V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+	V4l2Capture* videoCapture = V4l2Capture::create(param,V4L2_CAP_VIDEO_CAPTURE_MPLANE);
     if (videoCapture == NULL)
 	{	
 		LOG(WARN) << "Cannot reading from V4L2 capture interface for device:" << in_devname; 

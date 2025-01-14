@@ -60,7 +60,7 @@ void V4l2Device::queryFormat()
 {
 	struct v4l2_format     fmt;
 	memset(&fmt,0,sizeof(fmt));
-	fmt.type  = m_deviceType;
+	fmt.type  = m_fmttype;
 	if (0 == ioctl(m_fd,VIDIOC_G_FMT,&fmt)) 
 	{
 		m_format     = fmt.fmt.pix.pixelformat;
@@ -111,11 +111,11 @@ int V4l2Device::initdevice(const char *dev_name, unsigned int mandatoryCapabilit
 		this->close();
 		return -1;
 	}
-	if (configureParam(m_fd, m_params.m_fps) !=0)
-	{
-		this->close();
-		return -1;
-	}
+	//if (configureParam(m_fd, m_params.m_fps) !=0)
+	//{
+	//	this->close();
+	//	return -1;
+	//}
 	
 	return m_fd;
 }
@@ -132,13 +132,32 @@ int V4l2Device::checkCapabilities(int fd, unsigned int mandatoryCapabilities)
 	}
 	LOG(INFO) << "driver:" << cap.driver << " capabilities:" << std::hex << cap.capabilities <<  " mandatory:" << mandatoryCapabilities << std::dec;
 		
-	if ((cap.capabilities & V4L2_CAP_VIDEO_OUTPUT))  LOG(DEBUG) << m_params.m_devName << " support output";
-	if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) LOG(DEBUG) << m_params.m_devName << " support capture";
+	if ((cap.capabilities & V4L2_CAP_VIDEO_OUTPUT)){
+        LOG(DEBUG) << m_params.m_devName << " support output";
+		m_fmttype |= V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	
+	}
+	  
+	if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)){
+	    LOG(DEBUG) << m_params.m_devName << "support capture";
+		m_fmttype |= V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	}
 
-	if ((cap.capabilities & V4L2_CAP_READWRITE))     LOG(DEBUG) << m_params.m_devName << " support read/write";
-	if ((cap.capabilities & V4L2_CAP_STREAMING))     LOG(DEBUG) << m_params.m_devName << " support streaming";
+	if ((cap.capabilities & V4L2_CAP_READWRITE)){
+        LOG(DEBUG) << m_params.m_devName << "support read/write";
+	} 
+	  
+	if ((cap.capabilities & V4L2_CAP_STREAMING)){
+        LOG(DEBUG) << m_params.m_devName << " support streaming";
+	}   
 
-	if ((cap.capabilities & V4L2_CAP_TIMEPERFRAME))  LOG(DEBUG) << m_params.m_devName << " support timeperframe"; 
+	if ((cap.capabilities & V4L2_CAP_TIMEPERFRAME)){
+        LOG(DEBUG) << m_params.m_devName << " support timeperframe"; 
+	} 
+	if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)){
+        LOG(DEBUG) << m_params.m_devName << " support mplane";
+		m_fmttype |= V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	} 
 	
 	if ( (cap.capabilities & mandatoryCapabilities) != mandatoryCapabilities )
 	{
@@ -186,7 +205,7 @@ int V4l2Device::configureFormat(int fd, unsigned int format, unsigned int width,
 {
 	struct v4l2_format   fmt;			
 	memset(&(fmt), 0, sizeof(fmt));
-	fmt.type                = m_deviceType;
+	fmt.type                = m_fmttype;
 	if (ioctl(m_fd,VIDIOC_G_FMT,&fmt) == -1)
 	{
 		LOG(ERROR) << m_params.m_devName << ": Cannot get format " << strerror(errno);
@@ -234,7 +253,7 @@ int V4l2Device::configureParam(int fd, int fps)
 	{
 		struct v4l2_streamparm   param;			
 		memset(&(param), 0, sizeof(param));
-		param.type = m_deviceType;
+		param.type = m_fmttype;
 		param.parm.capture.timeperframe.numerator = 1;
 		param.parm.capture.timeperframe.denominator = fps;
 

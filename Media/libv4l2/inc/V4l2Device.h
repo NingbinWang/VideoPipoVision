@@ -115,7 +115,8 @@ class V4l2Device
 		unsigned int m_bufferSize;
 		unsigned int m_format;
 		unsigned int m_width;
-		unsigned int m_height;	
+		unsigned int m_height;
+		unsigned int m_fmttype = 0;	
 
 		struct v4l2_buffer m_partialWriteBuf;
 		bool m_partialWriteInProgress;

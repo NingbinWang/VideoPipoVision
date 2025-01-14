@@ -48,8 +48,8 @@ int media_demo()
 {
     VI_CFG_PARAM_T param;
     param.vSensorType = CMOS_OV_5969;
-    param.image_viH = 1920;
-    param.image_viW = 1080;
+    param.image_viH = 1944;
+    param.image_viW = 2592;
     param.frame_rate = 30;
     initLogger(2);
     Media_vi *vi = new Media_vi(param);

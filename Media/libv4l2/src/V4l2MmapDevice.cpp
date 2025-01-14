@@ -54,7 +54,7 @@ bool V4l2MmapDevice::start()
 	req.count               = V4L2MMAP_NBBUFFER;
 	req.type                = m_deviceType;
 	req.memory              = V4L2_MEMORY_MMAP;
-
+    LOG(INFO) << "req.count: " << req.count << "req.type:" << req.type << "req.memory:" << req.memory;
 	if (-1 == ioctl(m_fd, VIDIOC_REQBUFS, &req)) 
 	{
 		if (EINVAL == errno) 
@@ -64,6 +64,7 @@ bool V4l2MmapDevice::start()
 		} 
 		else 
 		{
+			LOG(ERROR) << "Device " << m_params.m_devName << " VIDIOC_REQBUFS error";
 			perror("VIDIOC_REQBUFS");
 			success = false;
 		}
@@ -71,7 +72,6 @@ bool V4l2MmapDevice::start()
 	else
 	{
 		LOG(INFO) << "Device " << m_params.m_devName << " nb buffer:" << req.count;
-		
 		// allocate buffers
 		memset(&m_buffer,0, sizeof(m_buffer));
 		for (n_buffers = 0; n_buffers < req.count; ++n_buffers) 
@@ -81,25 +81,41 @@ bool V4l2MmapDevice::start()
 			buf.type        = m_deviceType;
 			buf.memory      = V4L2_MEMORY_MMAP;
 			buf.index       = n_buffers;
+			struct v4l2_plane planes[FMT_NUM_PLANES];
+			if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
+            	buf.m.planes = planes;
+           		buf.length = FMT_NUM_PLANES;
+            }
 
 			if (-1 == ioctl(m_fd, VIDIOC_QUERYBUF, &buf))
 			{
+				LOG(ERROR) << "Device " << m_params.m_devName << " VIDIOC_QUERYBUF error";
 				perror("VIDIOC_QUERYBUF");
 				success = false;
 			}
 			else
 			{
 				LOG(INFO) << "Device " << m_params.m_devName << " buffer idx:" << n_buffers << " size:" << buf.length << " offset:" << buf.m.offset;
-				m_buffer[n_buffers].length = buf.length;
-				if (!m_buffer[n_buffers].length) {
-					m_buffer[n_buffers].length = buf.bytesused;
-				}
-				m_buffer[n_buffers].start = mmap (   NULL /* start anywhere */, 
+				if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == buf.type) {
+					m_buffer[n_buffers].length = buf.m.planes[0].length;
+					m_buffer[n_buffers].start = mmap (   NULL /* start anywhere */, 
+											 buf.m.planes[0].length,
+											PROT_READ | PROT_WRITE /* required */, 
+											MAP_SHARED /* recommended */, 
+											m_fd, 
+											buf.m.planes[0].m.mem_offset);
+				}else{
+					m_buffer[n_buffers].length = buf.length;
+					if (!m_buffer[n_buffers].length) {
+						m_buffer[n_buffers].length = buf.bytesused;
+					}
+					m_buffer[n_buffers].start = mmap (   NULL /* start anywhere */, 
 											m_buffer[n_buffers].length, 
 											PROT_READ | PROT_WRITE /* required */, 
 											MAP_SHARED /* recommended */, 
 											m_fd, 
 											buf.m.offset);
+				}
 
 				if (MAP_FAILED == m_buffer[n_buffers].start)
 				{
@@ -108,16 +124,39 @@ bool V4l2MmapDevice::start()
 				}
 			}
 		}
-
+/*
+        struct v4l2_exportbuffer expbuf = (struct v4l2_exportbuffer) {0} ;
+        // xcam_mem_clear (expbuf);
+        expbuf.type = type;
+        expbuf.index = i;
+        expbuf.flags = O_CLOEXEC;
+        if -1 == ioctl(m_fd, VIDIOC_EXPBUF, &expbuf) < 0) {
+            perror("VIDIOC_EXPBUF");
+        } else {
+            mpp_log("get dma buf(%d)-fd: %d\n", i, expbuf.fd);
+            MppBufferInfo info;
+            memset(&info, 0, sizeof(MppBufferInfo));
+            info.type = MPP_BUFFER_TYPE_EXT_DMA;
+            info.fd =  expbuf.fd;
+            info.size = buf_len & 0x07ffffff;
+            info.index = (buf_len & 0xf8000000) >> 27;
+            mpp_buffer_import(&ctx->fbuf[i].buffer, &info);
+        }
+        ctx->fbuf[i].export_fd = expbuf.fd;
+*/
 		// queue buffers
 		for (unsigned int i = 0; i < n_buffers; ++i) 
 		{
 			struct v4l2_buffer buf;
+			struct v4l2_plane planes[FMT_NUM_PLANES];
 			memset (&buf, 0, sizeof(buf));
 			buf.type        = m_deviceType;
 			buf.memory      = V4L2_MEMORY_MMAP;
 			buf.index       = i;
-
+			if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
+            	buf.m.planes = planes;
+           		buf.length = FMT_NUM_PLANES;
+            }
 			if (-1 == ioctl(m_fd, VIDIOC_QBUF, &buf))
 			{
 				perror("VIDIOC_QBUF");
@@ -132,6 +171,8 @@ bool V4l2MmapDevice::start()
 			perror("VIDIOC_STREAMON");
 			success = false;
 		}
+		//skip some frames at start
+
 	}
 	return success; 
 }
