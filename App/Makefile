@@ -1,5 +1,9 @@
 MODULE_SUB_DIR = src
 MODULE_SUB_INC = inc
+
+MODULE_SUB_DIR += src/base
+MODULE_SUB_DIR += src/net/poller
+MODULE_SUB_DIR += src/net
 #MPP=mpp
 LINK_SHARE=y
 #外部的一些头文件

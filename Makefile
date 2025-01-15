@@ -67,6 +67,15 @@ ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 LIB_VAR += rga
 LIB_VAR += rockchip_mpp
 LIB_VAR += rockchip_vpu
+LIB_VAR += x264
+LIB_VAR += avcodec
+LIB_VAR += avdevice
+LIB_VAR += avfilter
+LIB_VAR += avformat
+LIB_VAR += avutil
+LIB_VAR += postproc
+LIB_VAR += swresample
+LIB_VAR += swscale
 endif
 
 PROJECT_LIB_VAR += $(LIB_VAR)

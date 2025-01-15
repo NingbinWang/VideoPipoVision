@@ -1,7 +1,7 @@
 #include "media_priv.h"
-#include "V4l2Device.h"
-#include "V4l2Capture.h"
-#include "logger.h"
+//#include "V4l2Device.h"
+//#include "V4l2Capture.h"
+//#include "logger.h"
 
 
 
@@ -18,6 +18,7 @@ Media_vi::~Media_vi()
 }
 
 bool Media_vi::init(){
+/*
     const char *in_devname = "/dev/video0";	
 	V4l2IoType ioTypeIn  = IOTYPE_MMAP;
 	int format = 0;
@@ -30,12 +31,15 @@ bool Media_vi::init(){
         width = m_params.image_viW;
         height = m_params.image_viH;
         fps =m_params.frame_rate;
-    }
-    V4L2DeviceParameters param(in_devname, format, width, height, fps, ioTypeIn);
-	V4l2Capture* videoCapture = V4l2Capture::create(param,V4L2_CAP_VIDEO_CAPTURE_MPLANE);
-    if (videoCapture == NULL)
-	{	
-		LOG(WARN) << "Cannot reading from V4L2 capture interface for device:" << in_devname; 
-	}
+   }
+*/
+  //  V4L2DeviceParameters param(in_devname, format, width, height, fps, ioTypeIn);
+	//V4l2Capture* videoCapture = V4l2Capture::create(param,V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+    //if (videoCapture == NULL)
+	//{	
+	//	LOG(WARN) << "Cannot reading from V4L2 capture interface for device:" << in_devname; 
+//	}
+
+
     return true;
 }

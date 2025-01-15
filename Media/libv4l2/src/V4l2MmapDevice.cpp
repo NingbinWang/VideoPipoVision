@@ -15,12 +15,13 @@
 #include <errno.h> 
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <iostream>
 
 // libv4l2
 #include <linux/videodev2.h>
 
 // project
-#include "logger.h"
+//#include "Logger.h"
 #include "V4l2MmapDevice.h"
 
 V4l2MmapDevice::V4l2MmapDevice(const V4L2DeviceParameters & params, v4l2_buf_type deviceType) : V4l2Device(params, deviceType), n_buffers(0) 
@@ -46,7 +47,7 @@ V4l2MmapDevice::~V4l2MmapDevice()
 
 bool V4l2MmapDevice::start() 
 {
-	LOG(INFO) << "Device " << m_params.m_devName;
+	 std::cout<< "Device " << m_params.m_devName <<std::endl;
 
 	bool success = true;
 	struct v4l2_requestbuffers req;
@@ -54,24 +55,24 @@ bool V4l2MmapDevice::start()
 	req.count               = V4L2MMAP_NBBUFFER;
 	req.type                = m_deviceType;
 	req.memory              = V4L2_MEMORY_MMAP;
-    LOG(INFO) << "req.count: " << req.count << "req.type:" << req.type << "req.memory:" << req.memory;
+    std::cout<< "req.count: " << req.count << "req.type:" << req.type << "req.memory:" << req.memory <<std::endl;
 	if (-1 == ioctl(m_fd, VIDIOC_REQBUFS, &req)) 
 	{
 		if (EINVAL == errno) 
 		{
-			LOG(ERROR) << "Device " << m_params.m_devName << " does not support memory mapping";
+			std::cout << "Device " << m_params.m_devName << " does not support memory mapping" <<std::endl;
 			success = false;
 		} 
 		else 
 		{
-			LOG(ERROR) << "Device " << m_params.m_devName << " VIDIOC_REQBUFS error";
+			std::cout << "Device " << m_params.m_devName << " VIDIOC_REQBUFS error"<<std::endl ;
 			perror("VIDIOC_REQBUFS");
 			success = false;
 		}
 	}
 	else
 	{
-		LOG(INFO) << "Device " << m_params.m_devName << " nb buffer:" << req.count;
+		std::cout<< "Device " << m_params.m_devName << " nb buffer:" << req.count <<std::endl;
 		// allocate buffers
 		memset(&m_buffer,0, sizeof(m_buffer));
 		for (n_buffers = 0; n_buffers < req.count; ++n_buffers) 
@@ -89,13 +90,13 @@ bool V4l2MmapDevice::start()
 
 			if (-1 == ioctl(m_fd, VIDIOC_QUERYBUF, &buf))
 			{
-				LOG(ERROR) << "Device " << m_params.m_devName << " VIDIOC_QUERYBUF error";
+				std::cout<< "Device " << m_params.m_devName << " VIDIOC_QUERYBUF error" <<std::endl;
 				perror("VIDIOC_QUERYBUF");
 				success = false;
 			}
 			else
 			{
-				LOG(INFO) << "Device " << m_params.m_devName << " buffer idx:" << n_buffers << " size:" << buf.length << " offset:" << buf.m.offset;
+				std::cout<< "Device " << m_params.m_devName << " buffer idx:" << n_buffers << " size:" << buf.length << " offset:" << buf.m.offset <<std::endl;
 				if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == buf.type) {
 					m_buffer[n_buffers].length = buf.m.planes[0].length;
 					m_buffer[n_buffers].start = mmap (   NULL /* start anywhere */, 
@@ -179,7 +180,7 @@ bool V4l2MmapDevice::start()
 
 bool V4l2MmapDevice::stop() 
 {
-	LOG(INFO) << "Device " << m_params.m_devName;
+	std::cout << "Device " << m_params.m_devName <<std::endl;
 
 	bool success = true;
 	
@@ -240,7 +241,7 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 			if (size > bufferSize)
 			{
 				size = bufferSize;
-				LOG(WARN) << "Device " << m_params.m_devName << " buffer truncated available:" << bufferSize << " needed:" << buf.bytesused;
+				std::cout << "Device " << m_params.m_devName << " buffer truncated available:" << bufferSize << " needed:" << buf.bytesused <<std::endl ;
 			}
 			memcpy(buffer, m_buffer[buf.index].start, size);
 
@@ -274,7 +275,7 @@ size_t V4l2MmapDevice::writeInternal(char* buffer, size_t bufferSize)
 			size = bufferSize;
 			if (size > buf.length)
 			{
-				LOG(WARN) << "Device " << m_params.m_devName << " buffer truncated available:" << buf.length << " needed:" << size;
+				std::cout << "Device " << m_params.m_devName << " buffer truncated available:" << buf.length << " needed:" << size <<std::endl;
 				size = buf.length;
 			}
 			memcpy(m_buffer[buf.index].start, buffer, size);
@@ -320,7 +321,7 @@ size_t V4l2MmapDevice::writePartialInternal(char* buffer, size_t bufferSize)
 			new_size = m_partialWriteBuf.bytesused + bufferSize;
 			if (new_size > m_partialWriteBuf.length)
 			{
-				LOG(WARN) << "Device " << m_params.m_devName << " buffer truncated available:" << m_partialWriteBuf.length << " needed:" << new_size;
+				std::cout << "Device " << m_params.m_devName << " buffer truncated available:" << m_partialWriteBuf.length << " needed:" << new_size <<std::endl;
 				new_size = m_partialWriteBuf.length;
 			}
 			size = new_size - m_partialWriteBuf.bytesused;

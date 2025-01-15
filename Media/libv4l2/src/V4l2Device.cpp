@@ -12,11 +12,10 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <iostream>
 
 // libv4l2
 #include <linux/videodev2.h>
-
-#include "logger.h"
 
 #include "V4l2Device.h"
 
@@ -68,7 +67,7 @@ void V4l2Device::queryFormat()
 		m_height     = fmt.fmt.pix.height;
 		m_bufferSize = fmt.fmt.pix.sizeimage;
 
-		LOG(DEBUG) << m_params.m_devName << ":" << fourcc(m_format) << " size:" << m_width << "x" << m_height << " bufferSize:" << m_bufferSize;
+		std::cout << m_params.m_devName << ":" << fourcc(m_format) << " size:" << m_width << "x" << m_height << " bufferSize:" << m_bufferSize <<std::endl;
 	}
 }
 
@@ -80,7 +79,7 @@ bool V4l2Device::init(unsigned int mandatoryCapabilities)
 	{
 		if (initdevice(m_params.m_devName.c_str(), mandatoryCapabilities) == -1)
 		{
-			LOG(ERROR) << "Cannot init device:" << m_params.m_devName;
+			std::cout << "Cannot init device:" << m_params.m_devName;
 		}
 	}
 	else
@@ -97,7 +96,7 @@ int V4l2Device::initdevice(const char *dev_name, unsigned int mandatoryCapabilit
 	m_fd = open(dev_name,  m_params.m_openFlags);
 	if (m_fd < 0) 
 	{
-		LOG(ERROR) << "Cannot open device:" << m_params.m_devName << " " << strerror(errno);
+		std::cout << "Cannot open device:" << m_params.m_devName << " " << strerror(errno) <<std::endl;
 		this->close();
 		return -1;
 	}
@@ -127,41 +126,41 @@ int V4l2Device::checkCapabilities(int fd, unsigned int mandatoryCapabilities)
 	memset(&(cap), 0, sizeof(cap));
 	if (-1 == ioctl(fd, VIDIOC_QUERYCAP, &cap)) 
 	{
-		LOG(ERROR) << "Cannot get capabilities for device:" << m_params.m_devName << " " << strerror(errno);
+		std::cout << "Cannot get capabilities for device:" << m_params.m_devName << " " << strerror(errno) <<std::endl;
 		return -1;
 	}
-	LOG(INFO) << "driver:" << cap.driver << " capabilities:" << std::hex << cap.capabilities <<  " mandatory:" << mandatoryCapabilities << std::dec;
+	std::cout << "driver:" << cap.driver << " capabilities:" << std::hex << cap.capabilities <<  " mandatory:" << mandatoryCapabilities << std::dec <<std::endl ;
 		
 	if ((cap.capabilities & V4L2_CAP_VIDEO_OUTPUT)){
-        LOG(DEBUG) << m_params.m_devName << " support output";
+        std::cout << m_params.m_devName << " support output" <<std::endl;
 		m_fmttype |= V4L2_BUF_TYPE_VIDEO_OUTPUT;
 	
 	}
 	  
 	if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)){
-	    LOG(DEBUG) << m_params.m_devName << "support capture";
+	    std::cout << m_params.m_devName << "support capture" <<std::endl;
 		m_fmttype |= V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	}
 
 	if ((cap.capabilities & V4L2_CAP_READWRITE)){
-        LOG(DEBUG) << m_params.m_devName << "support read/write";
+        std::cout << m_params.m_devName << "support read/write" <<std::endl;
 	} 
 	  
 	if ((cap.capabilities & V4L2_CAP_STREAMING)){
-        LOG(DEBUG) << m_params.m_devName << " support streaming";
+        std::cout << m_params.m_devName << " support streaming" <<std::endl;
 	}   
 
 	if ((cap.capabilities & V4L2_CAP_TIMEPERFRAME)){
-        LOG(DEBUG) << m_params.m_devName << " support timeperframe"; 
+        std::cout << m_params.m_devName << " support timeperframe" <<std::endl; 
 	} 
 	if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)){
-        LOG(DEBUG) << m_params.m_devName << " support mplane";
+        std::cout << m_params.m_devName << " support mplane" <<std::endl;
 		m_fmttype |= V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	} 
 	
 	if ( (cap.capabilities & mandatoryCapabilities) != mandatoryCapabilities )
 	{
-		LOG(ERROR) << "Mandatory capability not available for device:" << m_params.m_devName;
+		std::cout << "Mandatory capability not available for device:" << m_params.m_devName  <<std::endl;
 		return -1;
 	}
 	
@@ -208,7 +207,7 @@ int V4l2Device::configureFormat(int fd, unsigned int format, unsigned int width,
 	fmt.type                = m_fmttype;
 	if (ioctl(m_fd,VIDIOC_G_FMT,&fmt) == -1)
 	{
-		LOG(ERROR) << m_params.m_devName << ": Cannot get format " << strerror(errno);
+		std::cout << m_params.m_devName << ": Cannot get format " << strerror(errno)  <<std::endl;
 		return -1;
 	}
 	if (width != 0) {
@@ -223,17 +222,17 @@ int V4l2Device::configureFormat(int fd, unsigned int format, unsigned int width,
 	
 	if (ioctl(fd, VIDIOC_S_FMT, &fmt) == -1)
 	{
-		LOG(ERROR) << m_params.m_devName << ": Cannot set format:" << fourcc(format) << " " << strerror(errno);
+		std::cout << m_params.m_devName << ": Cannot set format:" << fourcc(format) << " " << strerror(errno)  <<std::endl;
 		return -1;
 	}			
 	if (fmt.fmt.pix.pixelformat != format) 
 	{
-		LOG(ERROR) << m_params.m_devName << ": Cannot set pixelformat to:" << fourcc(format) << " format is:" << fourcc(fmt.fmt.pix.pixelformat);
+		std::cout << m_params.m_devName << ": Cannot set pixelformat to:" << fourcc(format) << " format is:" << fourcc(fmt.fmt.pix.pixelformat)  <<std::endl;
 		return -1;
 	}
 	if ((fmt.fmt.pix.width != width) || (fmt.fmt.pix.height != height))
 	{
-		LOG(WARN) << m_params.m_devName << ": Cannot set size to:" << width << "x" << height << " size is:"  << fmt.fmt.pix.width << "x" << fmt.fmt.pix.height;
+		std::cout << m_params.m_devName << ": Cannot set size to:" << width << "x" << height << " size is:"  << fmt.fmt.pix.width << "x" << fmt.fmt.pix.height  <<std::endl;
 	}
 	
 	m_format     = fmt.fmt.pix.pixelformat;
@@ -241,7 +240,7 @@ int V4l2Device::configureFormat(int fd, unsigned int format, unsigned int width,
 	m_height     = fmt.fmt.pix.height;		
 	m_bufferSize = fmt.fmt.pix.sizeimage;
 	
-	LOG(INFO) << m_params.m_devName << ":" << fourcc(m_format) << " size:" << m_width << "x" << m_height << " bufferSize:" << m_bufferSize;
+	std::cout << m_params.m_devName << ":" << fourcc(m_format) << " size:" << m_width << "x" << m_height << " bufferSize:" << m_bufferSize  <<std::endl;
 	
 	return 0;
 }
@@ -259,11 +258,11 @@ int V4l2Device::configureParam(int fd, int fps)
 
 		if (ioctl(fd, VIDIOC_S_PARM, &param) == -1)
 		{
-			LOG(WARN) << "Cannot set param for device:" << m_params.m_devName << " " << strerror(errno);
+			std::cout << "Cannot set param for device:" << m_params.m_devName << " " << strerror(errno)  <<std::endl;
 		}
 	
-		LOG(INFO) << "fps:" << param.parm.capture.timeperframe.numerator << "/" << param.parm.capture.timeperframe.denominator;
-		LOG(INFO) << "nbBuffer:" << param.parm.capture.readbuffers;
+		std::cout << "fps:" << param.parm.capture.timeperframe.numerator << "/" << param.parm.capture.timeperframe.denominator  <<std::endl;
+		std::cout << "nbBuffer:" << param.parm.capture.readbuffers <<std::endl;
 	}
 	
 	return 0;
