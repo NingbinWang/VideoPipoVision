@@ -1,12 +1,12 @@
 #ifndef _HALMEDIA_H_
 #define _HALMEDIA_H_
 #include "common_type.h"
-#include "Media_config.h"
-#include "Media_vi.h"
-#include "Media_vo.h"
-#include "Media_enc.h"
-#include "Media_dec.h"
-#include "Media_frame.h"
+#include "MediaConfig.h"
+#include "MediaVi.h"
+#include "MediaVo.h"
+#include "MediaEnc.h"
+#include "MediaDec.h"
+#include "MediaFrame.h"
 #ifdef __cplusplus
 extern "C" {
 #endif/*__cplusplus*/
@@ -176,7 +176,7 @@ typedef struct
     // 视频输入初始化参数
     VI_CFG_PARAM_T            viCfgParam[MAX_ENC_CHAN_SOC];
     // 音频初始化参数
-    AUDIO_CFG_PARAM_T           audioCfgParam;
+    AUDIO_CFG_PARAM_T         audioCfgParam;
     //beep 共享缓存
     BEEP_SOUND_BUF_T          audioBeepShare;
     //alg osd 共享缓存

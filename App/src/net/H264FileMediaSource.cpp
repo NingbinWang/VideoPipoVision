@@ -39,10 +39,10 @@ void H264FileMediaSource::readFrame()
 {
     MutexLockGuard mutexLockGuard(mMutex);
 
-    if(mAVFrameInputQueue.empty())
+    if(mAvFrameInputQueue.empty())
         return;
 
-    AVFrame* frame = mAVFrameInputQueue.front();
+    AvFrame* frame = mAvFrameInputQueue.front();
 
     frame->mFrameSize = getFrameFromH264File(mFd, frame->mBuffer, FRAME_MAX_SIZE);
     if(frame->mFrameSize < 0)
@@ -59,8 +59,8 @@ void H264FileMediaSource::readFrame()
         frame->mFrameSize -= 4;
     }
 
-    mAVFrameInputQueue.pop();
-    mAVFrameOutputQueue.push(frame);
+    mAvFrameInputQueue.pop();
+    mAvFrameOutputQueue.push(frame);
 }
 
 static inline int startCode3(uint8_t* buf)

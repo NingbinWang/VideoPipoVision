@@ -7,7 +7,7 @@ MediaSource::MediaSource(UsageEnvironment* env) :
 {
     mMutex = Mutex::createNew();
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
-        mAVFrameInputQueue.push(&mAVFrames[i]);
+        mAvFrameInputQueue.push(&mAvFrames[i]);
     
     mTask.setTaskCallback(taskCallback, this);
 }
@@ -18,26 +18,26 @@ MediaSource::~MediaSource()
     Delete::release(mMutex);
 }
 
-AVFrame* MediaSource::getFrame()
+AvFrame* MediaSource::getFrame()
 {
     MutexLockGuard mutexLockGuard(mMutex);
 
-    if(mAVFrameOutputQueue.empty())
+    if(mAvFrameOutputQueue.empty())
     {
         return NULL;
     }
 
-    AVFrame* frame = mAVFrameOutputQueue.front();    
-    mAVFrameOutputQueue.pop();
+    AvFrame* frame = mAvFrameOutputQueue.front();    
+    mAvFrameOutputQueue.pop();
 
     return frame;
 }
 
-void MediaSource::putFrame(AVFrame* frame)
+void MediaSource::putFrame(AvFrame* frame)
 {
     MutexLockGuard mutexLockGuard(mMutex);
 
-    mAVFrameInputQueue.push(frame);
+    mAvFrameInputQueue.push(frame);
     
     mEnv->threadPool()->addTask(mTask);
 }

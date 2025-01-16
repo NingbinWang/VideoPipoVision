@@ -1,5 +1,5 @@
 #include "app.h"
-#include "Media_vi.h"
+#include "Media.h"
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -17,6 +17,8 @@
 #include "net/InetAddress.h"
 #include "net/H264FileMediaSource.h"
 #include "net/H264RtpSink.h"
+#include "media/MediaVISource.h"
+
 
 using namespace cv;
 using namespace std;
@@ -44,33 +46,22 @@ int opencv_demo()
     cap.release();
     return 0;
 }
-int media_demo()
-{
-    VI_CFG_PARAM_T param;
-    param.vSensorType = CMOS_OV_5969;
-    param.image_viH = 1944;
-    param.image_viW = 2592;
-    param.frame_rate = 30;
-    Media_vi *vi = new Media_vi(param);
-    vi->init();
-    return 0;
-}
 
 
 int v4l2rtsp()
 {
      //Logger::setLogFile("xxx.log");
-    Logger::setLogLevel(Logger::LogWarning);
+    Logger::setLogLevel(Logger::LogDebug);
 
-    EventScheduler* scheduler = EventScheduler::createNew(EventScheduler::POLLER_SELECT);
-    ThreadPool* threadPool = ThreadPool::createNew(2);
-    UsageEnvironment* env = UsageEnvironment::createNew(scheduler, threadPool);
+    EventScheduler* scheduler = EventScheduler::createNew(EventScheduler::POLLER_SELECT);//创建调度器
+    ThreadPool* threadPool = ThreadPool::createNew(2);//创建线程池
+    UsageEnvironment* env = UsageEnvironment::createNew(scheduler, threadPool);//创建环境变量
 
-    Ipv4Address ipAddr("0.0.0.0", 8554);
+    Ipv4Address ipAddr("192.168.0.126", 8554);
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
-    MediaSource* mediaSource = H264FileMediaSource::createNew(env, "test.h264");
-    RtpSink* rtpSink = H264RtpSink::createNew(env, mediaSource);
+    MediaSource* videoSource = MediaVISource::createNew(env, "/dev/video0");
+    RtpSink* rtpSink = H264RtpSink::createNew(env, videoSource);
 
     session->addRtpSink(MediaSession::TrackId0, rtpSink);
     //session->startMulticast(); //多播
@@ -87,7 +78,6 @@ int v4l2rtsp()
 
 int app_main(void)
 {
-  //  opencv_demo();
-  media_demo();
-    return 0;
+   v4l2rtsp();
+   return 0;
 }

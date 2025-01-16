@@ -60,7 +60,7 @@ void RtpSink::sendRtpPacket(RtpPacket* packet)
 void RtpSink::timeoutCallback(void* arg)
 {
     RtpSink* rtpSink = (RtpSink*)arg;
-    AVFrame* frame = rtpSink->mMediaSource->getFrame();
+    AvFrame* frame = rtpSink->mMediaSource->getFrame();
     if(!frame)
     {
         return;

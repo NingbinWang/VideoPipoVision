@@ -134,7 +134,7 @@ bool V4l2MmapDevice::start()
         if -1 == ioctl(m_fd, VIDIOC_EXPBUF, &expbuf) < 0) {
             perror("VIDIOC_EXPBUF");
         } else {
-            mpp_log("get dma buf(%d)-fd: %d\n", i, expbuf.fd);
+            std::cout<<"get dma buf(" << i << ")-fd: " <<expbuf.fd << std::endl;
             MppBufferInfo info;
             memset(&info, 0, sizeof(MppBufferInfo));
             info.type = MPP_BUFFER_TYPE_EXT_DMA;
@@ -154,17 +154,20 @@ bool V4l2MmapDevice::start()
 			buf.type        = m_deviceType;
 			buf.memory      = V4L2_MEMORY_MMAP;
 			buf.index       = i;
+			std::cout<< " VIDIOC_QBUF buf idx:" << i << std::endl;
 			if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
             	buf.m.planes = planes;
            		buf.length = FMT_NUM_PLANES;
             }
+			
 			if (-1 == ioctl(m_fd, VIDIOC_QBUF, &buf))
 			{
 				perror("VIDIOC_QBUF");
 				success = false;
+				return success; 
 			}
 		}
-
+		std::cout<< " VIDIOC_STREAMON start" << std::endl;
 		// start stream
 		int type = m_deviceType;
 		if (-1 == ioctl(m_fd, VIDIOC_STREAMON, &type))
@@ -173,8 +176,51 @@ bool V4l2MmapDevice::start()
 			success = false;
 		}
 		//skip some frames at start
-
-	}
+		/*
+		for(unsigned int i = 0; i < n_buffers; ++i){
+		    struct v4l2_buffer buf = {0};
+			buf.type   = m_deviceType;
+        	buf.memory = V4L2_MEMORY_MMAP;
+			struct v4l2_plane planes[FMT_NUM_PLANES];
+    		if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
+        			buf.m.planes = planes;
+        			buf.length = FMT_NUM_PLANES;
+    		}
+			if (-1 == ioctl(m_fd, VIDIOC_DQBUF, &buf))
+			{
+				perror("VIDIOC_DQBUF");
+				success = false;
+				return success; 
+			}
+			 if (buf.index > n_buffers) {
+        		perror("buffer index out of bounds\n");
+       			success = false;
+				return success; 
+             }
+			if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType)
+           		buf.bytesused = buf.m.planes[0].bytesused;
+			int idx = buf.index;
+			if (idx >= 0)
+			{
+				buf = (struct v4l2_buffer) {0};
+			    buf.type   = m_deviceType;
+                buf.memory = V4L2_MEMORY_MMAP;
+                buf.index  = idx;
+			    struct v4l2_plane planes[FMT_NUM_PLANES];
+   			    if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == type) {
+        			buf.m.planes = planes;
+        			buf.length = FMT_NUM_PLANES;
+    		    }
+			    if (-1 == ioctl(m_fd, VIDIOC_QBUF, &buf))
+			    {
+				  perror("VIDIOC_QBUF");
+				   success = true;
+			   }
+                success = true;
+			}
+		}
+		*/
+	}	
 	return success; 
 }
 

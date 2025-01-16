@@ -10,13 +10,10 @@ MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/include
 MPP_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/include
 RGA_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/
-
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/ffmpeg/include
-FFMPEG_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/ffmpeg/
 #-ldl -lm -lpthread -lrt --std=c99 -D _GNU_SOURCE
-WARNING		= -Wall -Wundef -Wsign-compare -Wno-missing-braces -Wstrict-prototypes -Werror
+WARNING		= -Wall -Wundef -Wsign-compare -Wno-missing-braces -Werror
 LD_C_FLAGS += -L$(MPP_LIB_PATH)
-LD_CPP_FLAGS += $(WARNING) -L$(MPP_LIB_PATH) -L$(RGA_LIB_PATH) -L$(FFMPEG_LIB_PATH)
+LD_CPP_FLAGS += $(WARNING) -L$(MPP_LIB_PATH) -L$(RGA_LIB_PATH)
 MODULE_SUB_INC += mpp/inc
 MODULE_SUB_DIR += mpp/src
 endif

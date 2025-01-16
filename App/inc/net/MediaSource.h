@@ -9,15 +9,15 @@
 #define FRAME_MAX_SIZE (1024*500)
 #define DEFAULT_FRAME_NUM 4
 
-class AVFrame
+class AvFrame
 {
 public:
-    AVFrame() :
+    AvFrame() :
         mBuffer(new uint8_t[FRAME_MAX_SIZE]),
         mFrameSize(0)
     { }
 
-    ~AVFrame()
+    ~AvFrame()
     { delete mBuffer; }
 
     uint8_t* mBuffer;
@@ -30,8 +30,8 @@ class MediaSource
 public:
     virtual ~MediaSource();
 
-    AVFrame* getFrame();
-    void putFrame(AVFrame* frame);
+    AvFrame* getFrame();
+    void putFrame(AvFrame* frame);
     int getFps() const { return mFps; }
 
 protected:
@@ -44,9 +44,9 @@ private:
 
 protected:
     UsageEnvironment* mEnv;
-    AVFrame mAVFrames[DEFAULT_FRAME_NUM];
-    std::queue<AVFrame*> mAVFrameInputQueue;
-    std::queue<AVFrame*> mAVFrameOutputQueue;
+    AvFrame mAvFrames[DEFAULT_FRAME_NUM];
+    std::queue<AvFrame*> mAvFrameInputQueue;
+    std::queue<AvFrame*> mAvFrameOutputQueue;
     Mutex* mMutex;
     ThreadPool::Task mTask;
     int mFps;

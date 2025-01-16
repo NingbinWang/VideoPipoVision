@@ -37,18 +37,18 @@ void AACFileMeidaSource::readFrame()
 {
     MutexLockGuard mutexLockGuard(mMutex);
 
-    if(mAVFrameInputQueue.empty())
+    if(mAvFrameInputQueue.empty())
         return;
 
-    AVFrame* frame = mAVFrameInputQueue.front();
+    AvFrame* frame = mAvFrameInputQueue.front();
 
     frame->mFrameSize = getFrameFromAACFile(mFd, frame->mBuffer, FRAME_MAX_SIZE);
     if(frame->mFrameSize < 0)
         return;
     frame->mFrame = frame->mBuffer;
 
-    mAVFrameInputQueue.pop();
-    mAVFrameOutputQueue.push(frame);
+    mAvFrameInputQueue.pop();
+    mAvFrameOutputQueue.push(frame);
 }
 
 bool AACFileMeidaSource::parseAdtsHeader(uint8_t* in, struct AdtsHeader* res)

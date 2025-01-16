@@ -4,6 +4,7 @@ MODULE_SUB_INC = inc
 MODULE_SUB_DIR += src/base
 MODULE_SUB_DIR += src/net/poller
 MODULE_SUB_DIR += src/net
+MODULE_SUB_DIR += src/media
 #MPP=mpp
 LINK_SHARE=y
 #外部的一些头文件
@@ -20,6 +21,14 @@ OPENCV_LIB_PATH = $(CURDIR)/../Libs/opencv/
 LD_C_FLAGS += -L$(OPENCV_LIB_PATH) 
 LD_CPP_FLAGS += -L$(OPENCV_LIB_PATH) 
 #endif
+#ifneq (,$(findstring y,$(TARGET_FFMPEG)))
+MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/ffmpeg/include
+FFMPEG_LIB_PATH = $(CURDIR)/../Libs/$(SOC)/ffmpeg/
+LD_C_FLAGS += -L$(FFMPEG_LIB_PATH) 
+LD_CPP_FLAGS += -L$(FFMPEG_LIB_PATH)
+#endif 
+
+
 
 MODULE_NAME = App
 MODULE_CUR_PATH = $(CURDIR)
