@@ -3,7 +3,7 @@
 
 #include "base/Allocator.h"
 
-Allocator* Allocator::mAllocator = NULL;
+Allocator* Allocator::mAllocator = nullptr;
 
 void* Allocator::allocate(uint32_t size)
 {

@@ -3,9 +3,11 @@
 #include <string>
 #include <queue>
 #include <stdint.h>
-#include "media/Encoder.h"
+#include "Media.h"
 #include "Logger.h"
 #include "net/MediaSource.h"
+#include "media/FFMpegVISource.h"
+#include "media/Encoder.h"
 
 
 
@@ -18,10 +20,24 @@ public:
     virtual ~FFMpegVISource();
 
 protected:
+    bool videoInit();
     virtual void readFrame();
+
+private:
+    struct Nalu
+    {
+        Nalu(uint8_t* data, int size) : mData(data), mSize(size)
+        { }
+
+        uint8_t* mData;
+        int mSize;
+    };
+
+
 
 private:
     UsageEnvironment* mEnv;
     std::string mDev;
-    AVFormatContext *mFmtCtx;
+    std::queue<Nalu> mNaluQueue;
+    AVFormatContext* mFmtCtx;
 };

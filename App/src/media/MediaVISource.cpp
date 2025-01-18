@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "media/MediaVISource.h"
-#include "media/Encoder.h"
 #include "base/New.h"
 #include "Logger.h"
 

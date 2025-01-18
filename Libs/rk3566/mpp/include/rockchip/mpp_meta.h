@@ -66,6 +66,8 @@ typedef enum MppMetaKey_e {
     /* output motion information for motion detection */
     KEY_MOTION_INFO             = FOURCC_META('m', 'v', 'i', 'f'),
     KEY_HDR_INFO                = FOURCC_META('h', 'd', 'r', ' '),
+    KEY_HDR_META_OFFSET         = FOURCC_META('h', 'd', 'r', 'o'),
+    KEY_HDR_META_SIZE           = FOURCC_META('h', 'd', 'r', 'l'),
 
     /* flow control key */
     KEY_INPUT_BLOCK             = FOURCC_META('i', 'b', 'l', 'k'),
@@ -77,11 +79,29 @@ typedef enum MppMetaKey_e {
     KEY_TEMPORAL_ID             = FOURCC_META('t', 'l', 'i', 'd'),
     KEY_LONG_REF_IDX            = FOURCC_META('l', 't', 'i', 'd'),
     KEY_ENC_AVERAGE_QP          = FOURCC_META('a', 'v', 'g', 'q'),
+    KEY_ENC_START_QP            = FOURCC_META('s', 't', 'r', 'q'),
+    KEY_ENC_BPS_RT              = FOURCC_META('r', 't', 'b', 'r'),   /* realtime bps */
     KEY_ROI_DATA                = FOURCC_META('r', 'o', 'i', ' '),
     KEY_OSD_DATA                = FOURCC_META('o', 's', 'd', ' '),
     KEY_OSD_DATA2               = FOURCC_META('o', 's', 'd', '2'),
     KEY_USER_DATA               = FOURCC_META('u', 's', 'r', 'd'),
     KEY_USER_DATAS              = FOURCC_META('u', 'r', 'd', 's'),
+
+    /* num of inter different size predicted block */
+    KEY_LVL64_INTER_NUM         = FOURCC_META('l', '6', '4', 'p'),
+    KEY_LVL32_INTER_NUM         = FOURCC_META('l', '3', '2', 'p'),
+    KEY_LVL16_INTER_NUM         = FOURCC_META('l', '1', '6', 'p'),
+    KEY_LVL8_INTER_NUM          = FOURCC_META('l', '8', 'p', ' '),
+    /* num of intra different size predicted block */
+    KEY_LVL32_INTRA_NUM         = FOURCC_META('l', '3', '2', 'i'),
+    KEY_LVL16_INTRA_NUM         = FOURCC_META('l', '1', '6', 'i'),
+    KEY_LVL8_INTRA_NUM          = FOURCC_META('l', '8', 'i', ' '),
+    KEY_LVL4_INTRA_NUM          = FOURCC_META('l', '4', 'i', ' '),
+    /* output P skip frame indicator */
+    KEY_OUTPUT_PSKIP            = FOURCC_META('o', 'p', 's', 'p'),
+    /* input P skip frame request */
+    KEY_INPUT_PSKIP             = FOURCC_META('i', 'p', 's', 'p'),
+    KEY_ENC_SSE                 = FOURCC_META('e', 's', 's', 'e'),
 
     /*
      * For vepu580 roi buffer config mode
@@ -129,6 +149,11 @@ typedef enum MppMetaKey_e {
     /* MLVEC specified encoder feature  */
     KEY_ENC_FRAME_QP            = FOURCC_META('f', 'r', 'm', 'q'),
     KEY_ENC_BASE_LAYER_PID      = FOURCC_META('b', 'p', 'i', 'd'),
+
+    /* Thumbnail info for decoder output frame */
+    KEY_DEC_TBN_EN              = FOURCC_META('t', 'b', 'e', 'n'),
+    KEY_DEC_TBN_Y_OFFSET        = FOURCC_META('t', 'b', 'y', 'o'),
+    KEY_DEC_TBN_UV_OFFSET       = FOURCC_META('t', 'b', 'c', 'o'),
 } MppMetaKey;
 
 #define mpp_meta_get(meta) mpp_meta_get_with_tag(meta, MODULE_TAG, __FUNCTION__)

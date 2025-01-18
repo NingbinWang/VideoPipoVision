@@ -18,6 +18,7 @@ TARGET_MEDIA = mpp
 TARGET_SOC = rk3566
 TARGET_OPENCV = y
 TARGET_ROCKCHIP = y
+TARGET_ROCKCHIP_FFMPEG = y
 export SOC     := $(TARGET_SOC)
 export $(TARGET_MEDIA)
 export $(TARGET_OPENCV)
@@ -41,12 +42,9 @@ UTILS_DIR = $(ROOT_PATH)/Utils
 CROSS_COMPILE=$(TARGET_CROSS_HOST)- 
 
 LD_C_FLAGS   +=  -ldl -lm -lpthread -lrt  -std=c99
-LD_CPP_FLAGS +=  -ldl -lm -lpthread -lrt  -lstdc++  #C++参数
+LD_CPP_FLAGS +=  -ldl -lm -lpthread -lrt  -lstdc++  #C++参数 
 
-LIB_VAR = App
-LIB_VAR += Media
-LIB_VAR += Utils
-
+LIB_VAR = Utils
 ifneq (,$(findstring y,$(TARGET_OPENCV)))
 LIB_VAR += opencv_calib3d
 LIB_VAR += opencv_core
@@ -67,16 +65,26 @@ ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 LIB_VAR += rga
 LIB_VAR += rockchip_mpp
 LIB_VAR += rockchip_vpu
+endif
+ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
+LIB_VAR +=drm_amdgpu
+LIB_VAR +=drm_etnaviv
+LIB_VAR +=drm_freedreno
+LIB_VAR +=drm_nouveau
+LIB_VAR +=drm_radeon
+LIB_VAR +=drm
 LIB_VAR += x264
-LIB_VAR += avcodec
-LIB_VAR += avdevice
-LIB_VAR += avfilter
 LIB_VAR += avformat
+LIB_VAR += avdevice
+LIB_VAR += avcodec
 LIB_VAR += avutil
+LIB_VAR += avfilter
 LIB_VAR += postproc
 LIB_VAR += swresample
 LIB_VAR += swscale
 endif
+LIB_VAR += Media
+LIB_VAR += App
 
 PROJECT_LIB_VAR += $(LIB_VAR)
 ifneq ($(PROJECT_LIB_VAR), "")
@@ -84,14 +92,19 @@ PROJECTLIB_VAR += $(patsubst %,-l%,$(PROJECT_LIB_VAR))
 endif
 
 INC_PATH = $(APP_DIR)/inc
+INC_PATH += $(MEDIA_DIR)/inc
+INC_PATH += $(UTILS_DIR)/inc
+INC_PATH += $(UTILS_DIR)/logger
+ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/mpp/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/rga/include
+endif
 ifneq (,$(findstring y,$(TARGET_OPENCV)))
 INC_PATH += $(LIB_DIR)/opencv/include
 endif
-INC_PATH += $(UTILS_DIR)/inc
-INC_PATH += $(UTILS_DIR)/logger
-
+ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
+INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/ffmpeg/include
+endif
 
 PROJECT_INC_PATH += $(INC_PATH)
 

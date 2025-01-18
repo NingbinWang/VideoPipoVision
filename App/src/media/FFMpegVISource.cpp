@@ -3,12 +3,27 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#include "libavdevice/avdevice.h"
 
 #include "media/FFMpegVISource.h"
-
 #include "base/New.h"
 #include "Logger.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <libavutil/opt.h>
+#include <libavutil/avtime.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavformat/avio.h>
+#include <libavutil/avstring.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+#ifdef __cplusplus
+}
+#endif
+
+
 
 FFMpegVISource* FFMpegVISource::createNew(UsageEnvironment* env, std::string dev)
 {
@@ -20,20 +35,13 @@ FFMpegVISource::FFMpegVISource(UsageEnvironment* env, const std::string& dev) :
     mEnv(env),
     mDev(dev)
 {
-    char* input_name= "video4linux2";
-    const char* in_devname = mDev.c_str();
-    AVInputFormat *inputFmt;
-    avcodec_register_all();    
-    avdevice_register_all(); 
-    inputFmt = av_find_input_format(input_name); 
-    if (inputFmt == NULL)    {        
-        LOG_DEBUG("can not find_input_format\n");         
-    } 
-    if (avformat_open_input ( &mFmtCtx, in_devname, inputFmt, NULL) < 0){
-        LOG_DEBUG("can not open_input_file\n");        
-    }
-	/* print device information*/
-	av_dump_format(mFmtCtx, 0, in_devname, 0);
+   
+    bool ret;
+   
+    ret = videoInit();
+    assert(ret == true);
+
+
 
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
         mEnv->threadPool()->addTask(mTask);
@@ -41,8 +49,10 @@ FFMpegVISource::FFMpegVISource(UsageEnvironment* env, const std::string& dev) :
 
 FFMpegVISource::~FFMpegVISource()
 {
-   avformat_close_input(&mFmtCtx);
+
 }
+
+
 
 void FFMpegVISource::readFrame()
 {
@@ -50,21 +60,21 @@ void FFMpegVISource::readFrame()
     LOG_DEBUG("start readFrame \n");
     if(mAvFrameInputQueue.empty())
         return;
-    Encoder *encoder = new Encoder(AV_CODEC_ID_H264,1920,1080,30,12);
-    encoder->open(true);
+    //Encoder *encoder = new Encoder(AV_CODEC_ID_H264,1920,1080,30,12);
+    //encoder->open(true);
     AvFrame* frame = mAvFrameInputQueue.front();
     if(mNaluQueue.empty())
     {
-        AVPacket *packet;
+      //  AVPacket *packet;
         int nalNum = 0;
         
         while(1)
         {
-            packet = (AVPacket *)av_malloc(sizeof(AVPacket)); 
-            av_read_frame(mFmtCtx, packet);
-            LOG_DEBUG("data length:%d\n",packet->size);
-            bool encode(av_frame frame, packet);
-            encoder->encode()
+        //    packet = (AVPacket *)av_malloc(sizeof(AVPacket)); 
+       //     av_read_frame(mFmtCtx, packet);
+        //    LOG_DEBUG("data length:%d\n",packet->size);
+        //    bool encode(av_frame frame, packet);
+      //      encoder->encode()
            
 
 
@@ -77,82 +87,60 @@ void FFMpegVISource::readFrame()
     mNaluQueue.pop();
 
     memcpy(frame->mBuffer, nalu.mData, nalu.mSize);
-    if(startCode3(nalu.mData))
-    {
-        frame->mFrame = frame->mBuffer+3;
-        frame->mFrameSize = nalu.mSize-3;
-    }
-    else
-    {
-        frame->mFrame = frame->mBuffer+4;
-        frame->mFrameSize = nalu.mSize-4;
-    }
-
+  
     mAvFrameInputQueue.pop();
     mAvFrameOutputQueue.push(frame);
 }
 
-/*
-bool V4l2MediaSource::videoInit()
+
+bool FFMpegVISource::videoInit()
 {
     int ret;
-    char devName[100];
-    struct v4l2_capability cap;
-
-    mFd = v4l2_open(mDev.c_str(), O_RDWR);
-    if(mFd < 0)
+    const char* in_devname = mDev.c_str();
+    const AVInputFormat 	*inputFmt;
+    AVDictionary *options; //摄像头相关参数
+    int videoindex= -1;
+   av_log_set_flags(AV_LOG_INFO);
+   #if CONFIG_AVDEVICE
+    avdevice_register_all();
+   #endif
+   avformat_network_init();
+   mFmtCtx = avformat_alloc_context();
+   inputFmt = av_find_input_format("video4linux2,v4l2");
+   if (inputFmt == nullptr)    {        
+        LOG_DEBUG("can not find_input_format\n");        
+        return false;    
+    }    
+    // 摄像头支持多种参数，因此使用option 指定参数 最大支持到9帧
+    av_dict_set(&options, "video_size", "1920*1080", 0);
+    av_dict_set(&options, "framerate", "30", 0);
+    // av_dict_set(&options, "input_format", "yuyv422", 0);
+    ret = avformat_open_input ( &mFmtCtx, in_devname, inputFmt, &options);
+    if ( ret < 0){
+        LOG_DEBUG("can not open_input_file\n");  
+        return false;    
+    }
+    ret = avformat_find_stream_info(mFmtCtx, nullptr);
+    if (ret < 0)
+    {
+        LOG_DEBUG("findding stream info\n");
         return false;
-
-    ret = v4l2_querycap(mFd, &cap);
-    if(ret < 0)
-        return false;
-
-    if(!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
-        return false;
-    
-    ret = v4l2_enuminput(mFd, 0, devName);
-    if(ret < 0)
-        return false;
-
-    ret = v4l2_s_input(mFd, 0);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_enum_fmt(mFd, V4L2_PIX_FMT_YUYV, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_s_fmt(mFd, &mWidth, &mHeight, V4L2_PIX_FMT_YUYV, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-    if(ret < 0)
-        return false;
-    
-    mV4l2Buf = v4l2_reqbufs(mFd, V4L2_BUF_TYPE_VIDEO_CAPTURE, 4);
-    if(!mV4l2Buf)
-        return false;
-    
-    ret = v4l2_querybuf(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_mmap(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_qbuf_all(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-
-    ret = v4l2_streamon(mFd);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_poll(mFd);
-    if(ret < 0)
-        return false;
-    
+    }
+    // 查找视频流
+	for(size_t i=0; i<mFmtCtx->nb_streams; i++){
+        if(mFmtCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO){
+			videoindex=i;
+			break;
+		}
+    }
+		
+	if(videoindex==-1){
+		LOG_DEBUG("Didn't find a video stream.\n");
+		return false;
+	}
     return true;
 }
-
+/*
 bool V4l2MediaSource::videoExit()
 {
     int ret;

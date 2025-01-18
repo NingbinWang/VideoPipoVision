@@ -7,9 +7,9 @@ LINK_SHARE=y
 MPP=mpp
 ifeq ($(TARGET_MEDIA),$(MPP))
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/include
-MPP_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/
+MPP_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/lib
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/include
-RGA_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/
+RGA_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/lib
 #-ldl -lm -lpthread -lrt --std=c99 -D _GNU_SOURCE
 WARNING		= -Wall -Wundef -Wsign-compare -Wno-missing-braces -Werror
 LD_C_FLAGS += -L$(MPP_LIB_PATH)

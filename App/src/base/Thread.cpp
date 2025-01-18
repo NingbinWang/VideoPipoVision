@@ -1,7 +1,7 @@
 #include "Thread.h"
 
 Thread::Thread() :
-    mArg(NULL),
+    mArg(nullptr),
     mIsStart(false),
     mIsDetach(false)
 {
@@ -18,7 +18,7 @@ bool Thread::start(void *arg)
 {
     mArg = arg;
 
-    if(pthread_create(&mThreadId, NULL, threadRun, this))
+    if(pthread_create(&mThreadId, nullptr, threadRun, this))
         return false;
 
     mIsStart = true;
@@ -46,7 +46,7 @@ bool Thread::join()
     if(mIsStart != true || mIsDetach == true)
         return false;
 
-    if(pthread_join(mThreadId, NULL))
+    if(pthread_join(mThreadId, nullptr))
         return false;
     
     return true;
@@ -74,5 +74,5 @@ void *Thread::threadRun(void *arg)
 {
     Thread* thread = (Thread*)arg;
     thread->run(thread->mArg);
-    return NULL;
+    return nullptr;
 }

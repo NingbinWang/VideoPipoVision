@@ -50,6 +50,7 @@ typedef enum RcMode_e {
     RC_CBR,
     RC_FIXQP,
     RC_AVBR,
+    RC_SMT,
     RC_CVBR,
     RC_QVBR,
     RC_LEARNING,
@@ -71,8 +72,8 @@ typedef enum GopMode_e {
  * fps_in_num
  * input frame rate numerator, if 0 then default 30
  *
- * fps_in_denorm
- * input frame rate denorminator, if 0 then default 1
+ * fps_in_denom
+ * input frame rate denominator, if 0 then default 1
  *
  * fps_out_flex
  * 0 - fix output frame rate
@@ -81,16 +82,16 @@ typedef enum GopMode_e {
  * fps_out_num
  * output frame rate numerator, if 0 then default 30
  *
- * fps_out_denorm
- * output frame rate denorminator, if 0 then default 1
+ * fps_out_denom
+ * output frame rate denominator, if 0 then default 1
  */
 typedef struct RcFpsCfg_t {
     RK_S32      fps_in_flex;
     RK_S32      fps_in_num;
-    RK_S32      fps_in_denorm;
+    RK_S32      fps_in_denom;
     RK_S32      fps_out_flex;
     RK_S32      fps_out_num;
-    RK_S32      fps_out_denorm;
+    RK_S32      fps_out_denom;
 } RcFpsCfg;
 
 typedef struct RcSuperframeCfg_t {
@@ -153,6 +154,10 @@ typedef struct RcCfg_s {
     RK_S32      min_i_quality;
     RK_S32      i_quality_delta;
     RK_S32      vi_quality_delta;
+    RK_S32      fqp_min_i;
+    RK_S32      fqp_min_p;
+    RK_S32      fqp_max_i;
+    RK_S32      fqp_max_p;
     /* layer quality proportion */
     RK_S32      layer_quality_delta[4];
 
@@ -179,6 +184,11 @@ typedef struct RcCfg_s {
     RcSuperframeCfg super_cfg;
     RcDebreathCfg   debreath_cfg;
     RcHierQPCfg     hier_qp_cfg;
+    RK_U32          refresh_len;
+    RK_S32          scene_mode;
+    RK_U32          fps_chg_prop;
+
+    RK_S32          rc_container;
 } RcCfg;
 
 /*

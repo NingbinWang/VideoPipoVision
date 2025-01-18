@@ -9,7 +9,7 @@ Mutex* Mutex::createNew()
 
 Mutex::Mutex()
 {
-    pthread_mutex_init(&mMutex, NULL);
+    pthread_mutex_init(&mMutex, nullptr);
 }
 
 Mutex::~Mutex()

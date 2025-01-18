@@ -12,7 +12,7 @@ Condition* Condition::createNew()
 
 Condition::Condition()
 {
-    pthread_cond_init(&mCond, NULL);
+    pthread_cond_init(&mCond, nullptr);
 }
 
 Condition::~Condition()

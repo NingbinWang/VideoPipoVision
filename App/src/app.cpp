@@ -17,31 +17,29 @@
 #include "net/InetAddress.h"
 #include "net/H264FileMediaSource.h"
 #include "net/H264RtpSink.h"
-#include "media/FFmpegVISource.h"
+#include "media/FFMpegVISource.h"
 
 
-using namespace cv;
-using namespace std;
 
 int opencv_demo()
 {
-    VideoCapture cap(0);
+    cv::VideoCapture cap(0);
     if (!cap.isOpened())
     {
-        cout << "Failed to open camera!" << endl;
+        std::cout << "Failed to open camera!" << std::endl;
         return -1;
     }
     while (true)
     {
 
-        Mat frame;
+        cv::Mat frame;
         cap.read(frame);
         if (frame.empty())
         {
-            cout << "Failed to read frame from camera!" << endl;
+            std::cout << "Failed to read frame from camera!" << std::endl;
             break;
         }
-         cout << "read frame from camera!" << endl;
+         std::cout << "read frame from camera!" << std::endl;
     }
     cap.release();
     return 0;
@@ -60,7 +58,7 @@ int v4l2rtsp()
     Ipv4Address ipAddr("192.168.0.126", 8554);
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
-    MediaSource* videoSource = FFmpegVISource::createNew(env, "/dev/video0");
+    MediaSource* videoSource = FFMpegVISource::createNew(env, "/dev/video0");
     RtpSink* rtpSink = H264RtpSink::createNew(env, videoSource);
 
     session->addRtpSink(MediaSession::TrackId0, rtpSink);

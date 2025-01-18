@@ -17,17 +17,16 @@ MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/rga/include
 #endif
 #ifneq (,$(findstring y,$(TARGET_OPENCV)))
 MODULE_SUB_INC += $(CURDIR)/../Libs/opencv/include
-OPENCV_LIB_PATH = $(CURDIR)/../Libs/opencv/
+OPENCV_LIB_PATH = $(CURDIR)/../Libs/opencv/lib
 LD_C_FLAGS += -L$(OPENCV_LIB_PATH) 
 LD_CPP_FLAGS += -L$(OPENCV_LIB_PATH) 
 #endif
 #ifneq (,$(findstring y,$(TARGET_FFMPEG)))
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/ffmpeg/include
-FFMPEG_LIB_PATH = $(CURDIR)/../Libs/$(SOC)/ffmpeg/
+FFMPEG_LIB_PATH = $(CURDIR)/../Libs/$(SOC)/ffmpeg/lib
 LD_C_FLAGS += -L$(FFMPEG_LIB_PATH) 
 LD_CPP_FLAGS += -L$(FFMPEG_LIB_PATH)
 #endif 
-
 
 
 MODULE_NAME = App

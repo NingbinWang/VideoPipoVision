@@ -28,6 +28,7 @@ typedef enum MppEncRcMode_e {
     MPP_ENC_RC_MODE_CBR,
     MPP_ENC_RC_MODE_FIXQP,
     MPP_ENC_RC_MODE_AVBR,
+    MPP_ENC_RC_MODE_SMTRC,
     MPP_ENC_RC_MODE_BUTT
 } MppEncRcMode;
 
@@ -56,5 +57,11 @@ typedef enum MppEncRcGopMode_e {
     MPP_ENC_RC_SMART_P,
     MPP_ENC_RC_GOP_MODE_BUTT,
 } MppEncRcGopMode;
+
+typedef enum MppEncRcIntraRefreshMode_e {
+    MPP_ENC_RC_INTRA_REFRESH_ROW = 0,
+    MPP_ENC_RC_INTRA_REFRESH_COL,
+    MPP_ENC_RC_INTRA_REFRESH_BUTT
+} MppEncRcRefreshMode;
 
 #endif /*__RK_VENC_RC_H__*/
