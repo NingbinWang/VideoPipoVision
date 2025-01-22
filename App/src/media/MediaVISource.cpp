@@ -8,6 +8,8 @@
 #include "base/New.h"
 #include "Logger.h"
 
+char *mFramebuf=nullptr;
+
 MediaVISource* MediaVISource::createNew(UsageEnvironment* env, std::string dev)
 {
     //return new V4l2MediaSource(env, dev);
@@ -17,7 +19,10 @@ MediaVISource* MediaVISource::createNew(UsageEnvironment* env, std::string dev)
 MediaVISource::MediaVISource(UsageEnvironment* env, const std::string& dev) :
     MediaSource(env),
     mEnv(env),
-    mDev(dev)
+    mDev(dev),
+    mWidth(1920),
+    mHeight(1080),
+    mPts(0)
 {
     bool ret;
     VI_CFG_PARAM_T param;
@@ -25,22 +30,25 @@ MediaVISource::MediaVISource(UsageEnvironment* env, const std::string& dev) :
     param.vSensorType = CMOS_OV_5969;
     param.image_viH = 1080;
     param.image_viW = 1920;
-    param.frame_rate = 1;
-    mWidth = 1920;
-    mHeight = 1080;
-    setFps(1);
-    MediaVi *vi = new MediaVi(param);
-    ret = vi->initdev(in_devname);
+    param.frame_rate = 10;
+    setFps(10);
+    mVi = new MediaVi(param);
+    ret = mVi->initdev(in_devname);
     assert(ret == true);
-    mVi = vi;
+    //x264
     ret = x264Init();
     assert(ret == true);
+    mFramebuf = (char *)malloc(FRAME_MAX_SIZE*sizeof(char));
+    LOG_DEBUG("MediaVISource\n");
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
         mEnv->threadPool()->addTask(mTask);
+    LOG_DEBUG("MediaVISource OK\n");
 }
 
 MediaVISource::~MediaVISource()
 {
+    if(mFramebuf != nullptr)
+        free(mFramebuf);
     x264Exit();
 }
 
@@ -72,25 +80,22 @@ void MediaVISource::readFrame()
     {
         bool ret;
         int nalNum = 0;
-        
         while(1)
         {
-            char buffer[FRAME_MAX_SIZE] = {0};
             size_t size = 0;
             ret = mVi->poll();
             if(ret == false)
-                return; 
-
-            size =  mVi->readFramebuf(buffer,FRAME_MAX_SIZE);
+                return;
+            size =  mVi->readFramebuf(mFramebuf,FRAME_MAX_SIZE);
             if(size < 0)
             {
                 LOG_WARNING("don't have framebuf\n");
                 return;
             }
-            LOG_DEBUG("readFramebuf size= %d\n",size);
-            memcpy(mPicIn->img.plane[0], buffer, size);
+            //LOG_DEBUG("readFramebuf size= %d\n",size);
+            memcpy(mPicIn->img.plane[0], mFramebuf, size);
             mPicIn->i_pts = mPts++;
-
+            //LOG_DEBUG("start x264 encode\n");
             ret = x264_encoder_encode(mX264Handle, &mNals, &nalNum, mPicIn, mPicOut);
             if(ret< 0)
             {
@@ -134,7 +139,7 @@ bool MediaVISource::x264Init()
 	mPicOut = New<x264_picture_t>::allocate();
 	mParam = New<x264_param_t>::allocate();
     
-    mCsp = X264_CSP_NV12;
+    mCsp = X264_CSP_UYVY;
 
     x264_param_default(mParam);
 	mParam->i_width   = mWidth;
@@ -152,6 +157,7 @@ bool MediaVISource::x264Init()
 
 	x264_picture_init(mPicOut);
     x264_picture_alloc(mPicIn, mCsp, mWidth, mHeight);
+    LOG_DEBUG("x264Init OK\n");
 
     return true;
 }

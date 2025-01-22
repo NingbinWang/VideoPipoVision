@@ -22,7 +22,7 @@ bool MediaVi::initdev(const char *in_devname)
      LOG_DEBUG("V4L2 capture OK! device:%s\n",in_devname);
     if(m_params.vSensorType == CMOS_OV_5969)
     {
-        format = V4l2Device::fourcc("NV12");
+        format = V4l2Device::fourcc("UYVY");
         ioTypeIn =  IOTYPE_MMAP;
         width = m_params.image_viW;
         height = m_params.image_viH;
