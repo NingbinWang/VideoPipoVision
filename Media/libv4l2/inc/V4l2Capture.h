@@ -29,6 +29,7 @@ class V4l2Capture : public V4l2Access
 	
 		size_t read(char* buffer, size_t bufferSize);
 		bool   isReadable(timeval* tv);	
+		bool   capturepoll();
 };
 
 

@@ -17,7 +17,7 @@
 #include "net/InetAddress.h"
 #include "net/H264FileMediaSource.h"
 #include "net/H264RtpSink.h"
-#include "media/FFMpegVISource.h"
+#include "media/MediaVISource.h"
 
 
 
@@ -58,7 +58,7 @@ int v4l2rtsp()
     Ipv4Address ipAddr("192.168.0.126", 8554);
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
-    MediaSource* videoSource = FFMpegVISource::createNew(env, "/dev/video0");
+    MediaSource* videoSource = MediaVISource::createNew(env, "/dev/video0");
     RtpSink* rtpSink = H264RtpSink::createNew(env, videoSource);
 
     session->addRtpSink(MediaSession::TrackId0, rtpSink);

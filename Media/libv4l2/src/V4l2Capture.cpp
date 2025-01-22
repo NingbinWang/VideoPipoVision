@@ -17,7 +17,7 @@
 #include "V4l2Capture.h"
 #include "V4l2MmapDevice.h"
 #include "V4l2ReadWriteDevice.h"
-
+#include <poll.h>
 
 // -----------------------------------------
 //    create video capture interface
@@ -120,4 +120,26 @@ size_t V4l2Capture::read(char* buffer, size_t bufferSize)
 	return m_device->readInternal(buffer, bufferSize);
 }
 
+bool V4l2Capture::capturepoll()
+{
+    int ret;
+    struct pollfd poll_fds[1];
+
+    poll_fds[0].fd = m_device->getFd();
+    poll_fds[0].events = POLLIN;
+
+    ret = poll(poll_fds, 1, 10000);
+    if (ret < 0)
+    {
+        printf("ERR(%s):poll error\n", __func__);
+        return false;
+    }
+
+    if (ret == 0) 
+    {
+        printf("ERR(%s):No data in 10 secs..\n", __func__);
+        return false;
+    }
+	return true;
+}
 				

@@ -271,6 +271,11 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 		memset (&buf, 0, sizeof(buf));
 		buf.type = m_deviceType;
 		buf.memory = V4L2_MEMORY_MMAP;
+		struct v4l2_plane planes[FMT_NUM_PLANES];
+    	if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
+        			buf.m.planes = planes;
+        			buf.length = FMT_NUM_PLANES;
+    	}
 
 		if (-1 == ioctl(m_fd, VIDIOC_DQBUF, &buf)) 
 		{
@@ -281,7 +286,10 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 				size = -1;
 			}
 		}
-		else if (buf.index < n_buffers)
+		if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType)
+           		buf.bytesused = buf.m.planes[0].bytesused;
+
+		if (buf.index < n_buffers)
 		{
 			size = buf.bytesused;
 			if (size > bufferSize)

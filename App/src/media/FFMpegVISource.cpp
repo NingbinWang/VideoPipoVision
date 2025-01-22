@@ -106,7 +106,7 @@ bool FFMpegVISource::videoInit()
    #endif
    avformat_network_init();
    mFmtCtx = avformat_alloc_context();
-   inputFmt = av_find_input_format("video4linux2,v4l2");
+   inputFmt = av_find_input_format("v4l2");
    if (inputFmt == nullptr)    {        
         LOG_DEBUG("can not find_input_format\n");        
         return false;    

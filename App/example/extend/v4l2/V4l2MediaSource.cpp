@@ -221,7 +221,7 @@ bool V4l2MediaSource::x264Init()
 	mPicOut = New<x264_picture_t>::allocate();
 	mParam = New<x264_param_t>::allocate();
     
-    mCsp = X264_CSP_YUYV;
+    mCsp = X264_CSP_NV16;
 
     x264_param_default(mParam);
 	mParam->i_width   = mWidth;

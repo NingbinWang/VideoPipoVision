@@ -104,6 +104,7 @@ INC_PATH += $(LIB_DIR)/opencv/include
 endif
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/ffmpeg/include
+INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/x264/include
 endif
 
 PROJECT_INC_PATH += $(INC_PATH)

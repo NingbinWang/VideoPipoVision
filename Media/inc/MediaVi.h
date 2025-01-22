@@ -143,6 +143,7 @@ public:
     ~MediaVi();
     bool initdev(const char *in_devname);
     int readFramebuf(char* buffer, int bufferSize);
+    bool poll();
 
 
 protected:

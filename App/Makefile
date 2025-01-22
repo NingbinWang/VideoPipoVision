@@ -14,6 +14,7 @@ MODULE_SUB_INC += $(CURDIR)/../Utils/logger
 #ifeq ($(TARGET_MEDIA),$(MPP))
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/mpp/include
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/rga/include
+MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/x264/include
 #endif
 #ifneq (,$(findstring y,$(TARGET_OPENCV)))
 MODULE_SUB_INC += $(CURDIR)/../Libs/opencv/include

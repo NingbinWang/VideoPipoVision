@@ -6,6 +6,7 @@
 #include "Media.h"
 #include "Logger.h"
 #include "net/MediaSource.h"
+#include "x264.h"
 
 
 
@@ -29,6 +30,8 @@ private:
         uint8_t* mData;
         int mSize;
     };
+    bool x264Init();
+    bool x264Exit();
 
 
 
@@ -36,5 +39,15 @@ private:
     UsageEnvironment* mEnv;
     std::string mDev;
     MediaVi *mVi;
+    int mWidth;
+    int mHeight;
+    
+    x264_nal_t* mNals;
+	x264_t* mX264Handle;
+	x264_picture_t* mPicIn;
+	x264_picture_t* mPicOut;
+	x264_param_t* mParam;
+    int mCsp;
+    int mPts;
     std::queue<Nalu> mNaluQueue;
 };

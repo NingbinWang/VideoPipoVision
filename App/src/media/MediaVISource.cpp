@@ -23,24 +23,25 @@ MediaVISource::MediaVISource(UsageEnvironment* env, const std::string& dev) :
     VI_CFG_PARAM_T param;
     const char* in_devname = mDev.c_str();
     param.vSensorType = CMOS_OV_5969;
-    param.image_viH = 1944;
-    param.image_viW = 2592;
-    param.frame_rate = 30;
-    
+    param.image_viH = 1080;
+    param.image_viW = 1920;
+    param.frame_rate = 1;
+    mWidth = 1920;
+    mHeight = 1080;
+    setFps(1);
     MediaVi *vi = new MediaVi(param);
-    LOG_DEBUG("init media dev %s\n",mDev);
     ret = vi->initdev(in_devname);
     assert(ret == true);
-
     mVi = vi;
-  
+    ret = x264Init();
+    assert(ret == true);
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
         mEnv->threadPool()->addTask(mTask);
 }
 
 MediaVISource::~MediaVISource()
 {
-     delete mVi;
+    x264Exit();
 }
 
 static inline int startCode3(uint8_t* buf)
@@ -62,7 +63,7 @@ static inline int startCode4(uint8_t* buf)
 void MediaVISource::readFrame()
 {
     MutexLockGuard mutexLockGuard(mMutex);
-    LOG_DEBUG("start readFrame \n");
+
     if(mAvFrameInputQueue.empty())
         return;
 
@@ -75,9 +76,30 @@ void MediaVISource::readFrame()
         while(1)
         {
             char buffer[FRAME_MAX_SIZE] = {0};
-            size_t size = 0; 
-            size =  mVi->readFramebuf(buffer,FRAME_MAX_SIZE);
+            size_t size = 0;
+            ret = mVi->poll();
+            if(ret == false)
+                return; 
 
+            size =  mVi->readFramebuf(buffer,FRAME_MAX_SIZE);
+            if(size < 0)
+            {
+                LOG_WARNING("don't have framebuf\n");
+                return;
+            }
+            LOG_DEBUG("readFramebuf size= %d\n",size);
+            memcpy(mPicIn->img.plane[0], buffer, size);
+            mPicIn->i_pts = mPts++;
+
+            ret = x264_encoder_encode(mX264Handle, &mNals, &nalNum, mPicIn, mPicOut);
+            if(ret< 0)
+            {
+                LOG_WARNING("failed to encode data\n");
+                return;
+            }
+            
+            for(int i = 0; i < nalNum; ++i)
+                mNaluQueue.push(Nalu(mNals[i].p_payload, mNals[i].i_payload));
 
             if(nalNum > 0)
                 break;
@@ -103,101 +125,16 @@ void MediaVISource::readFrame()
     mAvFrameOutputQueue.push(frame);
 }
 
-/*
-bool V4l2MediaSource::videoInit()
-{
-    int ret;
-    char devName[100];
-    struct v4l2_capability cap;
-
-    mFd = v4l2_open(mDev.c_str(), O_RDWR);
-    if(mFd < 0)
-        return false;
-
-    ret = v4l2_querycap(mFd, &cap);
-    if(ret < 0)
-        return false;
-
-    if(!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
-        return false;
-    
-    ret = v4l2_enuminput(mFd, 0, devName);
-    if(ret < 0)
-        return false;
-
-    ret = v4l2_s_input(mFd, 0);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_enum_fmt(mFd, V4L2_PIX_FMT_YUYV, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_s_fmt(mFd, &mWidth, &mHeight, V4L2_PIX_FMT_YUYV, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-    if(ret < 0)
-        return false;
-    
-    mV4l2Buf = v4l2_reqbufs(mFd, V4L2_BUF_TYPE_VIDEO_CAPTURE, 4);
-    if(!mV4l2Buf)
-        return false;
-    
-    ret = v4l2_querybuf(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_mmap(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_qbuf_all(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-
-    ret = v4l2_streamon(mFd);
-    if(ret < 0)
-        return false;
-    
-    ret = v4l2_poll(mFd);
-    if(ret < 0)
-        return false;
-    
-    return true;
-}
-
-bool V4l2MediaSource::videoExit()
-{
-    int ret;
-
-    ret = v4l2_streamoff(mFd);
-    if(ret < 0)
-        return false;
-
-    ret = v4l2_munmap(mFd, mV4l2Buf);
-    if(ret < 0)
-        return false;
-
-    ret = v4l2_relbufs(mV4l2Buf);
-    if(ret < 0)
-        return false;
-
-    v4l2_close(mFd);
-
-    return true;
-}
-
-bool V4l2MediaSource::x264Init()
+bool MediaVISource::x264Init()
 {
 	mNals = NULL;
 	mX264Handle = NULL;
-	//mPicIn = new x264_picture_t;
-	//mPicOut = new x264_picture_t;
-	//mParam = new x264_param_t;
-    
+
     mPicIn = New<x264_picture_t>::allocate();
 	mPicOut = New<x264_picture_t>::allocate();
 	mParam = New<x264_param_t>::allocate();
     
-    mCsp = X264_CSP_YUYV;
+    mCsp = X264_CSP_NV12;
 
     x264_param_default(mParam);
 	mParam->i_width   = mWidth;
@@ -219,7 +156,7 @@ bool V4l2MediaSource::x264Init()
     return true;
 }
 
-bool V4l2MediaSource::x264Exit()
+bool MediaVISource::x264Exit()
 {
     x264_picture_clean(mPicIn);
     x264_encoder_close(mX264Handle);
@@ -233,4 +170,3 @@ bool V4l2MediaSource::x264Exit()
 
     return true;
 }
-*/

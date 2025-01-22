@@ -46,7 +46,11 @@ int MediaVi::readFramebuf(char* buffer, int bufferSize)
 {
     int ret = -1 ;
   //  size_t size = 0;
-    LOG_DEBUG("readFramebuf\n");
     ret = videoCapture->read(buffer,bufferSize);
     return ret;
+}
+
+bool MediaVi::poll()
+{
+     return videoCapture->capturepoll();
 }
