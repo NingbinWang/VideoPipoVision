@@ -120,6 +120,20 @@ size_t V4l2Capture::read(char* buffer, size_t bufferSize)
 	return m_device->readInternal(buffer, bufferSize);
 }
 
+#ifdef MEDIARKMPP
+void * V4l2Capture::readtobuf(int* index)
+{
+	return m_device->readtorkbuf(index);
+}
+
+bool V4l2Capture::readputbuf(int index)
+{
+	return m_device->readputrkbuf(index);
+	//return false;
+}
+#endif
+
+
 bool V4l2Capture::capturepoll()
 {
     int ret;

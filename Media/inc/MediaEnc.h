@@ -27,17 +27,19 @@ typedef struct
     volatile unsigned int   NetPoolFrmLost;   /*网传视频录像丢帧数目累加*/
     volatile unsigned int   PsNetPoolFrmLost; /* PS网传视频录像丢帧数目累加*/
     volatile unsigned int   res[5];
-} ENC_PARAM_T;
+} ENC_STATUS_T;
 #ifdef __cplusplus
 }
 
 class MediaEnc
 {
 public:		
-     MediaEnc(const ENC_PARAM_T &params);
+     MediaEnc(const ENC_STATUS_T &status);
     ~MediaEnc();
+    int Encode(void* mpp_buf, char* enc_buf, int max_size);
+
 protected:
-    ENC_PARAM_T m_params;
+    ENC_STATUS_T m_status;
 };
 
 

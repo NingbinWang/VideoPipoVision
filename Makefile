@@ -65,6 +65,7 @@ ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 LIB_VAR += rga
 LIB_VAR += rockchip_mpp
 LIB_VAR += rockchip_vpu
+LD_CPP_FLAGS += -DMEDIARKMPP
 endif
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
 LIB_VAR +=drm_amdgpu

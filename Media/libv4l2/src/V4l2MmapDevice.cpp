@@ -21,7 +21,7 @@
 #include <linux/videodev2.h>
 
 // project
-//#include "Logger.h"
+#include "Logger.h"
 #include "V4l2MmapDevice.h"
 
 V4l2MmapDevice::V4l2MmapDevice(const V4L2DeviceParameters & params, v4l2_buf_type deviceType) : V4l2Device(params, deviceType), n_buffers(0) 
@@ -123,28 +123,30 @@ bool V4l2MmapDevice::start()
 					perror("mmap");
 					success = false;
 				}
+#ifdef MEDIARKMPP
+        		struct v4l2_exportbuffer expbuf = (struct v4l2_exportbuffer) {0} ;
+        		// xcam_mem_clear (expbuf);
+       			expbuf.type = m_deviceType;
+      			expbuf.index = n_buffers;
+        		expbuf.flags = O_CLOEXEC;
+				
+        		if( ioctl(m_fd, VIDIOC_EXPBUF, &expbuf) < 0) {
+            			perror("VIDIOC_EXPBUF");
+        		} else {
+            		std::cout<<"get dma buf(" << n_buffers << ")-fd: " <<expbuf.fd << std::endl;
+           			MppBufferInfo info;
+            		memset(&info, 0, sizeof(MppBufferInfo));
+            		info.type = MPP_BUFFER_TYPE_EXT_DMA;
+            		info.fd =  expbuf.fd;
+            		info.size = m_buffer[n_buffers].length & 0x07ffffff;
+            		info.index = (m_buffer[n_buffers].length & 0xf8000000) >> 27;
+            		mpp_buffer_import(&m_buffer[n_buffers].start, &info);
+					m_buffer[n_buffers].export_fd = expbuf.fd;
+        		}
+#endif
 			}
 		}
-/*
-        struct v4l2_exportbuffer expbuf = (struct v4l2_exportbuffer) {0} ;
-        // xcam_mem_clear (expbuf);
-        expbuf.type = type;
-        expbuf.index = i;
-        expbuf.flags = O_CLOEXEC;
-        if -1 == ioctl(m_fd, VIDIOC_EXPBUF, &expbuf) < 0) {
-            perror("VIDIOC_EXPBUF");
-        } else {
-            std::cout<<"get dma buf(" << i << ")-fd: " <<expbuf.fd << std::endl;
-            MppBufferInfo info;
-            memset(&info, 0, sizeof(MppBufferInfo));
-            info.type = MPP_BUFFER_TYPE_EXT_DMA;
-            info.fd =  expbuf.fd;
-            info.size = buf_len & 0x07ffffff;
-            info.index = (buf_len & 0xf8000000) >> 27;
-            mpp_buffer_import(&ctx->fbuf[i].buffer, &info);
-        }
-        ctx->fbuf[i].export_fd = expbuf.fd;
-*/
+
 		// queue buffers
 		for (unsigned int i = 0; i < n_buffers; ++i) 
 		{
@@ -304,10 +306,84 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 				perror("VIDIOC_QBUF");
 				size = -1;
 			}
+		}else{
+			LOG_ERROR("buffer index out of bounds\n");
+			size = -1;
 		}
 	}
 	return size;
 }
+
+#ifdef MEDIARKMPP
+MppBuffer V4l2MmapDevice::readtorkbuf(int* index)
+{
+	  MppBuffer buffer = NULL;
+	//int ret = -1;
+	if (n_buffers > 0)
+	{
+		struct v4l2_buffer buf;	
+		memset (&buf, 0, sizeof(buf));
+		buf.type = m_deviceType;
+		buf.memory = V4L2_MEMORY_MMAP;
+		struct v4l2_plane planes[FMT_NUM_PLANES];
+    	if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
+        			buf.m.planes = planes;
+        			buf.length = FMT_NUM_PLANES;
+    	}
+
+		if (-1 == ioctl(m_fd, VIDIOC_DQBUF, &buf)) 
+		{
+			if (errno == EAGAIN) {
+				return nullptr;
+			} else {
+				perror("VIDIOC_DQBUF");
+				return nullptr;
+			}
+		}
+		if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType)
+           		buf.bytesused = buf.m.planes[0].bytesused;
+
+		if (buf.index < n_buffers)
+		{
+			buffer = m_buffer[buf.index].start;
+			mpp_buffer_sync_end(buffer);
+			*index = buf.index;
+		}else{
+			LOG_ERROR("buffer index out of bounds\n");
+			return nullptr;
+		}
+	}
+	return buffer;
+}
+
+bool V4l2MmapDevice::readputrkbuf(int index)
+{
+    struct v4l2_buffer buf;
+
+    if (index < 0)
+        return false;
+
+    buf = (struct v4l2_buffer) {0};
+    buf.type   = m_deviceType;
+    buf.memory = V4L2_MEMORY_MMAP;
+    buf.index  = index;
+
+    struct v4l2_plane planes[FMT_NUM_PLANES];
+    if (V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE == m_deviceType) {
+        buf.m.planes = planes;
+        buf.length = FMT_NUM_PLANES;
+    }
+
+    // Tell kernel it's ok to overwrite this frame
+    if (-1 == ioctl(m_fd, VIDIOC_QBUF, &buf)) {
+        perror("VIDIOC_QBUF\n");
+        return false;
+    }
+
+    return true;
+}
+#endif
+
 
 size_t V4l2MmapDevice::writeInternal(char* buffer, size_t bufferSize)
 {

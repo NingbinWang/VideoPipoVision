@@ -222,7 +222,7 @@ typedef struct
 
     /* 状态缓存区 */
     DEC_STATUS_T              decStatus[MAX_DEC_CHAN_SOC];      /*dec Status  */
-    ENC_PARAM_T              encStatus[MAX_ENC_CHAN];
+    ENC_STATUS_T              encStatus[MAX_ENC_CHAN];
 }MEDIA_PARAM_T;
 
 

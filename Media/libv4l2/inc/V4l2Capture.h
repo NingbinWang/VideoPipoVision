@@ -28,6 +28,10 @@ class V4l2Capture : public V4l2Access
 		virtual ~V4l2Capture();
 	
 		size_t read(char* buffer, size_t bufferSize);
+#ifdef MEDIARKMPP
+		void * readtobuf(int* index);
+		bool   readputbuf(int index);
+#endif
 		bool   isReadable(timeval* tv);	
 		bool   capturepoll();
 };

@@ -10,20 +10,20 @@ typedef void (*MppEncoderFrameCallback)(void* userdata, const char* data, int si
 
 typedef struct
 {
-    RK_U32 width;
-    RK_U32 height;
-    RK_U32 hor_stride;
-    RK_U32 ver_stride;
-    MppFrameFormat fmt;
-    MppCodingType type;
+    RK_U32 width;//表示输入图像水平方向像素数
+    RK_U32 height;//表示输入图像垂直方向像素数
+    RK_U32 hor_stride;//表示输入图像垂直方向相应两行之间的距离，单位为byte
+    RK_U32 ver_stride;//表示输入图像分量之间的以行数间隔数，单位为1
+    MppFrameFormat fmt;//表示输入图像色彩空间格式以及内存排布方式
+    MppCodingType type;//表示MppEncCodecCFG对应的协议类型，需要与MppCtx初始化函数mpp_init的参数一致
 
-    RK_U32 osd_enable;
+    RK_U32 osd_enable;//osd的开关
     RK_U32 osd_mode;
-    RK_U32 split_mode;
+    RK_U32 split_mode;//裁切
     RK_U32 split_arg;
     RK_U32 split_out;
 
-    RK_U32 user_data_enable;
+    RK_U32 user_data_enable; //添加用户自定义数据
     RK_U32 roi_enable;
 
     // rate control runtime parameter
@@ -36,7 +36,7 @@ typedef struct
     RK_S32 bps;
     RK_S32 bps_max;
     RK_S32 bps_min;
-    RK_S32 rc_mode;
+    RK_S32 rc_mode;//表示码率控制模式 CBR固定码率模式 VBR 可变码率模式
     RK_S32 gop_mode;
     RK_S32 gop_len;
     RK_S32 vi_len;
@@ -52,8 +52,8 @@ typedef struct
     RK_S32 qp_delta_vi; /* delta qp between vi and P */
 
     RK_U32 constraint_set;
-    RK_U32 rotation;
-    RK_U32 mirroring;
+    RK_U32 rotation;//表示输入图像的旋转属性
+    RK_U32 mirroring;//表示输入图像的镜像属性
     RK_U32 flip;
 
     MppEncHeaderMode header_mode;
@@ -75,8 +75,15 @@ class MppEncoder {
     int GetInputFrameBufferFd(void* mpp_buffer);
     void* GetInputFrameBufferAddr(void* mpp_buffer);
   private:
+    struct DataCrc {
+      RK_U32          len;
+      RK_U32          sum_cnt;
+      RK_ULONG        *sum;
+      RK_U32          vor; // value of the xor
+    };
     int InitParams(MppEncoderParams& params);
     int SetupEncCfg();
+    //int EncWidthDefaultStride(int width, MppFrameFormat fmt);
 
     MppCtx mpp_ctx = NULL;
     MppApi* mpp_mpi = NULL;

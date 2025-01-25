@@ -8,8 +8,6 @@
 #include "base/New.h"
 #include "Logger.h"
 
-char *mFramebuf=nullptr;
-
 MediaVISource* MediaVISource::createNew(UsageEnvironment* env, std::string dev)
 {
     //return new V4l2MediaSource(env, dev);
@@ -24,22 +22,25 @@ MediaVISource::MediaVISource(UsageEnvironment* env, const std::string& dev) :
     mHeight(1080),
     mPts(0)
 {
+
     bool ret;
     VI_CFG_PARAM_T param;
     const char* in_devname = mDev.c_str();
     param.vSensorType = CMOS_OV_5969;
     param.image_viH = 1080;
     param.image_viW = 1920;
-    param.frame_rate = 10;
-    setFps(10);
+    param.frame_rate = 15;
+    param.eType = VI_V4L2;
+    setFps(15);
+
     mVi = new MediaVi(param);
     ret = mVi->initdev(in_devname);
     assert(ret == true);
-    //x264
+
     ret = x264Init();
     assert(ret == true);
-    mFramebuf = (char *)malloc(FRAME_MAX_SIZE*sizeof(char));
-    LOG_DEBUG("MediaVISource\n");
+
+    this->mFramebuf = (char *)malloc(FRAME_MAX_SIZE);
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
         mEnv->threadPool()->addTask(mTask);
     LOG_DEBUG("MediaVISource OK\n");
@@ -47,8 +48,8 @@ MediaVISource::MediaVISource(UsageEnvironment* env, const std::string& dev) :
 
 MediaVISource::~MediaVISource()
 {
-    if(mFramebuf != nullptr)
-        free(mFramebuf);
+    if(this->mFramebuf != nullptr)
+        free(this->mFramebuf);
     x264Exit();
 }
 
@@ -74,7 +75,6 @@ void MediaVISource::readFrame()
 
     if(mAvFrameInputQueue.empty())
         return;
-
     AvFrame* frame = mAvFrameInputQueue.front();
     if(mNaluQueue.empty())
     {
@@ -85,17 +85,15 @@ void MediaVISource::readFrame()
             size_t size = 0;
             ret = mVi->poll();
             if(ret == false)
-                return;
-            size =  mVi->readFramebuf(mFramebuf,FRAME_MAX_SIZE);
+                continue;
+            size =  mVi->readFramebuf(this->mFramebuf,FRAME_MAX_SIZE);
             if(size < 0)
             {
                 LOG_WARNING("don't have framebuf\n");
                 return;
             }
-            //LOG_DEBUG("readFramebuf size= %d\n",size);
-            memcpy(mPicIn->img.plane[0], mFramebuf, size);
+            memcpy(mPicIn->img.plane[0], this->mFramebuf, size);
             mPicIn->i_pts = mPts++;
-            //LOG_DEBUG("start x264 encode\n");
             ret = x264_encoder_encode(mX264Handle, &mNals, &nalNum, mPicIn, mPicOut);
             if(ret< 0)
             {

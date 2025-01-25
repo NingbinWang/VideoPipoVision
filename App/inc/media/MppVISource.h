@@ -10,13 +10,13 @@
 
 
 
-class MediaVISource : public MediaSource
+class MppVISource : public MediaSource
 {
 public:
-    static MediaVISource* createNew(UsageEnvironment* env, std::string dev);
+    static MppVISource* createNew(UsageEnvironment* env, std::string dev);
     
-    MediaVISource(UsageEnvironment* env, const std::string& dev);
-    virtual ~MediaVISource();
+    MppVISource(UsageEnvironment* env, const std::string& dev);
+    virtual ~MppVISource();
 
 protected:
     virtual void readFrame();
@@ -30,25 +30,17 @@ private:
         uint8_t* mData;
         int mSize;
     };
-    bool x264Init();
-    bool x264Exit();
 
 
 
 private:
     UsageEnvironment* mEnv;
+    char *mOutputbuf=nullptr;
     std::string mDev;
     MediaVi *mVi;
-    int mWidth;
-    int mHeight;
-    char *mFramebuf=nullptr;
+    MediaEnc *mEncoder;
+ 
     
-    x264_nal_t* mNals;
-	x264_t* mX264Handle;
-	x264_picture_t* mPicIn;
-	x264_picture_t* mPicOut;
-	x264_param_t* mParam;
-    int mCsp;
-    int mPts;
+
     std::queue<Nalu> mNaluQueue;
 };

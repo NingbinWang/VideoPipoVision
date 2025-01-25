@@ -144,7 +144,10 @@ public:
     bool initdev(const char *in_devname);
     int readFramebuf(char* buffer, int bufferSize);
     bool poll();
-
+#ifdef MEDIARKMPP
+    void * readtomppbuf(int* index);
+    bool readputmppbuf(int index);
+#endif
 
 protected:
     VI_CFG_PARAM_T m_params;

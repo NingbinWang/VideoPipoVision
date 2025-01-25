@@ -8,9 +8,75 @@
 #define SZ_4K 4096
 
 
+
+/*
+int MppEncoder::EncWidthDefaultStride(int width, MppFrameFormat fmt)
+{
+    int stride = 0;
+
+    switch (fmt & MPP_FRAME_FMT_MASK) {
+    case MPP_FMT_YUV400 :
+    case MPP_FMT_YUV420SP :
+    case MPP_FMT_YUV420SP_VU : {
+        stride = MPP_ALIGN(width, 8);
+    } break;
+    case MPP_FMT_YUV420P : {
+        // NOTE: 420P need to align to 16 so chroma can align to 8 
+        stride = MPP_ALIGN(width, 16);
+    } break;
+    case MPP_FMT_YUV422P:
+    case MPP_FMT_YUV422SP:
+    case MPP_FMT_YUV422SP_VU: {
+        // NOTE: 422 need to align to 8 so chroma can align to 16 
+        stride = MPP_ALIGN(width, 8);
+    } break;
+    case MPP_FMT_YUV444SP :
+    case MPP_FMT_YUV444P : {
+        stride = MPP_ALIGN(width, 8);
+    } break;
+    case MPP_FMT_RGB565:
+    case MPP_FMT_BGR565:
+    case MPP_FMT_RGB555:
+    case MPP_FMT_BGR555:
+    case MPP_FMT_RGB444:
+    case MPP_FMT_BGR444:
+    case MPP_FMT_YUV422_YUYV :
+    case MPP_FMT_YUV422_YVYU :
+    case MPP_FMT_YUV422_UYVY :
+    case MPP_FMT_YUV422_VYUY : {
+        // NOTE: for vepu limitation 
+        stride = MPP_ALIGN(width, 8) * 2;
+    } break;
+    case MPP_FMT_RGB888 :
+    case MPP_FMT_BGR888 : {
+       // NOTE: for vepu limitation 
+        stride = MPP_ALIGN(width, 8) * 3;
+    } break;
+    case MPP_FMT_RGB101010 :
+    case MPP_FMT_BGR101010 :
+    case MPP_FMT_ARGB8888 :
+    case MPP_FMT_ABGR8888 :
+    case MPP_FMT_BGRA8888 :
+    case MPP_FMT_RGBA8888 : {
+        // NOTE: for vepu limitation 
+        stride = MPP_ALIGN(width, 8) * 4;
+    } break;
+    default : {
+        LOG_ERROR("do not support type %d\n", fmt);
+    } break;
+    }
+
+    return stride;
+}
+*/
+
 int MppEncoder::InitParams(MppEncoderParams& params)
 {
     memcpy(&enc_params, &params, sizeof(MppEncoderParams));
+
+    if (enc_params.rc_mode == MPP_ENC_RC_MODE_BUTT){
+         enc_params.rc_mode = (enc_params.type == MPP_VIDEO_CodingMJPEG) ? MPP_ENC_RC_MODE_FIXQP : MPP_ENC_RC_MODE_VBR;
+    }
 
     // get paramter from cmd
     if (enc_params.hor_stride == 0) {
@@ -18,6 +84,23 @@ int MppEncoder::InitParams(MppEncoderParams& params)
     }
     if (enc_params.ver_stride == 0) {
         enc_params.ver_stride = (MPP_ALIGN(enc_params.height, 16));
+    }
+    
+    if (enc_params.type == MPP_VIDEO_CodingUnused) {
+        if (enc_params.width <= 0 || enc_params.height <= 0 ||
+            enc_params.hor_stride <= 0 || enc_params.ver_stride <= 0) {
+            LOG_ERROR("invalid w:h [%d:%d] stride [%d:%d]\n",enc_params.width, enc_params.height, enc_params.hor_stride, enc_params.ver_stride);
+            return -1;
+        }
+    }
+   
+    
+    if (enc_params.rc_mode == MPP_ENC_RC_MODE_FIXQP) {
+        if (!enc_params.qp_init) {
+            if (enc_params.type == MPP_VIDEO_CodingAVC ||
+                enc_params.type == MPP_VIDEO_CodingHEVC)
+                enc_params.qp_init = 26;
+        }
     }
 
     if (enc_params.fps_in_den == 0)
@@ -505,6 +588,36 @@ int MppEncoder::Encode(void* mpp_buf, char* enc_buf, int max_size) {
     // MppBuffer cam_buf = NULL;
     RK_U32 eoi = 1;
     RK_U32 frm_eos = 0;
+    //DataCrc checkcrc;
+    //memset(&checkcrc, 0, sizeof(checkcrc));
+    //checkcrc.sum = mpp_malloc(RK_ULONG,512);
+    if (enc_params.type == MPP_VIDEO_CodingAVC || enc_params.type == MPP_VIDEO_CodingHEVC) {
+        MppPacket packet = NULL;
+
+        /*
+         * Can use packet with normal malloc buffer as input not pkt_buf.
+         * Please refer to vpu_api_legacy.cpp for normal buffer case.
+         * Using pkt_buf buffer here is just for simplifing demo.
+         */
+        mpp_packet_init_with_buffer(&packet, this->pkt_buf);
+        /* NOTE: It is important to clear output packet length!! */
+        mpp_packet_set_length(packet, 0);
+
+        ret = mpp_mpi->control(mpp_ctx, MPP_ENC_GET_HDR_SYNC, packet);
+        if (ret) {
+            LOG_ERROR("mpi control enc get extra info failed\n");
+            return -1;
+        } else {
+            /* get and write sps/pps for H.264 */
+
+          //  void *ptr   = mpp_packet_get_pos(packet);
+          //  size_t len  = mpp_packet_get_length(packet);
+
+         //   if (p->fp_output)
+          //      fwrite(ptr, 1, len, p->fp_output);
+        }
+        mpp_packet_deinit(&packet);
+    }
 
     ret = mpp_frame_init(&frame);
     if (ret) {

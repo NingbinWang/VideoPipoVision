@@ -13,6 +13,9 @@
 #pragma once
  
 #include "V4l2Device.h"
+#ifdef MEDIARKMPP
+#include "rockchip/rk_mpi.h" 
+#endif
 
 #define V4L2MMAP_NBBUFFER 10
 #define FMT_NUM_PLANES 1
@@ -25,7 +28,10 @@ class V4l2MmapDevice : public V4l2Device
 		size_t writePartialInternal(char*, size_t);
 		bool   endPartialWrite();
 		size_t readInternal(char* buffer, size_t bufferSize);
-			
+#ifdef MEDIARKMPP
+	   MppBuffer readtorkbuf(int* index);
+	   bool      readputrkbuf(int index);
+#endif		
 	public:
 		V4l2MmapDevice(const V4L2DeviceParameters & params, v4l2_buf_type deviceType);		
 		virtual ~V4l2MmapDevice();
@@ -42,6 +48,7 @@ class V4l2MmapDevice : public V4l2Device
 		{
 			void *                  start;
 			size_t                  length;
+			int                     export_fd;
 		};
 		buffer m_buffer[V4L2MMAP_NBBUFFER];
 };

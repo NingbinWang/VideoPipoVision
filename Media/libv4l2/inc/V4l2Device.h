@@ -81,6 +81,10 @@ class V4l2Device
 		virtual size_t writePartialInternal(char*, size_t) { return -1;    }
 		virtual bool   endPartialWrite()                   { return false; }
 		virtual size_t readInternal(char*, size_t)         { return -1;    }
+#ifdef MEDIARKMPP
+		virtual void * readtorkbuf(int*)             {return nullptr;}
+		virtual bool   readputrkbuf(int)               { return false; }
+#endif
 	
 	public:
 		V4l2Device(const V4L2DeviceParameters&  params, v4l2_buf_type deviceType);		

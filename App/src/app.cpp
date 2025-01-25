@@ -17,9 +17,11 @@
 #include "net/InetAddress.h"
 #include "net/H264FileMediaSource.h"
 #include "net/H264RtpSink.h"
+#ifdef MEDIARKMPP
+#include "media/MppVISource.h"
+#else
 #include "media/MediaVISource.h"
-
-
+#endif
 
 int opencv_demo()
 {
@@ -58,7 +60,11 @@ int v4l2rtsp()
     Ipv4Address ipAddr("192.168.0.126", 8554);
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
+#ifdef MEDIARKMPP
+     MediaSource* videoSource = MppVISource::createNew(env, "/dev/video0");
+#else
     MediaSource* videoSource = MediaVISource::createNew(env, "/dev/video0");
+#endif  
     RtpSink* rtpSink = H264RtpSink::createNew(env, videoSource);
 
     session->addRtpSink(MediaSession::TrackId0, rtpSink);
