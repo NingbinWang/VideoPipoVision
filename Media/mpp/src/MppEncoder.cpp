@@ -583,41 +583,9 @@ int MppEncoder::Encode(void* mpp_buf, char* enc_buf, int max_size) {
     MppMeta meta = NULL;
     MppFrame frame = NULL;
     MppPacket packet = NULL;
-    // void *buf = mpp_buffer_get_ptr(this->frm_buf);
-    // RK_S32 cam_frm_idx = -1;
-    // MppBuffer cam_buf = NULL;
     RK_U32 eoi = 1;
     RK_U32 frm_eos = 0;
-    //DataCrc checkcrc;
-    //memset(&checkcrc, 0, sizeof(checkcrc));
-    //checkcrc.sum = mpp_malloc(RK_ULONG,512);
-    if (enc_params.type == MPP_VIDEO_CodingAVC || enc_params.type == MPP_VIDEO_CodingHEVC) {
-        MppPacket packet = NULL;
-
-        /*
-         * Can use packet with normal malloc buffer as input not pkt_buf.
-         * Please refer to vpu_api_legacy.cpp for normal buffer case.
-         * Using pkt_buf buffer here is just for simplifing demo.
-         */
-        mpp_packet_init_with_buffer(&packet, this->pkt_buf);
-        /* NOTE: It is important to clear output packet length!! */
-        mpp_packet_set_length(packet, 0);
-
-        ret = mpp_mpi->control(mpp_ctx, MPP_ENC_GET_HDR_SYNC, packet);
-        if (ret) {
-            LOG_ERROR("mpi control enc get extra info failed\n");
-            return -1;
-        } else {
-            /* get and write sps/pps for H.264 */
-
-          //  void *ptr   = mpp_packet_get_pos(packet);
-          //  size_t len  = mpp_packet_get_length(packet);
-
-         //   if (p->fp_output)
-          //      fwrite(ptr, 1, len, p->fp_output);
-        }
-        mpp_packet_deinit(&packet);
-    }
+  
 
     ret = mpp_frame_init(&frame);
     if (ret) {

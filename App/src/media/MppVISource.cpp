@@ -11,6 +11,8 @@
 #include <fstream>
 #include <iostream>
 
+ //FILE* fp_output = NULL;
+
 MppVISource* MppVISource::createNew(UsageEnvironment* env, std::string dev)
 {
     //return new V4l2MediaSource(env, dev);
@@ -44,7 +46,7 @@ MppVISource::MppVISource(UsageEnvironment* env, const std::string& dev) :
 
    this->mOutputbuf = (char *)malloc(FRAME_MAX_SIZE);
 
-
+    //fp_output = fopen("/home/test.h264", "w+b");
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
        mEnv->threadPool()->addTask(mTask);
     LOG_DEBUG("MppVISource OK\n");
@@ -77,12 +79,10 @@ void MppVISource::readFrame()
 {
     MutexLockGuard mutexLockGuard(mMutex);
     char * framebuf = nullptr;
-    FILE* fp_output = NULL;
-     LOG_DEBUG("MppVISource readFrame\n");
     if(mAvFrameInputQueue.empty())
         return;
     AvFrame* frame = mAvFrameInputQueue.front();
-    fp_output = fopen("/home/test.h264", "w+b");
+   
     if(mNaluQueue.empty())
     {
         bool ret;
@@ -100,18 +100,16 @@ void MppVISource::readFrame()
                 return;
             }
              //this->mOutputbuf = (char *)malloc(1024*1024*5);
-           LOG_DEBUG("readtomppbuf index=%d\n",index);
+         //  LOG_DEBUG("readtomppbuf index=%d\n",index);
            size_t size =  mEncoder->Encode(vibuf,this->mOutputbuf,1024*1024*1);
-           LOG_DEBUG("readputmppbuf %d\n",index);
+           //LOG_DEBUG("readputmppbuf %d\n",index);
            mVi->readputmppbuf(index);
            framebuf = (char *)malloc(size);
            memcpy(framebuf, this->mOutputbuf, size);
-           fwrite(framebuf, 1, size, fp_output);
            memset(this->mOutputbuf,0,size);
            //LOG_DEBUG("h264 output %10x size= %d\n",this->mOutputbuf,size);
            // mEncoder->GetHeader(this->mOutputbuf,FRAME_MAX_SIZE);
             mNaluQueue.push(Nalu((uint8_t*)framebuf, size));
-            LOG_DEBUG("MppVISource readFrame end .....\n");
             break;
         }
     }
@@ -131,6 +129,5 @@ void MppVISource::readFrame()
     free(nalu.mData);
     mAvFrameInputQueue.pop();
     mAvFrameOutputQueue.push(frame);
-    LOG_DEBUG("readFrame OK\n");
 }
 
