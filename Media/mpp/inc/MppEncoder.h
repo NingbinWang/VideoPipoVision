@@ -10,22 +10,19 @@ typedef void (*MppEncoderFrameCallback)(void* userdata, const char* data, int si
 
 typedef struct
 {
+    MppFrameFormat fmt;//表示输入图像色彩空间格式以及内存排布方式
+    MppCodingType type;//表示MppEncCodecCFG对应的协议类型，需要与MppCtx初始化函数mpp_init的参数一致
+
     RK_U32 width;//表示输入图像水平方向像素数
     RK_U32 height;//表示输入图像垂直方向像素数
     RK_U32 hor_stride;//表示输入图像垂直方向相应两行之间的距离，单位为byte
     RK_U32 ver_stride;//表示输入图像分量之间的以行数间隔数，单位为1
-    MppFrameFormat fmt;//表示输入图像色彩空间格式以及内存排布方式
-    MppCodingType type;//表示MppEncCodecCFG对应的协议类型，需要与MppCtx初始化函数mpp_init的参数一致
-
-    RK_U32 osd_enable;//osd的开关
-    RK_U32 osd_mode;
-    RK_U32 split_mode;//裁切
-    RK_U32 split_arg;
-    RK_U32 split_out;
-
-    RK_U32 user_data_enable; //添加用户自定义数据
-    RK_U32 roi_enable;
-
+    //rc
+    RK_S32 rc_mode;//表示码率控制模式 CBR固定码率模式 VBR 可变码率模式
+    //bps
+    RK_S32 bps;
+    RK_S32 bps_max;
+    RK_S32 bps_min;
     // rate control runtime parameter
     RK_S32 fps_in_flex;
     RK_S32 fps_in_den;
@@ -33,20 +30,57 @@ typedef struct
     RK_S32 fps_out_flex;
     RK_S32 fps_out_den;
     RK_S32 fps_out_num;
-    RK_S32 bps;
-    RK_S32 bps_max;
-    RK_S32 bps_min;
-    RK_S32 rc_mode;//表示码率控制模式 CBR固定码率模式 VBR 可变码率模式
-    RK_S32 gop_mode;
-    RK_S32 gop_len;
-    RK_S32 vi_len;
 
-    /* general qp control */
+   /* general qp control */
+    //qc
     RK_S32 qp_init;
     RK_S32 qp_max;
     RK_S32 qp_max_i;
     RK_S32 qp_min;
     RK_S32 qp_min_i;
+
+    // -fqc 
+    RK_S32 fqp_min_i;
+    RK_S32 fqp_min_p;
+    RK_S32 fqp_max_i;
+    RK_S32 fqp_max_p;
+    // -g gop mode 
+    RK_S32 gop_mode;
+    RK_S32 gop_len;
+    RK_S32 vi_len;
+    /* -sm scene_mode */
+    RK_S32 scene_mode;
+    RK_S32 rc_container;
+    RK_S32 bias_i;
+    RK_S32 bias_p;
+    /* -qpdd cu_qp_delta_depth */
+    RK_S32 cu_qp_delta_depth;
+    RK_S32 anti_flicker_str;
+    RK_S32 atr_str_i;
+    RK_S32 atr_str_p;
+    RK_S32 atl_str;
+    RK_S32 sao_str_i;
+    RK_S32 sao_str_p;
+
+    /* -dbe deblur enable flag
+     * -dbs deblur strength
+     */
+    RK_S32 deblur_en;
+    RK_S32 deblur_str;
+
+    RK_U32 osd_enable;//osd的开关
+    RK_U32 osd_mode;
+
+    RK_U32 split_mode;//裁切
+    RK_U32 split_arg;
+    RK_U32 split_out;
+
+    RK_U32 user_data_enable; //添加用户自定义数据
+    RK_U32 roi_enable;
+
+
+
+
     RK_S32 qp_max_step; /* delta qp between each two P frame */
     RK_S32 qp_delta_ip; /* delta qp between I and P */
     RK_S32 qp_delta_vi; /* delta qp between vi and P */

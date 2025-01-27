@@ -101,7 +101,7 @@ void MppVISource::readFrame()
             }
              //this->mOutputbuf = (char *)malloc(1024*1024*5);
          //  LOG_DEBUG("readtomppbuf index=%d\n",index);
-           size_t size =  mEncoder->Encode(vibuf,this->mOutputbuf,1024*1024*1);
+           size_t size =  mEncoder->Encode(vibuf,this->mOutputbuf,1024*1024*5);
            //LOG_DEBUG("readputmppbuf %d\n",index);
            mVi->readputmppbuf(index);
            framebuf = (char *)malloc(size);

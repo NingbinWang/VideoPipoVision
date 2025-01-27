@@ -7,6 +7,36 @@
 #define MPP_ALIGN(x, a)         (((x)+(a)-1)&~((a)-1))
 #define SZ_4K 4096
 
+static RK_S32 aq_thd_smart[16] = {
+    1,  3,  3,  3,  3,  3,  5,  5,
+    8,  8,  8, 15, 15, 20, 25, 28
+};
+
+static RK_S32 aq_step_smart[16] = {
+    -8, -7, -6, -5, -4, -3, -2, -1,
+    0,  1,  2,  3,  4,  6,  8, 10
+};
+
+static RK_S32 aq_thd[16] = {
+    0,  0,  0,  0,
+    3,  3,  5,  5,
+    8,  8,  8,  15,
+    15, 20, 25, 25
+};
+static RK_S32 aq_step_i_ipc[16] = {
+    -8, -7, -6, -5,
+    -4, -3, -2, -1,
+    0,  1,  2,  3,
+    5,  7,  7,  8,
+};
+
+static RK_S32 aq_step_p_ipc[16] = {
+    -8, -7, -6, -5,
+    -4, -2, -1, -1,
+    0,  2,  3,  4,
+    6,  8,  9,  10,
+};
+
 
 
 /*
@@ -173,6 +203,7 @@ int MppEncoder::InitParams(MppEncoderParams& params)
 int MppEncoder::SetupEncCfg()
 {
     MPP_RET ret;
+   
 
     ret = mpp_enc_cfg_init(&cfg);
     if (ret) {
@@ -189,17 +220,70 @@ int MppEncoder::SetupEncCfg()
         enc_params.fps_out_den = 1;
     if (enc_params.fps_out_num == 0)
         enc_params.fps_out_num = 30;
+        //tune
+    if (enc_params.anti_flicker_str == 0){
+        enc_params.anti_flicker_str = 0;
+        enc_params.atr_str_i = 0; 
+        enc_params.atr_str_p = 0;
+        enc_params.atl_str = 0;
+        enc_params.sao_str_i = 0;
+        enc_params.sao_str_p = 0;
+    }
+    //scene_mode
+    if (enc_params.scene_mode == 0){
+        enc_params.deblur_en = 0;
+        enc_params.deblur_str = 0;
+        enc_params.rc_container = 0;
+    }
+
 
     if (!enc_params.bps)
         enc_params.bps = enc_params.width * enc_params.height / 8 * (enc_params.fps_out_num / enc_params.fps_out_den);
+
+    if (enc_params.rc_mode == MPP_ENC_RC_MODE_SMTRC) {
+        mpp_enc_cfg_set_st(cfg, "hw:aq_thrd_i", aq_thd_smart);
+        mpp_enc_cfg_set_st(cfg, "hw:aq_thrd_p", aq_thd_smart);
+        mpp_enc_cfg_set_st(cfg, "hw:aq_step_i", aq_step_smart);
+        mpp_enc_cfg_set_st(cfg, "hw:aq_step_p", aq_step_smart);
+    } else {
+        mpp_enc_cfg_set_st(cfg, "hw:aq_thrd_i", aq_thd);
+        mpp_enc_cfg_set_st(cfg, "hw:aq_thrd_p", aq_thd);
+        mpp_enc_cfg_set_st(cfg, "hw:aq_step_i", aq_step_i_ipc);
+        mpp_enc_cfg_set_st(cfg, "hw:aq_step_p", aq_step_p_ipc);
+    }
+
+    mpp_enc_cfg_set_s32(cfg, "rc:max_reenc_times", 0);
+    mpp_enc_cfg_set_s32(cfg, "rc:cu_qp_delta_depth", enc_params.cu_qp_delta_depth);
+    mpp_enc_cfg_set_s32(cfg, "tune:anti_flicker_str", enc_params.anti_flicker_str);
+    mpp_enc_cfg_set_s32(cfg, "tune:atr_str_i", enc_params.atr_str_i);
+    mpp_enc_cfg_set_s32(cfg, "tune:atr_str_p", enc_params.atr_str_p);
+    mpp_enc_cfg_set_s32(cfg, "tune:atl_str", enc_params.atl_str);
+    mpp_enc_cfg_set_s32(cfg, "tune:sao_str_i", enc_params.sao_str_i);
+    mpp_enc_cfg_set_s32(cfg, "tune:sao_str_p", enc_params.sao_str_p);
+
+    mpp_enc_cfg_set_s32(cfg, "tune:scene_mode", enc_params.scene_mode);
+    mpp_enc_cfg_set_s32(cfg, "tune:deblur_en", enc_params.deblur_en);
+    mpp_enc_cfg_set_s32(cfg, "tune:deblur_str", enc_params.deblur_str);
+    mpp_enc_cfg_set_s32(cfg, "tune:rc_container", enc_params.rc_container);
+    mpp_enc_cfg_set_s32(cfg, "tune:vmaf_opt", 0);
+    mpp_enc_cfg_set_s32(cfg, "hw:qbias_en", 1);
+    mpp_enc_cfg_set_s32(cfg, "hw:qbias_i", enc_params.bias_i);
+    mpp_enc_cfg_set_s32(cfg, "hw:qbias_p", enc_params.bias_p);
+    mpp_enc_cfg_set_s32(cfg, "hw:skip_bias_en", 0);
+    mpp_enc_cfg_set_s32(cfg, "hw:skip_bias", 4);
+    mpp_enc_cfg_set_s32(cfg, "hw:skip_sad", 8);
 
     mpp_enc_cfg_set_s32(cfg, "prep:width", enc_params.width);
     mpp_enc_cfg_set_s32(cfg, "prep:height", enc_params.height);
     mpp_enc_cfg_set_s32(cfg, "prep:hor_stride", enc_params.hor_stride);
     mpp_enc_cfg_set_s32(cfg, "prep:ver_stride", enc_params.ver_stride);
     mpp_enc_cfg_set_s32(cfg, "prep:format", enc_params.fmt);
+     mpp_enc_cfg_set_s32(cfg, "prep:range", MPP_FRAME_RANGE_JPEG);
+
 
     mpp_enc_cfg_set_s32(cfg, "rc:mode", enc_params.rc_mode);
+    mpp_enc_cfg_set_u32(cfg, "rc:max_reenc_times", 0);
+    mpp_enc_cfg_set_u32(cfg, "rc:super_mode", 0);
 
     /* fix input / output frame rate */
     mpp_enc_cfg_set_s32(cfg, "rc:fps_in_flex", enc_params.fps_in_flex);
@@ -208,7 +292,7 @@ int MppEncoder::SetupEncCfg()
     mpp_enc_cfg_set_s32(cfg, "rc:fps_out_flex", enc_params.fps_out_flex);
     mpp_enc_cfg_set_s32(cfg, "rc:fps_out_num", enc_params.fps_out_num);
     mpp_enc_cfg_set_s32(cfg, "rc:fps_out_denorm", enc_params.fps_out_den);
-    mpp_enc_cfg_set_s32(cfg, "rc:gop", enc_params.gop_len ? enc_params.gop_len : enc_params.fps_out_num * 2);
+   // mpp_enc_cfg_set_s32(cfg, "rc:gop", enc_params.gop_len ? enc_params.gop_len : enc_params.fps_out_num * 2);
 
     /* drop frame or not when bitrate overflow */
     mpp_enc_cfg_set_u32(cfg, "rc:drop_mode", MPP_ENC_RC_DROP_FRM_DISABLED);
@@ -253,16 +337,24 @@ int MppEncoder::SetupEncCfg()
             mpp_enc_cfg_set_s32(cfg, "rc:qp_max_i", fix_qp);
             mpp_enc_cfg_set_s32(cfg, "rc:qp_min_i", fix_qp);
             mpp_enc_cfg_set_s32(cfg, "rc:qp_ip", 0);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_min_i", fix_qp);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_max_i", fix_qp);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_min_p", fix_qp);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_max_p", fix_qp);
         } break;
         case MPP_ENC_RC_MODE_CBR :
         case MPP_ENC_RC_MODE_VBR :
         case MPP_ENC_RC_MODE_AVBR : {
-            mpp_enc_cfg_set_s32(cfg, "rc:qp_init", -1);
-            mpp_enc_cfg_set_s32(cfg, "rc:qp_max", 51);
-            mpp_enc_cfg_set_s32(cfg, "rc:qp_min", 10);
-            mpp_enc_cfg_set_s32(cfg, "rc:qp_max_i", 51);
-            mpp_enc_cfg_set_s32(cfg, "rc:qp_min_i", 10);
+            mpp_enc_cfg_set_s32(cfg, "rc:qp_init", enc_params.qp_init ? enc_params.qp_init : -1);
+            mpp_enc_cfg_set_s32(cfg, "rc:qp_max", enc_params.qp_max ? enc_params.qp_max : 51);
+            mpp_enc_cfg_set_s32(cfg, "rc:qp_min", enc_params.qp_min ? enc_params.qp_min : 10);
+            mpp_enc_cfg_set_s32(cfg, "rc:qp_max_i", enc_params.qp_max_i ? enc_params.qp_max_i : 51);
+            mpp_enc_cfg_set_s32(cfg, "rc:qp_min_i", enc_params.qp_min_i ? enc_params.qp_min_i : 10);
             mpp_enc_cfg_set_s32(cfg, "rc:qp_ip", 2);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_min_i", enc_params.fqp_min_i ? enc_params.fqp_min_i : 10);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_max_i", enc_params.fqp_max_i ? enc_params.fqp_max_i : 45);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_min_p", enc_params.fqp_min_p ? enc_params.fqp_min_p : 10);
+            mpp_enc_cfg_set_s32(cfg, "rc:fqp_max_p", enc_params.fqp_max_p ? enc_params.fqp_max_p : 45);
         } break;
         default : {
             LOG_ERROR("unsupport encoder rc mode %d\n", enc_params.rc_mode);
@@ -271,18 +363,18 @@ int MppEncoder::SetupEncCfg()
     } break;
     case MPP_VIDEO_CodingVP8 : {
         /* vp8 only setup base qp range */
-        mpp_enc_cfg_set_s32(cfg, "rc:qp_init", 40);
-        mpp_enc_cfg_set_s32(cfg, "rc:qp_max",  127);
-        mpp_enc_cfg_set_s32(cfg, "rc:qp_min",  0);
-        mpp_enc_cfg_set_s32(cfg, "rc:qp_max_i", 127);
-        mpp_enc_cfg_set_s32(cfg, "rc:qp_min_i", 0);
+        mpp_enc_cfg_set_s32(cfg, "rc:qp_init", enc_params.qp_init ? enc_params.qp_init : 40);
+        mpp_enc_cfg_set_s32(cfg, "rc:qp_max",  enc_params.qp_max ? enc_params.qp_max : 127);
+        mpp_enc_cfg_set_s32(cfg, "rc:qp_min",  enc_params.qp_min ? enc_params.qp_min : 0);
+        mpp_enc_cfg_set_s32(cfg, "rc:qp_max_i", enc_params.qp_max_i ? enc_params.qp_max_i : 127);
+        mpp_enc_cfg_set_s32(cfg, "rc:qp_min_i", enc_params.qp_min_i ? enc_params.qp_min_i : 0);
         mpp_enc_cfg_set_s32(cfg, "rc:qp_ip", 6);
     } break;
     case MPP_VIDEO_CodingMJPEG : {
         /* jpeg use special codec config to control qtable */
-        mpp_enc_cfg_set_s32(cfg, "jpeg:q_factor", 80);
-        mpp_enc_cfg_set_s32(cfg, "jpeg:qf_max", 99);
-        mpp_enc_cfg_set_s32(cfg, "jpeg:qf_min", 1);
+        mpp_enc_cfg_set_s32(cfg, "jpeg:q_factor", enc_params.qp_init ? enc_params.qp_init : 80);
+        mpp_enc_cfg_set_s32(cfg, "jpeg:qf_max", enc_params.qp_max ? enc_params.qp_max : 99);
+        mpp_enc_cfg_set_s32(cfg, "jpeg:qf_min", enc_params.qp_min ? enc_params.qp_min : 1);
     } break;
     default : {
     } break;
@@ -314,6 +406,8 @@ int MppEncoder::SetupEncCfg()
         mpp_enc_cfg_set_s32(cfg, "h264:cabac_idc", 0);
         mpp_enc_cfg_set_s32(cfg, "h264:trans8x8", 1);
 
+       //  mpp_env_get_u32("constraint_set", &constraint_set, 0);
+
         if (constraint_set & 0x3f0000)
             mpp_enc_cfg_set_s32(cfg, "h264:constraint_set", constraint_set);
     } break;
@@ -325,6 +419,14 @@ int MppEncoder::SetupEncCfg()
         LOG_ERROR("unsupport encoder coding type %d\n", enc_params.type);
     } break;
     }
+    //enc_params.split_mode = 0;
+    //enc_params.split_arg = 0;
+    //enc_params.split_out = 0;
+
+    //mpp_env_get_u32("split_mode", &enc_params.split_mode, MPP_ENC_SPLIT_NONE);
+    //mpp_env_get_u32("split_arg", &enc_params.split_arg, 0);
+    //mpp_env_get_u32("split_out", &enc_params.split_out, 0);
+
 
     if (enc_params.split_mode) {
         LOG_DEBUG("%p split mode %d arg %d out %d\n", mpp_ctx,enc_params.split_mode, enc_params.split_arg, enc_params.split_out);
@@ -337,11 +439,54 @@ int MppEncoder::SetupEncCfg()
     mpp_enc_cfg_set_s32(cfg, "prep:rotation", enc_params.rotation);
     mpp_enc_cfg_set_s32(cfg, "prep:flip", enc_params.flip);
 
+    // config gop_len and ref cfg
+    mpp_enc_cfg_set_s32(cfg, "rc:gop", enc_params.gop_len ? enc_params.gop_len : enc_params.fps_out_num * 2);
+#if 0
+    RK_U32 gop_mode = enc_params.gop_mode;
+    MppEncRefCfg ref = nullptr;
+    if (gop_mode) {
+     
+
+        mpp_enc_ref_cfg_init(&ref);
+
+        if (enc_params.gop_mode < 4)
+            mpi_enc_gen_ref_cfg(ref, gop_mode);
+        else
+            mpi_enc_gen_smart_gop_ref_cfg(ref, enc_params.gop_len, enc_params.vi_len);
+
+        mpp_enc_cfg_set_ptr(cfg, "rc:ref_cfg", ref);
+
+       // ret = mpp_mpi->control(mpp_ctx, MPP_ENC_SET_REF_CFG, ref);
+       // if (ret) {
+       //     LOG_ERROR("mpi control enc set ref cfg failed ret %d\n", ret);
+       //     goto RET;
+      //  }
+      //  mpp_enc_ref_cfg_deinit(&ref);
+    }
+#endif
     ret = mpp_mpi->control(mpp_ctx, MPP_ENC_SET_CFG, cfg);
     if (ret) {
         LOG_ERROR("mpi control enc set cfg failed ret %d\n", ret);
         goto RET;
     }
+#if 0
+    if (enc_params.type == MPP_VIDEO_CodingAVC || enc_params.type == MPP_VIDEO_CodingHEVC) {
+        RcApiBrief rc_api_brief;
+        rc_api_brief.type = enc_params.type;
+        rc_api_brief.name = (enc_params.rc_mode == MPP_ENC_RC_MODE_SMTRC) ?
+                            "smart" : "default";
+
+        ret = mpi->control(mpp_ctx, MPP_ENC_SET_RC_API_CURRENT, &rc_api_brief);
+        if (ret) {
+            LOG_ERROR("mpi control enc set rc api failed ret %d\n", ret);
+            goto RET;
+        }
+    }
+
+    if (ref)
+        mpp_enc_ref_cfg_deinit(&ref);
+#endif
+
 
 #if 0
     /* optional */
@@ -364,25 +509,6 @@ int MppEncoder::SetupEncCfg()
     }
 
 #if 0
-    RK_U32 gop_mode = enc_params.gop_mode;
-    if (gop_mode) {
-        MppEncRefCfg ref;
-
-        mpp_enc_ref_cfg_init(&ref);
-
-        if (enc_params.gop_mode < 4)
-            mpi_enc_gen_ref_cfg(ref, gop_mode);
-        else
-            mpi_enc_gen_smart_gop_ref_cfg(ref, enc_params.gop_len, enc_params.vi_len);
-
-        ret = mpp_mpi->control(mpp_ctx, MPP_ENC_SET_REF_CFG, ref);
-        if (ret) {
-            LOG_ERROR("mpi control enc set ref cfg failed ret %d\n", ret);
-            goto RET;
-        }
-        mpp_enc_ref_cfg_deinit(&ref);
-    }
-
     if (enc_params.roi_enable) {
         mpp_enc_roi_init(&enc_params.roi_mpp_ctx, enc_params.width, enc_params.height, enc_params.type, 4);
         mpp_assert(enc_params.roi_mpp_ctx);
@@ -700,13 +826,13 @@ int MppEncoder::Encode(void* mpp_buf, char* enc_buf, int max_size) {
         * resource creator must be the resource destroyer.
         */
     ret = mpp_mpi->encode_put_frame(mpp_ctx, frame);
-    mpp_frame_deinit(&frame);
 
     if (ret) {
         LOG_DEBUG("chn %d encode put frame failed\n", chn);
+         mpp_frame_deinit(&frame);
         return -1;
     }
-
+     mpp_frame_deinit(&frame);
     do {
         ret = mpp_mpi->encode_get_packet(mpp_ctx, &packet);
         if (ret) {
@@ -763,6 +889,10 @@ int MppEncoder::Encode(void* mpp_buf, char* enc_buf, int max_size) {
                 RK_S32 temporal_id = 0;
                 RK_S32 lt_idx = -1;
                 RK_S32 avg_qp = -1;
+                RK_S32  bps_rt = -1;
+                RK_S32 use_lt_idx = -1;
+              //  RK_S64 sse = 0;
+              //  RK_FLOAT psnr = 0;
 
                 if (MPP_OK == mpp_meta_get_s32(meta, KEY_TEMPORAL_ID, &temporal_id))
                     log_len += snprintf(log_buf + log_len, log_size - log_len,
@@ -775,6 +905,18 @@ int MppEncoder::Encode(void* mpp_buf, char* enc_buf, int max_size) {
                 if (MPP_OK == mpp_meta_get_s32(meta, KEY_ENC_AVERAGE_QP, &avg_qp))
                     log_len += snprintf(log_buf + log_len, log_size - log_len,
                                         " qp %d", avg_qp);
+
+                if (MPP_OK == mpp_meta_get_s32(meta, KEY_ENC_BPS_RT, &bps_rt))
+                        log_len += snprintf(log_buf + log_len, log_size - log_len,
+                                            " bps_rt %d", bps_rt);
+
+                if (MPP_OK == mpp_meta_get_s32(meta, KEY_ENC_USE_LTR, &use_lt_idx))
+                        log_len += snprintf(log_buf + log_len, log_size - log_len, " vi");
+
+              //  if (MPP_OK == mpp_meta_get_s64(meta, KEY_ENC_SSE, &sse)) {
+              //          psnr = 3.01029996 * (psnr_const - log2(sse));
+              //          log_len += snprintf(log_buf + log_len, log_size - log_len,
+             //                               " psnr %.4f", psnr);
             }
 
             LOG_DEBUG("chn %d %s\n", chn, log_buf);

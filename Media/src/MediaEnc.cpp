@@ -6,13 +6,13 @@ MppEncoder * encoder = nullptr;
 MediaEnc::MediaEnc(const ENC_STATUS_T&  status) : m_status(status)
 {
    // char userdata[64] = {0};
-    MppEncoderParams encoderparam = {0};
-    encoderparam.width = m_status.viW;
-    encoderparam.height = m_status.viH;
+    MppEncoderParams encoderparam;
+    memset(&encoderparam,0,sizeof(MppEncoderParams));
+    encoderparam.width = (RK_U32)m_status.viW;
+    encoderparam.height = (RK_U32)m_status.viH;
     encoderparam.fmt = MPP_FMT_YUV422_UYVY;
     encoderparam.type = MPP_VIDEO_CodingAVC;
-    encoderparam.rc_mode =  MPP_ENC_RC_MODE_CBR;
-    //encoderparam.bps = 
+    encoderparam.rc_mode =  MPP_ENC_RC_MODE_BUTT;
     encoder = new MppEncoder();
     encoder->Init(encoderparam,nullptr);
 }
