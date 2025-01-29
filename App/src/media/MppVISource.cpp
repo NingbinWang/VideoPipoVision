@@ -11,7 +11,7 @@
 #include <fstream>
 #include <iostream>
 
- //FILE* fp_output = NULL;
+ FILE* fp_output = nullptr;
 
 MppVISource* MppVISource::createNew(UsageEnvironment* env, std::string dev)
 {
@@ -44,9 +44,12 @@ MppVISource::MppVISource(UsageEnvironment* env, const std::string& dev) :
 
     mEncoder = new MediaEnc(enc_status);
 
-   this->mOutputbuf = (char *)malloc(FRAME_MAX_SIZE);
+    this->mOutputbuf = (char *)malloc(FRAME_MAX_SIZE);
 
-    //fp_output = fopen("/home/test.h264", "w+b");
+    fp_output = fopen("/home/mytest.h264", "w+b");
+    if (nullptr == fp_output) {
+            LOG_DEBUG("failed to open output file\n");
+    }
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
        mEnv->threadPool()->addTask(mTask);
     LOG_DEBUG("MppVISource OK\n");
@@ -79,6 +82,7 @@ void MppVISource::readFrame()
 {
     MutexLockGuard mutexLockGuard(mMutex);
     char * framebuf = nullptr;
+    size_t size = 0;
     if(mAvFrameInputQueue.empty())
         return;
     AvFrame* frame = mAvFrameInputQueue.front();
@@ -101,7 +105,12 @@ void MppVISource::readFrame()
             }
              //this->mOutputbuf = (char *)malloc(1024*1024*5);
          //  LOG_DEBUG("readtomppbuf index=%d\n",index);
-           size_t size =  mEncoder->Encode(vibuf,this->mOutputbuf,1024*1024*5);
+         //  size =  mEncoder->GetHeader(this->mOutputbuf,1024*1024*5);
+           size =  mEncoder->Encode(vibuf,this->mOutputbuf,1024*1024*5);
+           if(fp_output != nullptr) {
+             fwrite(this->mOutputbuf, 1, size,fp_output);
+           }
+          // size =  mEncoder->GetHeader(this->mOutputbuf,1024*1024*5);
            //LOG_DEBUG("readputmppbuf %d\n",index);
            mVi->readputmppbuf(index);
            framebuf = (char *)malloc(size);

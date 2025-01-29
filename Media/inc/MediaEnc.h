@@ -37,6 +37,8 @@ public:
      MediaEnc(const ENC_STATUS_T &status);
     ~MediaEnc();
     int Encode(void* mpp_buf, char* enc_buf, int max_size);
+    int GetHeader(char* enc_buf, int max_size);
+
 
 protected:
     ENC_STATUS_T m_status;

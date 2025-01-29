@@ -3,6 +3,13 @@
 #include <string.h>
 #include "rockchip/mpp_buffer.h"
 #include "Logger.h"
+#define FILEOUT 1
+#if FILEOUT
+#include <fstream>
+#include <iostream>
+
+ FILE* fp_mpp = nullptr;
+ #endif
 
 #define MPP_ALIGN(x, a)         (((x)+(a)-1)&~((a)-1))
 #define SZ_4K 4096
@@ -107,14 +114,6 @@ int MppEncoder::InitParams(MppEncoderParams& params)
     if (enc_params.rc_mode == MPP_ENC_RC_MODE_BUTT){
          enc_params.rc_mode = (enc_params.type == MPP_VIDEO_CodingMJPEG) ? MPP_ENC_RC_MODE_FIXQP : MPP_ENC_RC_MODE_VBR;
     }
-
-    // get paramter from cmd
-    if (enc_params.hor_stride == 0) {
-        enc_params.hor_stride = MPP_ALIGN(enc_params.width, 16);
-    }
-    if (enc_params.ver_stride == 0) {
-        enc_params.ver_stride = (MPP_ALIGN(enc_params.height, 16));
-    }
     
     if (enc_params.type == MPP_VIDEO_CodingUnused) {
         if (enc_params.width <= 0 || enc_params.height <= 0 ||
@@ -133,18 +132,14 @@ int MppEncoder::InitParams(MppEncoderParams& params)
         }
     }
 
-    if (enc_params.fps_in_den == 0)
-        enc_params.fps_in_den = 1;
-    if (enc_params.fps_in_num == 0)
-        enc_params.fps_in_num = 30;
-    if (enc_params.fps_out_den == 0)
-        enc_params.fps_out_den = 1;
-    if (enc_params.fps_out_num == 0)
-        enc_params.fps_out_num = 30;
-
-    if (!enc_params.bps)
-        enc_params.bps = enc_params.width * enc_params.height / 8 * (enc_params.fps_out_num / enc_params.fps_out_den);
-
+    // get paramter from cmd
+    if (enc_params.hor_stride == 0) {
+        enc_params.hor_stride = (MPP_ALIGN(enc_params.width, 16));
+    }
+    if (enc_params.ver_stride == 0) {
+        enc_params.ver_stride = (MPP_ALIGN(enc_params.height, 16));
+    }
+    
     this->mdinfo_size  = (MPP_VIDEO_CodingHEVC == enc_params.type) ?
                       (MPP_ALIGN(enc_params.hor_stride, 32) >> 5) *
                       (MPP_ALIGN(enc_params.ver_stride, 32) >> 5) * 16 :
@@ -196,6 +191,20 @@ int MppEncoder::InitParams(MppEncoderParams& params)
     } else {
         this->header_size = 0;
     }
+/*
+    if (enc_params.fps_in_den == 0)
+        enc_params.fps_in_den = 1;
+    if (enc_params.fps_in_num == 0)
+        enc_params.fps_in_num = 30;
+    if (enc_params.fps_out_den == 0)
+        enc_params.fps_out_den = 1;
+    if (enc_params.fps_out_num == 0)
+        enc_params.fps_out_num = 30;
+
+    if (!enc_params.bps)
+        enc_params.bps = enc_params.width * enc_params.height / 8 * (enc_params.fps_out_num / enc_params.fps_out_den);
+*/
+
 
     return 0;
 }
@@ -210,6 +219,12 @@ int MppEncoder::SetupEncCfg()
         LOG_ERROR("mpp_enc_cfg_init failed ret %d\n", ret);
         return -1;
     }
+    
+    ret = mpp_mpi->control(mpp_ctx, MPP_ENC_GET_CFG, cfg);
+    if (ret) {
+        LOG_ERROR("get enc cfg failed ret %d\n", ret);
+         return -1;
+    }
 
     /* setup default parameter */
     if (enc_params.fps_in_den == 0)
@@ -220,6 +235,8 @@ int MppEncoder::SetupEncCfg()
         enc_params.fps_out_den = 1;
     if (enc_params.fps_out_num == 0)
         enc_params.fps_out_num = 30;
+
+
         //tune
     if (enc_params.anti_flicker_str == 0){
         enc_params.anti_flicker_str = 0;
@@ -509,6 +526,11 @@ int MppEncoder::SetupEncCfg()
     }
 
 #if 0
+    /* setup test mode by env */
+    mpp_env_get_u32("osd_enable", &enc_params.osd_enable, 0);
+    mpp_env_get_u32("osd_mode", &enc_params.osd_mode, MPP_ENC_OSD_PLT_TYPE_DEFAULT);
+    mpp_env_get_u32("roi_enable", &enc_params.roi_enable, 0);
+    mpp_env_get_u32("user_data_enable", &enc_params.user_data_enable, 0);
     if (enc_params.roi_enable) {
         mpp_enc_roi_init(&enc_params.roi_mpp_ctx, enc_params.width, enc_params.height, enc_params.type, 4);
         mpp_assert(enc_params.roi_mpp_ctx);
@@ -524,6 +546,12 @@ MppEncoder::MppEncoder() {
     this->mpp_ctx = NULL;
     this->mpp_mpi = NULL;
     memset(&osd_data, 0, sizeof(MppEncOSDData));
+#if FILEOUT
+    fp_mpp = fopen("/home/rkmpp.h264", "w+b");
+    if (nullptr == fp_mpp) {
+            LOG_DEBUG("failed to open output file\n");
+    }
+#endif
 }
 
 MppEncoder::~MppEncoder() {
@@ -571,9 +599,14 @@ int MppEncoder::Init(MppEncoderParams& params, void* userdata) {
 
     this->InitParams(params);
 
-    ret = mpp_buffer_group_get_internal(&this->buf_grp, MPP_BUFFER_TYPE_DRM);
+    ret = mpp_buffer_group_get_internal(&this->buf_grp, MPP_BUFFER_TYPE_DRM | MPP_BUFFER_FLAGS_CACHABLE);
     if (ret) {
         LOG_DEBUG("failed to get mpp buffer group ret %d\n", ret);
+        goto MPP_TEST_OUT;
+    }
+    ret = mpp_buffer_get(this->buf_grp, &this->frm_buf, this->frame_size + this->header_size);
+    if (ret) {
+        LOG_DEBUG("failed to get buffer for input frame ret %d\n", ret);
         goto MPP_TEST_OUT;
     }
 
@@ -859,6 +892,11 @@ int MppEncoder::Encode(void* mpp_buf, char* enc_buf, int max_size) {
             if (this->callback != nullptr) {
                 this->callback(this->userdata, (const char*)ptr, len);
             }
+#if FILEOUT
+            if(fp_mpp != nullptr) {
+             fwrite(ptr, 1,len,fp_mpp);
+           }
+#endif
             if (enc_buf != nullptr && max_size > 0) {
                 if ((int)(out_len + log_len) < max_size) {
                     memcpy(out_ptr, ptr, len);

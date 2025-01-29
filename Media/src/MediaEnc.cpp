@@ -1,6 +1,7 @@
 #include "Media.h"
 #include "MppEncoder.h"
 #include "Logger.h"
+
 MppEncoder * encoder = nullptr;
 
 MediaEnc::MediaEnc(const ENC_STATUS_T&  status) : m_status(status)
@@ -15,6 +16,7 @@ MediaEnc::MediaEnc(const ENC_STATUS_T&  status) : m_status(status)
     encoderparam.rc_mode =  MPP_ENC_RC_MODE_BUTT;
     encoder = new MppEncoder();
     encoder->Init(encoderparam,nullptr);
+
 }
 
 MediaEnc::~MediaEnc() 
@@ -25,4 +27,10 @@ MediaEnc::~MediaEnc()
 int MediaEnc::Encode(void* mpp_buf, char* enc_buf, int max_size)
 {
    return encoder->Encode(mpp_buf,enc_buf,max_size);
+}
+
+
+int MediaEnc::GetHeader(char* enc_buf, int max_size)
+{
+   return encoder->GetHeader(enc_buf,max_size);
 }
