@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _MEDIA_ENC_H_
+#define _MEDIA_ENC_H_
 #include "MediaConfig.h"
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +31,7 @@ typedef struct
 } ENC_STATUS_T;
 #ifdef __cplusplus
 }
+#endif/*__cplusplus*/
 
 class MediaEnc
 {
@@ -44,9 +46,4 @@ protected:
     ENC_STATUS_T m_status;
 };
 
-
-
-
-
-#endif/*__cplusplus*/
-
+#endif

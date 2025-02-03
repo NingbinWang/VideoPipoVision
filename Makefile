@@ -140,7 +140,7 @@ checkenv:
 
 Utils: checkenv
 	@$(ECHO) "##### Build utils ####"
-	make -C $(UTILS_DIR)
+	@make -C $(UTILS_DIR)
 	@if [ -f $(UTILS_DIR)/Lib/libUtils.so ]; then \
 		cp $(UTILS_DIR)/Lib/libUtils.so $(OUTPUT_DIR)/lib/; \
 	fi
@@ -152,7 +152,7 @@ Utils_Clean:
 
 App: checkenv
 	@$(ECHO) "##### Build app ####"
-	make -C $(APP_DIR)
+	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG)
 	@if [ -f $(APP_DIR)/Lib/libApp.so ]; then \
 		cp $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
 	fi

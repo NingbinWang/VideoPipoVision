@@ -66,7 +66,5 @@ bool MediaVi::poll()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-
-     return videoCapture->isReadable(&tv);
-   //return videoCapture->capturepoll();
+    return videoCapture->isReadable(&tv);
 }

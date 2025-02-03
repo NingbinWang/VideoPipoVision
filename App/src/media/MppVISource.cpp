@@ -100,19 +100,23 @@ void MppVISource::readFrame()
             ret = mVi->poll();
             if(ret == false)
                 continue;
+#ifdef MEDIARKMPP
             vibuf =  mVi->readtomppbuf(&index);
             if(vibuf == nullptr)
             {
                 LOG_WARNING("don't have framebuf\n");
                 return;
             }
+#endif
            size =  mEncoder->Encode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
 #if MPPFILEOUT
            if(fp_output != nullptr) {
              fwrite(this->mOutputbuf, 1, size,fp_output);
            }
 #endif
+#ifdef MEDIARKMPP
            mVi->readputmppbuf(index);
+#endif
            framebuf = (char *)malloc(size);
            memcpy(framebuf, this->mOutputbuf, size);
            memset(this->mOutputbuf,0,size);
