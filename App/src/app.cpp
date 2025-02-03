@@ -51,7 +51,7 @@ int opencv_demo()
 int v4l2rtsp()
 {
      //Logger::setLogFile("xxx.log");
-    Logger::setLogLevel(Logger::LogDebug);
+    Logger::setLogLevel(Logger::LogError);
 
     EventScheduler* scheduler = EventScheduler::createNew(EventScheduler::POLLER_SELECT);//创建调度器
     ThreadPool* threadPool = ThreadPool::createNew(2);//创建线程池

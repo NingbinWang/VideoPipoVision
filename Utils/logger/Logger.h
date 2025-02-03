@@ -15,6 +15,10 @@ class Logger;
     if(Logger::LogDebug <= Logger::getLogLevel()) \
         Logger().write(Logger::LogDebug, __FILE__, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
 
+#define LOG_INFO(format, ...) \
+    if(Logger::LogInfo <= Logger::getLogLevel()) \
+        Logger().write(Logger::LogDebug, __FILE__, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
+
 
 
 class Logger
@@ -24,7 +28,8 @@ public:
     {
         LogError,
         LogWarning,
-        LogDebug
+        LogDebug,
+        LogInfo
     };
 
     Logger();

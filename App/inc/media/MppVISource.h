@@ -9,7 +9,7 @@
 #include "x264.h"
 
 
-
+#define MPPENCOERSIZE 5*1024*1024
 class MppVISource : public MediaSource
 {
 public:

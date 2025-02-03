@@ -3,6 +3,9 @@
 
 #include "rockchip/mpp_frame.h"
 #include "rockchip/rk_mpi.h"
+#include "rockchip/mpp_buffer.h"
+#include "rockchip/rk_venc_ref.h"
+#include "rockchip/mpp_rc_api.h"
 #include <pthread.h>
 #include <string.h>
 
@@ -109,15 +112,19 @@ class MppEncoder {
     int GetInputFrameBufferFd(void* mpp_buffer);
     void* GetInputFrameBufferAddr(void* mpp_buffer);
   private:
-    struct DataCrc {
-      RK_U32          len;
-      RK_U32          sum_cnt;
-      RK_ULONG        *sum;
-      RK_U32          vor; // value of the xor
-    };
+   // struct DataCrc {
+   //   RK_U32          len;
+   //   RK_U32          sum_cnt;
+   //   RK_ULONG        *sum;
+   //   RK_U32          vor; // value of the xor
+   // };
     int InitParams(MppEncoderParams& params);
     int SetupEncCfg();
-    //int EncWidthDefaultStride(int width, MppFrameFormat fmt);
+    RK_S64 mpp_time();
+    void ShowParams();
+    int EncWidthDefaultStride(int width, MppFrameFormat fmt);
+    MPP_RET mpi_enc_gen_ref_cfg(MppEncRefCfg ref, RK_S32 gop_mode);
+    MPP_RET mpi_enc_gen_smart_gop_ref_cfg(MppEncRefCfg ref, RK_S32 gop_len, RK_S32 vi_len);
 
     MppCtx mpp_ctx = NULL;
     MppApi* mpp_mpi = NULL;
@@ -127,7 +134,7 @@ class MppEncoder {
 
     // global flow control flag
     // RK_U32 frm_eos = 0;
-    // RK_U32 pkt_eos = 0;
+    RK_U32 pkt_eos = 0;
     // RK_U32 frm_pkt_cnt = 0;
     // RK_S32 frame_num = 0;
     // RK_S32 frame_count = 0;
@@ -150,6 +157,7 @@ class MppEncoder {
     MppBuffer frm_buf = NULL;
     MppBuffer pkt_buf = NULL;
     MppBuffer md_info = NULL;
+    RK_FLOAT psnr_const = 0;
 
     // MppEncRoiCtx roi_ctx;
 

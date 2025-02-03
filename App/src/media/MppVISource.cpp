@@ -8,10 +8,12 @@
 #include "base/New.h"
 #include "Logger.h"
 
+#define MPPFILEOUT 0 //the fileout use for debug 
+#if MPPFILEOUT
 #include <fstream>
 #include <iostream>
-
- FILE* fp_output = nullptr;
+FILE* fp_output = nullptr;
+#endif
 
 MppVISource* MppVISource::createNew(UsageEnvironment* env, std::string dev)
 {
@@ -45,11 +47,12 @@ MppVISource::MppVISource(UsageEnvironment* env, const std::string& dev) :
     mEncoder = new MediaEnc(enc_status);
 
     this->mOutputbuf = (char *)malloc(FRAME_MAX_SIZE);
-
+#if MPPFILEOUT
     fp_output = fopen("/home/mytest.h264", "w+b");
     if (nullptr == fp_output) {
             LOG_DEBUG("failed to open output file\n");
     }
+#endif
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
        mEnv->threadPool()->addTask(mTask);
     LOG_DEBUG("MppVISource OK\n");
@@ -103,23 +106,18 @@ void MppVISource::readFrame()
                 LOG_WARNING("don't have framebuf\n");
                 return;
             }
-             //this->mOutputbuf = (char *)malloc(1024*1024*5);
-         //  LOG_DEBUG("readtomppbuf index=%d\n",index);
-         //  size =  mEncoder->GetHeader(this->mOutputbuf,1024*1024*5);
-           size =  mEncoder->Encode(vibuf,this->mOutputbuf,1024*1024*5);
+           size =  mEncoder->Encode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
+#if MPPFILEOUT
            if(fp_output != nullptr) {
              fwrite(this->mOutputbuf, 1, size,fp_output);
            }
-          // size =  mEncoder->GetHeader(this->mOutputbuf,1024*1024*5);
-           //LOG_DEBUG("readputmppbuf %d\n",index);
+#endif
            mVi->readputmppbuf(index);
            framebuf = (char *)malloc(size);
            memcpy(framebuf, this->mOutputbuf, size);
            memset(this->mOutputbuf,0,size);
-           //LOG_DEBUG("h264 output %10x size= %d\n",this->mOutputbuf,size);
-           // mEncoder->GetHeader(this->mOutputbuf,FRAME_MAX_SIZE);
-            mNaluQueue.push(Nalu((uint8_t*)framebuf, size));
-            break;
+           mNaluQueue.push(Nalu((uint8_t*)framebuf, size));
+           break;
         }
     }
     Nalu nalu = mNaluQueue.front();
