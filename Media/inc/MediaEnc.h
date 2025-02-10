@@ -40,6 +40,7 @@ public:
     ~MediaEnc();
     int Encode(void* mpp_buf, char* enc_buf, int max_size);
     int GetHeader(char* enc_buf, int max_size);
+    
 
 
 protected:

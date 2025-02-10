@@ -60,8 +60,7 @@ void FFMpegVISource::readFrame()
     LOG_DEBUG("start readFrame \n");
     if(mAvFrameInputQueue.empty())
         return;
-    //Encoder *encoder = new Encoder(AV_CODEC_ID_H264,1920,1080,30,12);
-    //encoder->open(true);
+
     AvFrame* frame = mAvFrameInputQueue.front();
     if(mNaluQueue.empty())
     {

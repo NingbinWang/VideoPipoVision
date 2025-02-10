@@ -65,6 +65,7 @@ ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 LIB_VAR += rga
 LIB_VAR += rockchip_mpp
 LIB_VAR += rockchip_vpu
+LIB_VAR += rknnrt
 LD_CPP_FLAGS += -DMEDIARKMPP
 endif
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
@@ -99,6 +100,7 @@ INC_PATH += $(UTILS_DIR)/logger
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/mpp/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/rga/include
+INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/npu/include
 endif
 ifneq (,$(findstring y,$(TARGET_OPENCV)))
 INC_PATH += $(LIB_DIR)/opencv/include

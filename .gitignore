@@ -4,4 +4,7 @@ CMakeSettings.json
 Build
 out
 output
-Thirdparty
+Thirdparty/*
+!Thirdparty/linux.mk
+!Thirdparty/Makefile
+!Thirdparty/wpa_supplicant.conf
