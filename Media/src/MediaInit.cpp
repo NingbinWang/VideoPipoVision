@@ -62,15 +62,6 @@ int Media_Init(void)
 }
 
 
-
-
-
-//int Media_Exit(void)
-//{
-//    hdal_exit();
-//    return 0;
-//}
-
 int Media_Memalloc(unsigned int *phy_addr, void **virt_addr,unsigned int size)
 {
 	int ret = -1;

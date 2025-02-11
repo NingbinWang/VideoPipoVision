@@ -131,6 +131,8 @@ void MppEncoder::ShowParams()
 {
     LOG_DEBUG("width      : %d\n", enc_params.width);
     LOG_DEBUG("height     : %d\n", enc_params.height);
+    LOG_DEBUG("hor_stride      : %d\n", enc_params.hor_stride);
+    LOG_DEBUG("ver_stride      : %d\n", enc_params.ver_stride);
     LOG_DEBUG("format     : %d\n", enc_params.fmt);
     LOG_DEBUG("type       : %d\n", enc_params.type);
 }

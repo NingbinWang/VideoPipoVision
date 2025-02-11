@@ -107,6 +107,15 @@ void MppVISource::readFrame()
                 LOG_WARNING("don't have framebuf\n");
                 return;
             }
+            IMAGE_FRAME_T img = {0};
+            img.width = 1920;
+            img.height = 1080;
+            img.width_stride = 1920;
+            img.height_stride =  1080;
+           // img.format = RK_FORMAT_YCbCr_420_SP;
+            img.virt_addr = (char *)vibuf;
+            DETECT_RESULT_GROUP_T result = {0};
+            MediaAI_Report(&img,&result);
 #endif
            size =  mEncoder->Encode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
 #if MPPFILEOUT

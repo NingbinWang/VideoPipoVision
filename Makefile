@@ -19,6 +19,7 @@ TARGET_SOC = rk3566
 TARGET_OPENCV = y
 TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
+TARGET_V4L2 = y
 export SOC     := $(TARGET_SOC)
 export $(TARGET_MEDIA)
 export $(TARGET_OPENCV)
@@ -165,7 +166,7 @@ App_Clean:
 
 Media: checkenv
 	@$(ECHO) "##### Build Media ####"
-	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA)
+	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_V4L2=$(TARGET_V4L2)
 	@if [ -f $(MEDIA_DIR)/Lib/libMedia.so ]; then \
 		cp $(MEDIA_DIR)/Lib/libMedia.so $(OUTPUT_DIR)/lib/; \
 	fi

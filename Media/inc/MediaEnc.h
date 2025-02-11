@@ -32,7 +32,7 @@ typedef struct
 #ifdef __cplusplus
 }
 #endif/*__cplusplus*/
-
+typedef void (*MediaEncCallback)(void* userdata, const char* data, int size);
 class MediaEnc
 {
 public:		
@@ -40,7 +40,7 @@ public:
     ~MediaEnc();
     int Encode(void* mpp_buf, char* enc_buf, int max_size);
     int GetHeader(char* enc_buf, int max_size);
-    
+    int SetCallback(MediaEncCallback callback);
 
 
 protected:

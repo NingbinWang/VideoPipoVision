@@ -11,7 +11,7 @@ MediaEnc::MediaEnc(const ENC_STATUS_T&  status) : m_status(status)
     memset(&encoderparam,0,sizeof(MppEncoderParams));
     encoderparam.width = (RK_U32)m_status.viW;
     encoderparam.height = (RK_U32)m_status.viH;
-    encoderparam.fmt = MPP_FMT_YUV422_UYVY;
+    encoderparam.fmt = MPP_FMT_YUV420SP;
     encoderparam.type = MPP_VIDEO_CodingAVC;
     encoderparam.rc_mode =  MPP_ENC_RC_MODE_BUTT;
     encoder = new MppEncoder();
@@ -33,4 +33,9 @@ int MediaEnc::Encode(void* mpp_buf, char* enc_buf, int max_size)
 int MediaEnc::GetHeader(char* enc_buf, int max_size)
 {
    return encoder->GetHeader(enc_buf,max_size);
+}
+
+int MediaEnc::SetCallback(MediaEncCallback callback )
+{
+   return encoder->SetCallback((MppEncoderFrameCallback)callback);
 }

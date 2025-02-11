@@ -7,6 +7,7 @@
 #include "MediaEnc.h"
 #include "MediaDec.h"
 #include "MediaFrame.h"
+#include "MediaAi.h"
 #ifdef __cplusplus
 extern "C" {
 #endif/*__cplusplus*/

@@ -2,10 +2,22 @@
 #define _RKRGA_H_
 #include <dlfcn.h> 
 #include "RgaApi.h"
+#include "im2d.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+typedef struct
+{
+  int width;
+  int height;
+  int width_stride;
+  int height_stride;
+  int format;
+  char *virt_addr;
+  int fd;
+} IMAGE_T;
+
 
 typedef int(* FUNC_RGA_INIT)();
 typedef void(* FUNC_RGA_DEINIT)();
@@ -18,15 +30,23 @@ typedef struct _rga_context{
     FUNC_RGA_BLIT blit_func;
 } rga_context;
 
-int RGA_init(rga_context* rga_ctx);
-
-void img_resize_fast(rga_context *rga_ctx, int src_fd, int src_w, int src_h, uint64_t dst_phys, int dst_w, int dst_h);
-
-void img_resize_slow(rga_context *rga_ctx, void *src_virt, int src_w, int src_h, void *dst_virt, int dst_w, int dst_h);
-
-int RGA_deinit(rga_context* rga_ctx);
+//int RGA_init(rga_context* rga_ctx);
 
 #ifdef __cplusplus
 }
 #endif
+
+
+class RKrga{
+ public:
+    RKrga();
+    ~RKrga();
+    int overlay_osd(IMAGE_T osd_bitmap,IMAGE_T background,int x_pos,int y_pos);
+    bool img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
+};
+
+
+
+
+
 #endif
