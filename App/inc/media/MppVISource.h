@@ -38,9 +38,6 @@ private:
     char *mOutputbuf=nullptr;
     std::string mDev;
     MediaVi *mVi;
-    MediaEnc *mEncoder;
- 
-    
-
+    int mframe_size;
     std::queue<Nalu> mNaluQueue;
 };

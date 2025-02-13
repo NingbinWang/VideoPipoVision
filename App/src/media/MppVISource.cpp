@@ -43,9 +43,7 @@ MppVISource::MppVISource(UsageEnvironment* env, const std::string& dev) :
 //MediaEnc
     enc_status.viW = 1920;
     enc_status.viH = 1080;
-
-    mEncoder = new MediaEnc(enc_status);
-
+    MediaEncInit(&enc_status);
     this->mOutputbuf = (char *)malloc(FRAME_MAX_SIZE);
 #if MPPFILEOUT
     fp_output = fopen("/home/mytest.h264", "w+b");
@@ -107,17 +105,23 @@ void MppVISource::readFrame()
                 LOG_WARNING("don't have framebuf\n");
                 return;
             }
-            IMAGE_FRAME_T img = {0};
-            img.width = 1920;
-            img.height = 1080;
-            img.width_stride = 1920;
-            img.height_stride =  1080;
-           // img.format = RK_FORMAT_YCbCr_420_SP;
-            img.virt_addr = (char *)vibuf;
-            DETECT_RESULT_GROUP_T result = {0};
-            MediaAI_Report(&img,&result);
 #endif
-           size =  mEncoder->Encode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
+#ifdef MEDIARKAI
+            IMAGE_FRAME_T srcimg = {0};
+            size_t mpp_frame_size =MediaEncGetFrameSize();
+            void* mpp_frame_addr = MediaEncGetInputFrameBufferAddr(vibuf);
+            int mpp_frame_fd = MediaEncGetInputFrameBufferFd(vibuf);
+            LOG_DEBUG("MediaEncGetInputFrame mpp_frame_size: %d mpp_frame_fd:%d mpp_frame_addr:%p\n",mpp_frame_size,mpp_frame_fd,mpp_frame_addr);
+            srcimg.width =  1920;
+            srcimg.height = 1080;
+            srcimg.width_stride = 1920;
+            srcimg.height_stride =  1080;
+            srcimg.virt_addr = (char *)mpp_frame_addr;
+            srcimg.fd = mpp_frame_fd;
+            DETECT_RESULT_GROUP_T result = {0};
+            MediaAi_Report(&srcimg,&result);
+#endif
+           size =  MediaEncEncode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
 #if MPPFILEOUT
            if(fp_output != nullptr) {
              fwrite(this->mOutputbuf, 1, size,fp_output);

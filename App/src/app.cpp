@@ -46,6 +46,12 @@ int opencv_demo()
     cap.release();
     return 0;
 }
+
+
+
+
+
+
 static unsigned char *load_data(FILE *fp, size_t ofst, size_t sz)
 {
   unsigned char *data;
@@ -128,13 +134,14 @@ int v4l2rtsp()
 
     return 0;
 }
-
+static char *labels[80];
+#define LABEL_NALE_TXT_PATH "/home/tspi_labels_list.txt"
 int app_main(void)
 {
    unsigned char *model;
    int model_size = 0;
    model = read_file_data("/home/tspi_moblienetv3_demo.rknn",&model_size);
-   MediaAI_Init(model,model_size);
+   MediaAi_Init(model,model_size,LABEL_NALE_TXT_PATH);
    v4l2rtsp();
    return 0;
 }

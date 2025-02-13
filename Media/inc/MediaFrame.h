@@ -86,7 +86,16 @@ typedef struct
      MEDIA_YUV_FRAME_T      yuv_frame;       //YUV数据指针
 }MEDIA_VIDEO_FRAME_T;
 
-
+typedef struct
+{
+  int width;
+  int height;
+  int width_stride;
+  int height_stride;
+  int format;
+  char *virt_addr;
+  int fd;
+} IMAGE_FRAME_T;
 
 
 

@@ -2,6 +2,7 @@
 #include "MppEncoder.h"
 #include "Logger.h"
 
+
 RKrga *rga = nullptr;
 RKnpu::RKnpu()
 {
@@ -10,7 +11,12 @@ RKnpu::RKnpu()
 
 RKnpu::~RKnpu() 
 {
-	
+	delete rga;
+}
+
+RKrga *RKnpu::getrga()
+{
+   return rga;
 }
 
 
@@ -111,34 +117,20 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
   return true;
 }
 
-bool  RKnpu::Inference_Model(IMAGE_T *img, RESULT_GROUP_T *detect_result,RknnConText_T *app_ctx)
+bool  RKnpu::Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GROUP_T *detect_result,RknnConText_T *app_ctx)
 {
-  int ret;
-  img->format = RK_FORMAT_YCbCr_420_SP;
+  bool ret;
   rknn_context ctx = app_ctx->rknn_ctx;
   int model_width = app_ctx->model_width;
   int model_height = app_ctx->model_height;
   int model_channel = app_ctx->model_channel;
-
   struct timeval start_time, stop_time;
   const float nms_threshold = NMS_THRESH;
   const float box_conf_threshold = BOX_THRESH;
   // You may not need resize when src resulotion equals to dst resulotion
-  void *resize_buf = nullptr;
-  // init rga context
-  rga_buffer_t src;
-  rga_buffer_t dst;
-  im_rect src_rect;
-  im_rect dst_rect;
-  memset(&src_rect, 0, sizeof(src_rect));
-  memset(&dst_rect, 0, sizeof(dst_rect));
-  memset(&src, 0, sizeof(src));
-  memset(&dst, 0, sizeof(dst));
-
-  LOG_DEBUG("input image %dx%d stride %dx%d format=%d\n", img->width, img->height, img->width_stride, img->height_stride, img->format);
-
-  //float scale_w = (float)model_width / img->width;
-  //float scale_h = (float)model_height / img->height;
+ 
+  float scale_w = (float)model_width / srcwidth;
+  float scale_h = (float)model_height / srcheight;
 
   rknn_input inputs[1];
   memset(inputs, 0, sizeof(inputs));
@@ -147,22 +139,8 @@ bool  RKnpu::Inference_Model(IMAGE_T *img, RESULT_GROUP_T *detect_result,RknnCon
   inputs[0].size = model_width * model_height * model_channel;
   inputs[0].fmt = RKNN_TENSOR_NHWC;
   inputs[0].pass_through = 0;
-
-  LOG_DEBUG("resize with RGA!\n");
-  resize_buf = malloc(model_width * model_height * model_channel);
-  memset(resize_buf, 0, model_width * model_height * model_channel);
-
-  src = wrapbuffer_virtualaddr((void *)img->virt_addr, img->width, img->height, img->format, img->width_stride, img->height_stride);
-  dst = wrapbuffer_virtualaddr((void *)resize_buf, model_width, model_height, RK_FORMAT_RGB_888);
-  ret = imcheck(src, dst, src_rect, dst_rect);
-  if (IM_STATUS_NOERROR != ret)
-  {
-    LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
-    return false;
-  }
-  //IM_STATUS STATUS = imresize(src, dst);
-  imresize(src, dst);
-  inputs[0].buf = resize_buf;
+  LOG_DEBUG("model input height=%d, width=%d, channel=%d\n", app_ctx->model_height, app_ctx->model_width, app_ctx->model_channel);
+  inputs[0].buf = srcbuf;
 
   gettimeofday(&start_time, NULL);
   rknn_inputs_set(ctx, app_ctx->io_num.n_input, inputs);
@@ -174,7 +152,6 @@ bool  RKnpu::Inference_Model(IMAGE_T *img, RESULT_GROUP_T *detect_result,RknnCon
     outputs[i].index = i;
     outputs[i].want_float = 0;
   }
-
   ret = rknn_run(ctx, NULL);
   ret = rknn_outputs_get(ctx, app_ctx->io_num.n_output, outputs, NULL);
   gettimeofday(&stop_time, NULL);
@@ -189,16 +166,18 @@ bool  RKnpu::Inference_Model(IMAGE_T *img, RESULT_GROUP_T *detect_result,RknnCon
     out_scales.push_back(app_ctx->output_attrs[i].scale);
     out_zps.push_back(app_ctx->output_attrs[i].zp);
   }
- // BOX_T pads;
-//  memset(&pads, 0, sizeof(BOX_RECT));
+  BOX_T pads;
+  memset(&pads, 0, sizeof(BOX_T));
 
- // post_process((int8_t *)outputs[0].buf, (int8_t *)outputs[1].buf, (int8_t *)outputs[2].buf, model_height, model_width,
- //              box_conf_threshold, nms_threshold, pads, scale_w, scale_h, out_zps, out_scales, detect_result);
+  post_process((int8_t *)outputs[0].buf, (int8_t *)outputs[1].buf, (int8_t *)outputs[2].buf, model_height, model_width,
+               box_conf_threshold, nms_threshold, pads, scale_w, scale_h, out_zps, out_scales, detect_result,app_ctx->labels_nale_txt_path);
   ret = rknn_outputs_release(ctx, app_ctx->io_num.n_output, outputs);
 
-  if (resize_buf)
+  if (srcbuf != nullptr)
   {
-    free(resize_buf);
+    free(srcbuf);
   }
-  return 0;
+  return ret;
 }
+
+

@@ -4,7 +4,7 @@
 extern "C" {
 #endif/*__cplusplus*/
 
-
+#include "MediaFrame.h"
 //yolo
 #define OBJ_NAME_MAX_SIZE 16
 #define OBJ_NUMB_MAX_SIZE 64
@@ -30,21 +30,12 @@ typedef struct
     DETECT_RESULT_T results[OBJ_NUMB_MAX_SIZE];
 } DETECT_RESULT_GROUP_T;
 
-typedef struct
-{
-  int width;
-  int height;
-  int width_stride;
-  int height_stride;
-  int format;
-  char *virt_addr;
-  int fd;
-} IMAGE_FRAME_T;
 
 
 
-int MediaAI_Init(unsigned char *model_data,int model_data_size);
-int MediaAI_Report(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results);
+
+int MediaAi_Init(unsigned char *model_data,int model_data_size,const char *labels_nale_txt_path);
+int MediaAi_Report(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results);
 
 #ifdef __cplusplus
 }

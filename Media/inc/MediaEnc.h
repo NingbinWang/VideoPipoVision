@@ -29,22 +29,22 @@ typedef struct
     unsigned int   PsNetPoolFrmLost; /* PS网传视频录像丢帧数目累加*/
     unsigned int   res[5];
 } ENC_STATUS_T;
+
+
+typedef void (*MediaEncCallback)(void* userdata, const char* data, int size);
+
+int MediaEncInit(const ENC_STATUS_T* status);
+int MediaEncEncode(void* mpp_buf, char* enc_buf, int max_size);
+int MediaEncGetHeader(char* enc_buf, int max_size);
+int MediaEncSetCallback(MediaEncCallback callback );
+void MediaEncDeInit();
+size_t MediaEncGetFrameSize();
+void* MediaEncGetInputFrame();
+int MediaEncGetInputFrameBufferFd(void * source);
+void* MediaEncGetInputFrameBufferAddr(void * source);
+
 #ifdef __cplusplus
 }
 #endif/*__cplusplus*/
-typedef void (*MediaEncCallback)(void* userdata, const char* data, int size);
-class MediaEnc
-{
-public:		
-     MediaEnc(const ENC_STATUS_T &status);
-    ~MediaEnc();
-    int Encode(void* mpp_buf, char* enc_buf, int max_size);
-    int GetHeader(char* enc_buf, int max_size);
-    int SetCallback(MediaEncCallback callback);
-
-
-protected:
-    ENC_STATUS_T m_status;
-};
 
 #endif

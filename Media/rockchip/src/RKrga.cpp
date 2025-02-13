@@ -64,7 +64,7 @@ int RKrga::overlay_osd(IMAGE_T osd_bitmap,IMAGE_T background,int x_pos,int y_pos
      // 执行 RGA 操作
      ret = RgaBlit(&src, &dst, NULL);
      if (ret != 0) {
-         printf("RGA blit failed: %d\n", ret);
+         LOG_ERROR("RGA blit failed: %d\n", ret);
          return ret;
      }
      return ret;
@@ -78,12 +78,40 @@ bool RKrga::img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
     rga_buffer_t dst;
     im_rect src_rect;
     im_rect dst_rect;
+    memset(&src, 0, sizeof(src));
+    memset(&dst, 0, sizeof(dst));
+    src = wrapbuffer_virtualaddr((void *)srcimg->virt_addr, srcimg->width, srcimg->height, srcimg->format,srcimg->width_stride,srcimg->height_stride);
+    dst = wrapbuffer_virtualaddr((void *)dstimg->virt_addr, dstimg->width, dstimg->height, dstimg->format,dstimg->width_stride,dstimg->height_stride);
+    ret = imcheck(src, dst, src_rect, dst_rect);
+    if (IM_STATUS_NOERROR != ret)
+    {
+      LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+      return false;
+    }
+    ret = imresize(src, dst);
+    if (IM_STATUS_SUCCESS != ret)
+    {
+      LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+      return false;
+    }
+    return true;
+}
+
+
+bool RKrga::img_resize_fd(IMAGE_T *srcimg,IMAGE_T *dstimg)
+{
+    IM_STATUS ret = IM_STATUS_SUCCESS;
+    // init rga context
+    rga_buffer_t src;
+    rga_buffer_t dst;
+    im_rect src_rect;
+    im_rect dst_rect;
     memset(&src_rect, 0, sizeof(src_rect));
     memset(&dst_rect, 0, sizeof(dst_rect));
     memset(&src, 0, sizeof(src));
     memset(&dst, 0, sizeof(dst));
-    src = wrapbuffer_virtualaddr((void *)srcimg->virt_addr, srcimg->width, srcimg->height, srcimg->format, srcimg->width_stride, srcimg->height_stride);
-    dst = wrapbuffer_virtualaddr((void *)dstimg->virt_addr, dstimg->width, dstimg->height, dstimg->format);
+    src = wrapbuffer_fd(srcimg->fd, srcimg->width, srcimg->height, srcimg->format,srcimg->width_stride,srcimg->height_stride);
+    dst = wrapbuffer_fd(dstimg->fd, dstimg->width, dstimg->height, dstimg->format);
     ret = imcheck(src, dst, src_rect, dst_rect);
     if (IM_STATUS_NOERROR != ret)
     {
@@ -92,7 +120,7 @@ bool RKrga::img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
     }
   //IM_STATUS STATUS = imresize(src, dst);
     ret = imresize(src, dst);
-    if (IM_STATUS_NOERROR != ret)
+    if (IM_STATUS_SUCCESS != ret)
     {
       LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
       return false;
@@ -100,3 +128,65 @@ bool RKrga::img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
     return true;
 }
 
+
+bool RKrga::img_copy_fd(IMAGE_T *srcimg,IMAGE_T *dstimg)
+{
+    IM_STATUS ret = IM_STATUS_SUCCESS;
+    // init rga context
+    rga_buffer_t src;
+    rga_buffer_t dst;
+    im_rect src_rect;
+    im_rect dst_rect;
+    memset(&src_rect, 0, sizeof(src_rect));
+    memset(&dst_rect, 0, sizeof(dst_rect));
+    memset(&src, 0, sizeof(src));
+    memset(&dst, 0, sizeof(dst));
+    // Copy To another buffer avoid to modify mpp decoder buffer
+    src = wrapbuffer_fd(srcimg->fd, srcimg->width, srcimg->height, srcimg->format,srcimg->width_stride,srcimg->height_stride);
+    dst = wrapbuffer_fd(dstimg->fd, dstimg->width, dstimg->height, dstimg->format,dstimg->width_stride,dstimg->height_stride);
+    ret = imcheck(src, dst, src_rect, dst_rect);
+    if (IM_STATUS_NOERROR != ret)
+    {
+      LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+      return false;
+    }
+
+    ret = imcopy(src, dst);
+    if (IM_STATUS_SUCCESS != ret)
+    {
+      LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+      return false;
+    }
+    return true;
+}
+
+bool RKrga::img_imcvtcolor_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
+{
+     IM_STATUS ret = IM_STATUS_SUCCESS;
+  // init rga context
+     rga_buffer_t src;
+     rga_buffer_t dst;
+     im_rect src_rect;
+     im_rect dst_rect;
+     memset(&src_rect, 0, sizeof(src_rect));
+     memset(&dst_rect, 0, sizeof(dst_rect));
+     memset(&src, 0, sizeof(src));
+     memset(&dst, 0, sizeof(dst));
+     src = wrapbuffer_virtualaddr((void *)srcimg->virt_addr, srcimg->width, srcimg->height, srcimg->format,srcimg->width_stride,srcimg->height_stride);
+     dst = wrapbuffer_virtualaddr((void *)dstimg->virt_addr, dstimg->width, dstimg->height, dstimg->format,dstimg->width_stride,dstimg->height_stride);
+     //检查
+     ret = imcheck(src, dst, src_rect, dst_rect);
+     if (IM_STATUS_NOERROR != ret)
+     {
+       LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+       return false;
+     } 
+     // 执行格式转换
+     ret = imcvtcolor(src, dst,src.format, dst.format);
+     if (IM_STATUS_SUCCESS != ret)
+     {
+       LOG_ERROR("%d, imcvtcolor error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+       return false;
+     }
+     return true;
+}

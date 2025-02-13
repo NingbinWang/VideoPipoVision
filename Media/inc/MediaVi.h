@@ -147,6 +147,7 @@ public:
 #ifdef MEDIARKMPP
     void * readtomppbuf(int* index);
     bool readputmppbuf(int index);
+    void * readtomppoutbuf(int* index,char* outbuf, int* size,int max_bufsize);
 #endif
 
 protected:

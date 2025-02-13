@@ -9,6 +9,7 @@
 #include <set>
 #include <vector>
 #include <math.h>
+#include "PosProcess.h"
 
 
 typedef struct
@@ -20,42 +21,20 @@ typedef struct
   int model_channel;
   int model_width;
   int model_height;
+  char labels_nale_txt_path[256];
 } RknnConText_T;
 
 
 
-#define NMS_THRESH 0.45
-#define BOX_THRESH 0.25
-#define OBJECT_NAME_MAX_SIZE 16
-#define OBJECT_NUMB_MAX_SIZE 64
-typedef struct 
-{
-    int left;
-    int right;
-    int top;
-    int bottom;
-} BOX_T;
 
-typedef struct
-{
-    char name[OBJECT_NAME_MAX_SIZE];
-    BOX_T box;
-    float prop;
-} RESULT_T;
-
-typedef struct
-{
-    int id;
-    int count;
-    RESULT_T results[OBJECT_NUMB_MAX_SIZE];
-} RESULT_GROUP_T;
 
 class RKnpu {
   public:
     RKnpu();
     ~RKnpu();
   bool Init_Model(unsigned char *model_data,int model_data_size,RknnConText_T* app_ctx);
-  bool Inference_Model(IMAGE_T *img, RESULT_GROUP_T *detect_result,RknnConText_T *app_ctx);
+  bool Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GROUP_T *detect_result,RknnConText_T *app_ctx);
+  RKrga * getrga();
 
 private:
  void dump_tensor_attr(rknn_tensor_attr *attr);

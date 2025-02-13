@@ -43,6 +43,9 @@ class RKrga{
     ~RKrga();
     int overlay_osd(IMAGE_T osd_bitmap,IMAGE_T background,int x_pos,int y_pos);
     bool img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
+    bool img_resize_fd(IMAGE_T *srcimg,IMAGE_T *dstimg);
+    bool img_copy_fd(IMAGE_T *srcimg,IMAGE_T *dstimg);
+    bool img_imcvtcolor_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
 };
 
 

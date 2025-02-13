@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-/*
-#include "postprocess.h"
+
+#include "PosProcess.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -23,9 +23,9 @@
 
 #include <set>
 #include <vector>
-#define LABEL_NALE_TXT_PATH "./model/coco_80_labels_list.txt"
 
-static char *labels[OBJ_CLASS_NUM];
+
+static char *labels[OBJECT_CLASS_NUM];
 
 const int anchor0[6] = {10, 13, 16, 30, 33, 23};
 const int anchor1[6] = {30, 61, 62, 45, 59, 119};
@@ -96,7 +96,8 @@ int readLines(const char *fileName, char *lines[], int max_line)
 int loadLabelName(const char *locationFilename, char *label[])
 {
   printf("loadLabelName %s\n", locationFilename);
-  readLines(locationFilename, label, OBJ_CLASS_NUM);
+  readLines(locationFilename, label, OBJECT_CLASS_NUM);
+  printf("OK\n");
   return 0;
 }
 
@@ -181,9 +182,9 @@ static int quick_sort_indice_inverse(std::vector<float> &input, int left, int ri
   return low;
 }
 
-static float sigmoid(float x) { return 1.0 / (1.0 + expf(-x)); }
+//static float sigmoid(float x) { return 1.0 / (1.0 + expf(-x)); }
 
-static float unsigmoid(float y) { return -1.0 * logf((1.0 / y) - 1.0); }
+//static float unsigmoid(float y) { return -1.0 * logf((1.0 / y) - 1.0); }
 
 inline static int32_t __clip(float val, float min, float max)
 {
@@ -231,7 +232,7 @@ static int process(int8_t *input, int *anchor, int grid_h, int grid_w, int heigh
 
           int8_t maxClassProbs = in_ptr[5 * grid_len];
           int maxClassId = 0;
-          for (int k = 1; k < OBJ_CLASS_NUM; ++k)
+          for (int k = 1; k < OBJECT_CLASS_NUM; ++k)
           {
             int8_t prob = in_ptr[(5 + k) * grid_len];
             if (prob > maxClassProbs)
@@ -258,14 +259,14 @@ static int process(int8_t *input, int *anchor, int grid_h, int grid_w, int heigh
 }
 
 int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h, int model_in_w, float conf_threshold,
-                 float nms_threshold, BOX_RECT pads, float scale_w, float scale_h, std::vector<int32_t> &qnt_zps,
-                 std::vector<float> &qnt_scales, detect_result_group_t *group)
+                 float nms_threshold, BOX_T pads, float scale_w, float scale_h, std::vector<int32_t> &qnt_zps,
+                 std::vector<float> &qnt_scales, RESULT_GROUP_T *group,const char *labels_nale_txt_path)
 {
   static int init = -1;
   if (init == -1)
   {
     int ret = 0;
-    ret = loadLabelName(LABEL_NALE_TXT_PATH, labels);
+    ret = loadLabelName(labels_nale_txt_path, labels);
     if (ret < 0)
     {
       return -1;
@@ -273,7 +274,7 @@ int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h,
 
     init = 0;
   }
-  memset(group, 0, sizeof(detect_result_group_t));
+  memset(group, 0, sizeof(RESULT_GROUP_T));
 
   std::vector<float> filterBoxes;
   std::vector<float> objProbs;
@@ -330,7 +331,7 @@ int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h,
   // box valid detect target 
   for (int i = 0; i < validCount; ++i)
   {
-    if (indexArray[i] == -1 || last_count >= OBJ_NUMB_MAX_SIZE)
+    if (indexArray[i] == -1 || last_count >= OBJECT_NUMB_MAX_SIZE)
     {
       continue;
     }
@@ -349,7 +350,7 @@ int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h,
     group->results[last_count].box.bottom = (int)(clamp(y2, 0, model_in_h) / scale_h);
     group->results[last_count].prop = obj_conf;
     char *label = labels[id];
-    strncpy(group->results[last_count].name, label, OBJ_NAME_MAX_SIZE);
+    strncpy(group->results[last_count].name, label, OBJECT_NAME_MAX_SIZE);
 
     // printf("result %2d: (%4d, %4d, %4d, %4d), %s\n", i, group->results[last_count].box.left,
     // group->results[last_count].box.top,
@@ -363,7 +364,7 @@ int post_process(int8_t *input0, int8_t *input1, int8_t *input2, int model_in_h,
 
 void deinitPostProcess()
 {
-  for (int i = 0; i < OBJ_CLASS_NUM; i++)
+  for (int i = 0; i < OBJECT_CLASS_NUM; i++)
   {
     if (labels[i] != nullptr)
     {
@@ -372,5 +373,3 @@ void deinitPostProcess()
     }
   }
 }
-
-*/
