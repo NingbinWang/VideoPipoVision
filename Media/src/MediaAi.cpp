@@ -2,7 +2,7 @@
 #include "RKnpu.h"
 #include "Logger.h"
 #include "MppEncoder.h"
-
+#include "drawing.h"
 
 RKnpu * npu = nullptr;
 RknnConText_T*  npu_ctx;
@@ -25,7 +25,7 @@ int MediaAi_Init(unsigned char *model_data,int model_data_size,const char *label
 }
 
 
-int MediaAi_Report(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
+int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
 {
     bool ret;
     img->format = RK_FORMAT_YCbCr_420_SP;
@@ -57,5 +57,31 @@ int MediaAi_Report(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
         return -1;
     }
     
+}
+
+int MediaAi_VideoDrawobj(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result,void * mppbuffer)
+{
+    img->format = RK_FORMAT_YCbCr_420_SP;
+    IMAGE_FRAME_T outimg;
+    outimg.format = RK_FORMAT_YCbCr_420_SP;
+    outimg.height = img->height;
+    outimg.height_stride = img->height_stride;
+    outimg.width = img->width;
+    outimg.width_stride = img->width_stride;
+    outimg.virt_addr = (char *)MediaEncGetInputFrameBufferAddr(mppbuffer);
+    outimg.fd = MediaEncGetInputFrameBufferFd(mppbuffer);
+    mediarga->img_copy_fd((IMAGE_T *)img,(IMAGE_T *)&outimg);
+     // Draw objects
+    for (int i = 0; i < detect_result->count; i++)
+   {
+      RESULT_T *det_result =(RESULT_T *) &(detect_result->results[i]);
+      //LOG_DEBUG("%s @ (%d %d %d %d) %f\n", det_result->name, det_result->box.left, det_result->box.top, det_result->box.right, det_result->box.bottom, det_result->prop);
+    int x1 = det_result->box.left;
+    int y1 = det_result->box.top;
+    int x2 = det_result->box.right;
+    int y2 = det_result->box.bottom;
+    draw_rectangle_yuv420sp((unsigned char *)outimg.virt_addr, outimg.width_stride, outimg.height_stride, x1, y1, x2 - x1 + 1, y2 - y1 + 1, 0x00FF0000, 4);
+  }
+  return 0;
 
 }

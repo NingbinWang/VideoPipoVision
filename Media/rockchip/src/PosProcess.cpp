@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "PosProcess.h"
+#include "Logger.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -79,7 +80,7 @@ int readLines(const char *fileName, char *lines[], int max_line)
 
   if (file == NULL)
   {
-    printf("Open %s fail!\n", fileName);
+    LOG_ERROR("Open %s fail!\n", fileName);
     return -1;
   }
 
@@ -95,9 +96,9 @@ int readLines(const char *fileName, char *lines[], int max_line)
 
 int loadLabelName(const char *locationFilename, char *label[])
 {
-  printf("loadLabelName %s\n", locationFilename);
+  LOG_DEBUG("loadLabelName %s\n", locationFilename);
   readLines(locationFilename, label, OBJECT_CLASS_NUM);
-  printf("OK\n");
+  LOG_DEBUG("OK\n");
   return 0;
 }
 

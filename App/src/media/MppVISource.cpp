@@ -111,7 +111,7 @@ void MppVISource::readFrame()
             size_t mpp_frame_size =MediaEncGetFrameSize();
             void* mpp_frame_addr = MediaEncGetInputFrameBufferAddr(vibuf);
             int mpp_frame_fd = MediaEncGetInputFrameBufferFd(vibuf);
-            LOG_DEBUG("MediaEncGetInputFrame mpp_frame_size: %d mpp_frame_fd:%d mpp_frame_addr:%p\n",mpp_frame_size,mpp_frame_fd,mpp_frame_addr);
+            //LOG_DEBUG("MediaEncGetInputFrame mpp_frame_size: %d mpp_frame_fd:%d mpp_frame_addr:%p\n",mpp_frame_size,mpp_frame_fd,mpp_frame_addr);
             srcimg.width =  1920;
             srcimg.height = 1080;
             srcimg.width_stride = 1920;
@@ -119,9 +119,11 @@ void MppVISource::readFrame()
             srcimg.virt_addr = (char *)mpp_frame_addr;
             srcimg.fd = mpp_frame_fd;
             DETECT_RESULT_GROUP_T result = {0};
-            MediaAi_Report(&srcimg,&result);
+            MediaAi_VideoReport(&srcimg,&result);
+            void* mppbuffer = MediaEncGetInputFrame();
+            MediaAi_VideoDrawobj(&srcimg,&result,mppbuffer);
 #endif
-           size =  MediaEncEncode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
+           size =  MediaEncEncode(mppbuffer,this->mOutputbuf,MPPENCOERSIZE);
 #if MPPFILEOUT
            if(fp_output != nullptr) {
              fwrite(this->mOutputbuf, 1, size,fp_output);

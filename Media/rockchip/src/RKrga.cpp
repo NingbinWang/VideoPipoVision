@@ -78,6 +78,8 @@ bool RKrga::img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
     rga_buffer_t dst;
     im_rect src_rect;
     im_rect dst_rect;
+    memset(&src_rect, 0, sizeof(src_rect));
+    memset(&dst_rect, 0, sizeof(dst_rect));
     memset(&src, 0, sizeof(src));
     memset(&dst, 0, sizeof(dst));
     src = wrapbuffer_virtualaddr((void *)srcimg->virt_addr, srcimg->width, srcimg->height, srcimg->format,srcimg->width_stride,srcimg->height_stride);

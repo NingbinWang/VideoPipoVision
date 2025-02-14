@@ -2,7 +2,6 @@
 #include "MppEncoder.h"
 #include "Logger.h"
 
-
 RKrga *rga = nullptr;
 RKnpu::RKnpu()
 {
@@ -139,7 +138,7 @@ bool  RKnpu::Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GRO
   inputs[0].size = model_width * model_height * model_channel;
   inputs[0].fmt = RKNN_TENSOR_NHWC;
   inputs[0].pass_through = 0;
-  LOG_DEBUG("model input height=%d, width=%d, channel=%d\n", app_ctx->model_height, app_ctx->model_width, app_ctx->model_channel);
+  //LOG_DEBUG("model input height=%d, width=%d, channel=%d\n", app_ctx->model_height, app_ctx->model_width, app_ctx->model_channel);
   inputs[0].buf = srcbuf;
 
   gettimeofday(&start_time, NULL);
@@ -155,9 +154,9 @@ bool  RKnpu::Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GRO
   ret = rknn_run(ctx, NULL);
   ret = rknn_outputs_get(ctx, app_ctx->io_num.n_output, outputs, NULL);
   gettimeofday(&stop_time, NULL);
-  LOG_DEBUG("once run use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
+ // LOG_DEBUG("once run use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
 
-  LOG_DEBUG("post process config: box_conf_threshold = %.2f, nms_threshold = %.2f\n", box_conf_threshold, nms_threshold);
+ // LOG_DEBUG("post process config: box_conf_threshold = %.2f, nms_threshold = %.2f\n", box_conf_threshold, nms_threshold);
 
   std::vector<float> out_scales;
   std::vector<int32_t> out_zps;
