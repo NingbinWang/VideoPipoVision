@@ -31,7 +31,6 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
     img->format = RK_FORMAT_YCbCr_420_SP;
     void *mppbuffer = MediaEncGetInputFrame();
     IMAGE_FRAME_T srcimg;
-
     srcimg.format = RK_FORMAT_RGB_888;
     srcimg.height = img->height;
     srcimg.height_stride = img->height_stride;
@@ -39,7 +38,13 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
     srcimg.width_stride = img->width_stride;
     srcimg.virt_addr = (char *)MediaEncGetInputFrameBufferAddr(mppbuffer);
     srcimg.fd = MediaEncGetInputFrameBufferFd(mppbuffer);
-    mediarga->img_imcvtcolor_virt((IMAGE_T *)img,(IMAGE_T *)&srcimg);
+    mediarga->img_cvtcolor_virt((IMAGE_T *)img,(IMAGE_T *)&srcimg);
+    //OSD_RECT_T osdrect;
+    //osdrect.x_pos = 0;
+    //osdrect.y_pos = 0;
+   // osdrect.witdh = 360;
+   // osdrect.height = 360;
+   // mediarga->img_fillrectangle_virt((IMAGE_T *)img,osdrect);
     IMAGE_FRAME_T dstimg;
     void *resize_buf = nullptr;
     dstimg.format = RK_FORMAT_RGB_888;
@@ -55,9 +60,17 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
         return 0;
     }else{
         return -1;
-    }
-    
+    } 
 }
+
+int MediaAi_VideoDrawRect(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result)
+{
+    img->format = RK_FORMAT_YCbCr_420_SP;
+    
+    return 0;
+}
+
+
 
 int MediaAi_VideoDrawobj(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result,void * mppbuffer)
 {

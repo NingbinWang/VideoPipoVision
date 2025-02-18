@@ -120,10 +120,11 @@ void MppVISource::readFrame()
             srcimg.fd = mpp_frame_fd;
             DETECT_RESULT_GROUP_T result = {0};
             MediaAi_VideoReport(&srcimg,&result);
-            void* mppbuffer = MediaEncGetInputFrame();
-            MediaAi_VideoDrawobj(&srcimg,&result,mppbuffer);
+            //void* mppbuffer = MediaEncGetInputFrame();
+            MediaAi_VideoDrawRect(&srcimg,&result);
+            //MediaAi_VideoDrawobj(&srcimg,&result,mppbuffer);
 #endif
-           size =  MediaEncEncode(mppbuffer,this->mOutputbuf,MPPENCOERSIZE);
+           size =  MediaEncEncode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
 #if MPPFILEOUT
            if(fp_output != nullptr) {
              fwrite(this->mOutputbuf, 1, size,fp_output);

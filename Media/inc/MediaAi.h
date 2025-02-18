@@ -37,6 +37,7 @@ typedef struct
 int MediaAi_Init(unsigned char *model_data,int model_data_size,const char *labels_nale_txt_path);
 int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results);
 int MediaAi_VideoDrawobj(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result,void * mppbuffer);
+int MediaAi_VideoDrawRect(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result);
 
 #ifdef __cplusplus
 }

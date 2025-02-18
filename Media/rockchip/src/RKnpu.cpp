@@ -43,6 +43,7 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
       LOG_ERROR("not found model data\n");
       return false;
    }
+   // 调用rknn_init接口初始化rknn_context，加载RKNN模型
    ret = rknn_init(&ctx, model_data, model_data_size, 0, NULL);
     if (ret < 0)
    {
@@ -56,7 +57,7 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
       return false;
    }
    LOG_DEBUG("sdk version: %s driver version: %s\n", version.api_version, version.drv_version);
-
+// Get Model Input Output Info
   ret = rknn_query(ctx, RKNN_QUERY_IN_OUT_NUM, &app_ctx->io_num, sizeof(rknn_input_output_num));
   if (ret < 0)
   {
@@ -64,7 +65,7 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
     return false;
   }
   LOG_DEBUG("model input num: %d, output num: %d\n", app_ctx->io_num.n_input, app_ctx->io_num.n_output);
-
+ // 调用rknn_query接口，查询原始的输入tensor属性，输出的tensor属性，放到对应rknn_tensor_attr结构体对象
   rknn_tensor_attr *input_attrs = (rknn_tensor_attr *)malloc(app_ctx->io_num.n_input * sizeof(rknn_tensor_attr));
   memset(input_attrs, 0, app_ctx->io_num.n_input * sizeof(rknn_tensor_attr));
   for (unsigned int i = 0; i < app_ctx->io_num.n_input; i++)
@@ -92,10 +93,18 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
     }
     dump_tensor_attr(&(output_attrs[i]));
   }
-
+  
   app_ctx->input_attrs = input_attrs;
   app_ctx->output_attrs = output_attrs;
   app_ctx->rknn_ctx = ctx;
+  // 调用rknn_query接口，查询 RKNN 模型里面的用户自定义字符串信息
+  //rknn_custom_string custom_string;
+ // ret = rknn_query(ctx, RKNN_QUERY_CUSTOM_STRING, &custom_string, sizeof(custom_string));
+ // if (ret != RKNN_SUCC) {
+ //   LOG_ERROR("rknn_query fail! ret=%d\n", ret);
+ //         return -1;
+ // }
+ //LOG_DEBUG("custom string: %s\n", custom_string.string);
 
   if (input_attrs[0].fmt == RKNN_TENSOR_NCHW)
   {

@@ -18,6 +18,26 @@ typedef struct
   int fd;
 } IMAGE_T;
 
+typedef struct
+{
+  int block_witdh;//一个block的大小
+  int block_height;
+  int block_count;
+  int x_pos;
+  int y_pos;
+  IMAGE_T osdimg;
+} OSD_T;
+
+typedef struct
+{
+  int witdh;
+  int height;
+  int x_pos;
+  int y_pos;
+  unsigned int color;
+  int thickness;
+} OSD_RECT_T;
+
 
 typedef int(* FUNC_RGA_INIT)();
 typedef void(* FUNC_RGA_DEINIT)();
@@ -41,11 +61,14 @@ class RKrga{
  public:
     RKrga();
     ~RKrga();
-    int overlay_osd(IMAGE_T osd_bitmap,IMAGE_T background,int x_pos,int y_pos);
+    bool img_osd_virt(IMAGE_T* background,OSD_T* osddata);
     bool img_resize_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
     bool img_resize_fd(IMAGE_T *srcimg,IMAGE_T *dstimg);
     bool img_copy_fd(IMAGE_T *srcimg,IMAGE_T *dstimg);
-    bool img_imcvtcolor_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
+    bool img_cvtcolor_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
+    bool img_fillrectangle_virt(IMAGE_T* background,OSD_RECT_T osdrect);
+    bool img_fillrectangle_array_virt(IMAGE_T* background,OSD_RECT_T osdrect[],int osdrectnum);
+    //bool img_fillrectangle_task(IMAGE_T* background,OSD_T* osddata);
 };
 
 
