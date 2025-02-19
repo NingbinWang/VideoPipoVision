@@ -65,6 +65,7 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
     return false;
   }
   LOG_DEBUG("model input num: %d, output num: %d\n", app_ctx->io_num.n_input, app_ctx->io_num.n_output);
+   // Get Model Input Info
  // 调用rknn_query接口，查询原始的输入tensor属性，输出的tensor属性，放到对应rknn_tensor_attr结构体对象
   rknn_tensor_attr *input_attrs = (rknn_tensor_attr *)malloc(app_ctx->io_num.n_input * sizeof(rknn_tensor_attr));
   memset(input_attrs, 0, app_ctx->io_num.n_input * sizeof(rknn_tensor_attr));
@@ -79,7 +80,7 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
     }
     dump_tensor_attr(&(input_attrs[i]));
   }
-
+  // Get Model Output Info
   rknn_tensor_attr *output_attrs = (rknn_tensor_attr *)malloc(app_ctx->io_num.n_output * sizeof(rknn_tensor_attr));
   memset(output_attrs, 0, app_ctx->io_num.n_output * sizeof(rknn_tensor_attr));
   for (unsigned int i = 0; i < app_ctx->io_num.n_output; i++)
@@ -97,6 +98,15 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
   app_ctx->input_attrs = input_attrs;
   app_ctx->output_attrs = output_attrs;
   app_ctx->rknn_ctx = ctx;
+
+  if (output_attrs[0].qnt_type == RKNN_TENSOR_QNT_AFFINE_ASYMMETRIC && output_attrs[0].type != RKNN_TENSOR_FLOAT16)
+  {
+      app_ctx->is_quant = true;
+  }
+  else
+  {
+      app_ctx->is_quant = false;
+  }
   // 调用rknn_query接口，查询 RKNN 模型里面的用户自定义字符串信息
   //rknn_custom_string custom_string;
  // ret = rknn_query(ctx, RKNN_QUERY_CUSTOM_STRING, &custom_string, sizeof(custom_string));
@@ -127,19 +137,28 @@ bool RKnpu::Init_Model(unsigned char *model_data,int model_data_size,RknnConText
 
 bool  RKnpu::Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GROUP_T *detect_result,RknnConText_T *app_ctx)
 {
-  bool ret;
+  int ret;
   rknn_context ctx = app_ctx->rknn_ctx;
   int model_width = app_ctx->model_width;
   int model_height = app_ctx->model_height;
   int model_channel = app_ctx->model_channel;
   struct timeval start_time, stop_time;
-  const float nms_threshold = NMS_THRESH;
-  const float box_conf_threshold = BOX_THRESH;
+
   // You may not need resize when src resulotion equals to dst resulotion
  
-  float scale_w = (float)model_width / srcwidth;
-  float scale_h = (float)model_height / srcheight;
+  app_ctx->scale_w = (float)model_width / srcwidth;
+  app_ctx->scale_h = (float)model_height / srcheight;
 
+  if(app_ctx->nms_threshold == 0 )
+  {
+      app_ctx->nms_threshold = NMS_THRESH;
+  }
+  if(app_ctx->box_conf_threshold == 0 )
+  {
+      app_ctx->box_conf_threshold = BOX_THRESH;
+  }
+
+   // Set Input Data
   rknn_input inputs[1];
   memset(inputs, 0, sizeof(inputs));
   inputs[0].index = 0;
@@ -151,41 +170,47 @@ bool  RKnpu::Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GRO
   inputs[0].buf = srcbuf;
 
   gettimeofday(&start_time, NULL);
-  rknn_inputs_set(ctx, app_ctx->io_num.n_input, inputs);
+  ret =  rknn_inputs_set(ctx, app_ctx->io_num.n_input, inputs);
+  if (ret < 0)
+  {
+      LOG_ERROR("rknn_input_set fail! ret=%d\n", ret);
+      return false;
+  }
+  ret = rknn_run(ctx, NULL);
+  if (ret < 0)
+  {
+     LOG_ERROR("rknn_run fail! ret=%d\n", ret);
+      return false;
+  }
 
   rknn_output outputs[app_ctx->io_num.n_output];
   memset(outputs, 0, sizeof(outputs));
   for (unsigned int i = 0; i < app_ctx->io_num.n_output; i++)
   {
     outputs[i].index = i;
-    outputs[i].want_float = 0;
+    outputs[i].want_float = (!app_ctx->is_quant);
   }
-  ret = rknn_run(ctx, NULL);
+ 
   ret = rknn_outputs_get(ctx, app_ctx->io_num.n_output, outputs, NULL);
+  if (ret < 0)
+  {
+      LOG_ERROR("rknn_outputs_get fail! ret=%d\n", ret);
+      return false;
+  }
   gettimeofday(&stop_time, NULL);
- // LOG_DEBUG("once run use %f ms\n", (__get_us(stop_time) - __get_us(start_time)) / 1000);
-
+  detect_result->costtime = (__get_us(stop_time) - __get_us(start_time)) / 1000;
  // LOG_DEBUG("post process config: box_conf_threshold = %.2f, nms_threshold = %.2f\n", box_conf_threshold, nms_threshold);
 
-  std::vector<float> out_scales;
-  std::vector<int32_t> out_zps;
-  for (unsigned int i = 0; i < app_ctx->io_num.n_output; ++i)
-  {
-    out_scales.push_back(app_ctx->output_attrs[i].scale);
-    out_zps.push_back(app_ctx->output_attrs[i].zp);
-  }
-  BOX_T pads;
-  memset(&pads, 0, sizeof(BOX_T));
+ // Post Process
+  post_process(app_ctx, outputs, detect_result);
 
-  post_process((int8_t *)outputs[0].buf, (int8_t *)outputs[1].buf, (int8_t *)outputs[2].buf, model_height, model_width,
-               box_conf_threshold, nms_threshold, pads, scale_w, scale_h, out_zps, out_scales, detect_result,app_ctx->labels_nale_txt_path);
   ret = rknn_outputs_release(ctx, app_ctx->io_num.n_output, outputs);
-
-  if (srcbuf != nullptr)
+  if (ret < 0)
   {
-    free(srcbuf);
+      LOG_ERROR("rknn_outputs_release fail! ret=%d\n", ret);
+      return false;
   }
-  return ret;
+  return true;
 }
 
 

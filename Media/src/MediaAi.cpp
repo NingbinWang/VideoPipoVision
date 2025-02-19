@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "MppEncoder.h"
 #include "drawing.h"
+#include "PostProcess.h"
 
 RKnpu * npu = nullptr;
 RknnConText_T*  npu_ctx;
@@ -11,16 +12,12 @@ RKrga *mediarga = nullptr;
 
 int MediaAi_Init(unsigned char *model_data,int model_data_size,const char *labels_nale_txt_path)
 {
-    size_t size = 0;
      npu_ctx = (RknnConText_T*)malloc(sizeof(RknnConText_T));
      memset(npu_ctx, 0, sizeof(RknnConText_T));
      npu = new RKnpu();
      npu->Init_Model(model_data,model_data_size,npu_ctx);
      mediarga = npu->getrga();
-     size = strlen(labels_nale_txt_path);
-     if(size > 256)
-        size = 256;
-     memcpy(npu_ctx->labels_nale_txt_path,labels_nale_txt_path,size);
+     init_post_process(labels_nale_txt_path);
      return 0;
 }
 
@@ -56,6 +53,10 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
     dstimg.virt_addr = (char* )resize_buf;
     mediarga->img_resize_virt((IMAGE_T *)&srcimg,(IMAGE_T *)&dstimg);
     ret = npu->Inference_Model(resize_buf,img->width,img->height,(RESULT_GROUP_T*)results,npu_ctx);
+    if(resize_buf != nullptr)
+    {
+        free(resize_buf);
+    }
     if(ret == true){
         return 0;
     }else{
@@ -66,11 +67,27 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
 int MediaAi_VideoDrawRect(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result)
 {
     img->format = RK_FORMAT_YCbCr_420_SP;
-    
+    for (int i = 0; i < detect_result->count; i++)
+    {
+        DETECT_RESULT_T *det_result = &(detect_result->results[i]);
+        LOG_DEBUG("face @ (%d %d %d %d) %.3f\n",det_result->box.left, det_result->box.top,
+               det_result->box.right, det_result->box.bottom,det_result->prop);
+        int x1 = det_result->box.left;
+        int y1 = det_result->box.top;
+        int x2 = det_result->box.right;
+        int y2 = det_result->box.bottom;
+        OSD_RECT_T osdrect = {0};
+        osdrect.x_pos = x1;
+        osdrect.y_pos = y1;
+        osdrect.witdh = x2 - x1;
+        osdrect.height = y2 - y1;
+        mediarga->img_fillrectangle_virt((IMAGE_T *)img,osdrect);
+    }
     return 0;
 }
 
 
+/*
 
 int MediaAi_VideoDrawobj(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result,void * mppbuffer)
 {
@@ -98,3 +115,4 @@ int MediaAi_VideoDrawobj(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result
   return 0;
 
 }
+  */
