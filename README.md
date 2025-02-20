@@ -22,13 +22,18 @@
 
 ![](/docs/images/20250203.png)
 
-2025年2月11日：启动AI学习
+2025年2月20日 演示效果如下：
+![](/docs/images/20250221.JPG)
+
+但在使用RKNPU处理后，需要先进行RGA处理，再送到npu出结果，再把结果在用rga进行画框处理，中间已经从多次进行图像处理，改成了仅一次处理，但到PC端还是延迟很大。后续看看如何进行优化
+
 
 ## 功能介绍
 
 1. 做RTSP的功能，通过RKMPP的H264的编码（完成）
-2. 做yolo的识别（未完成）
-3. 做videonode，做OSD（未完成）
+2. 做yolo的识别（完成）
+3. 设计时间戳做OSD（未完成）
+4. 完成对于libdram的框架与MIPI屏幕的显示输出（未完成）
 4. 做WIFI的直接连接与获取（未完成）
 5. 手机App的连接用于配置与在线使用（未完成）
 
@@ -36,6 +41,19 @@
 
 ## 1.2 开发环境搭建
 下载SDK即可，将VideoPipoVision放到SDK的目录下进行编译。
+
+
+
+## 1.3 已知缺陷
+
+在断联的时候会出现内存问题，正在修改中
+...
+2017-08-04 09:52:05 <DEBUG> src/net/TcpConnection.cpp:handleRead:96 client disconnect
+malloc(): unsorted double linked list corrupted
+[ 3125.985170] rockchip-csi2-dphy csi2-dphy1: csi2_dphy_s_stream_stop stream stop, dphy1
+[ 3125.985213] rockchip-csi2-dphy csi2-dphy1: csi2_dphy_s_stream stream on:0, dphy1
+Aborted
+...
 
 
 ## 参考

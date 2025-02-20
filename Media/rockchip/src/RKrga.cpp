@@ -155,7 +155,7 @@ bool RKrga::img_fillrectangle_array_virt(IMAGE_T* background,OSD_RECT_T osdrect[
     ret = imcheck({}, bg, {}, bg_rect[i], IM_COLOR_FILL);
     if (IM_STATUS_NOERROR != ret)
     {
-        LOG_ERROR("%d, rect num:%d check error! %s \n", __LINE__, i, imStrError((IM_STATUS)ret));
+        //LOG_ERROR("%d, rect num:%d check error! %s \n", __LINE__, i, imStrError((IM_STATUS)ret));
        return false;
    }
   }
@@ -416,4 +416,35 @@ bool RKrga::img_cvtcolor_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
        return false;
      }
      return true;
+}
+
+
+
+bool RKrga::img_resize_ai_virt(IMAGE_T *srcimg,IMAGE_T *dstimg)
+{
+     IM_STATUS ret = IM_STATUS_SUCCESS;
+    // init rga context
+    rga_buffer_t src;
+    rga_buffer_t dst;
+    im_rect src_rect;
+    im_rect dst_rect;
+    memset(&src_rect, 0, sizeof(src_rect));
+    memset(&dst_rect, 0, sizeof(dst_rect));
+    memset(&src, 0, sizeof(src));
+    memset(&dst, 0, sizeof(dst));
+    src = wrapbuffer_virtualaddr((void *)srcimg->virt_addr, srcimg->width, srcimg->height, srcimg->format,srcimg->width_stride,srcimg->height_stride);
+    dst = wrapbuffer_virtualaddr((void *)dstimg->virt_addr, dstimg->width, dstimg->height, dstimg->format);
+    ret = imcheck(src, dst, src_rect, dst_rect);
+    if (IM_STATUS_NOERROR != ret)
+    {
+      LOG_ERROR("%d, check error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+      return false;
+    }
+    ret = imresize(src, dst);
+    if (IM_STATUS_SUCCESS != ret)
+    {
+      LOG_ERROR("%d, imresize error! %s \n", __LINE__, imStrError((IM_STATUS)ret));
+      return false;
+    }
+    return true;
 }

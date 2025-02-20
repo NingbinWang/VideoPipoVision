@@ -3,7 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif/*__cplusplus*/
-
+#define AI_ALIGN(x, a)         (((x)+(a)-1)&~((a)-1))
 #include "MediaFrame.h"
 //yolo
 #define OBJ_NUMB_MAX_SIZE 128

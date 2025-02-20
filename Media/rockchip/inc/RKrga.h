@@ -68,6 +68,7 @@ class RKrga{
     bool img_cvtcolor_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
     bool img_fillrectangle_virt(IMAGE_T* background,OSD_RECT_T osdrect);
     bool img_fillrectangle_array_virt(IMAGE_T* background,OSD_RECT_T osdrect[],int osdrectnum);
+    bool img_resize_ai_virt(IMAGE_T *srcimg,IMAGE_T *dstimg);
     //bool img_fillrectangle_task(IMAGE_T* background,OSD_T* osddata);
 };
 

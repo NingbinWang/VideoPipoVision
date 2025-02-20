@@ -133,10 +133,12 @@ int v4l2rtsp()
 #define MODEL_PATH "/home/yolov5s-640-640.rknn"
 int app_main(void)
 {
+#ifdef MEDIARKAI
    unsigned char *model;
    int model_size = 0;
    model = read_file_data(MODEL_PATH,&model_size);
    MediaAi_Init(model,model_size,LABEL_NALE_TXT_PATH);
+#endif
    v4l2rtsp();
    return 0;
 }
