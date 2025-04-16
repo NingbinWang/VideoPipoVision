@@ -13,19 +13,34 @@ OUTPUT_DIR= $(CURDIR)/output
 
 
 # media view
+#tsp config
+#TARGET_MEDIA = mpp
+#TARGET_SOC = rk3566
+#TARGET_OPENCV = y
+#TARGET_ROCKCHIP = y
+#TARGET_ROCKCHIP_FFMPEG = y
+#TARGET_V4L2 = y
+#TARGET_ALSA = n
+# cross host
+#TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
+#tsp end
 
+#lubanmav3
 TARGET_MEDIA = mpp
-TARGET_SOC = rk3566
-TARGET_OPENCV = y
+TARGET_SOC = rk3576
+TARGET_OPENCV = n
 TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
 TARGET_V4L2 = y
+TARGET_ALSA = n
+TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu
+
 export SOC     := $(TARGET_SOC)
-export $(TARGET_MEDIA)
-export $(TARGET_OPENCV)
-export $(TARGET_ROCKCHIP)
+export MEDIATYPE   := $(TARGET_MEDIA)
+export OPENCV   :=$(TARGET_OPENCV)
+export ROCKCHIP :=$(TARGET_ROCKCHIP)
 # cross host
-TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
+
 
 export $(TARGET_CROSS_HOST)
 
@@ -70,12 +85,12 @@ LIB_VAR += rknnrt
 LD_CPP_FLAGS += -DMEDIARKMPP
 endif
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
-LIB_VAR +=drm_amdgpu
-LIB_VAR +=drm_etnaviv
-LIB_VAR +=drm_freedreno
-LIB_VAR +=drm_nouveau
-LIB_VAR +=drm_radeon
-LIB_VAR +=drm
+LIB_VAR += drm_amdgpu
+LIB_VAR += drm_etnaviv
+LIB_VAR += drm_freedreno
+LIB_VAR += drm_nouveau
+LIB_VAR += drm_radeon
+LIB_VAR += drm
 LIB_VAR += x264
 LIB_VAR += avformat
 LIB_VAR += avdevice
@@ -86,6 +101,13 @@ LIB_VAR += postproc
 LIB_VAR += swresample
 LIB_VAR += swscale
 endif
+ifneq (,$(findstring y,$(TARGET_ALSA)))
+LIB_VAR += asound
+LIB_VAR += atopology
+endif
+
+
+
 LIB_VAR += Media
 LIB_VAR += App
 
@@ -109,6 +131,9 @@ endif
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/ffmpeg/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/x264/include
+endif
+ifneq (,$(findstring y,$(TARGET_ALSA)))
+INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/alsa/include
 endif
 
 PROJECT_INC_PATH += $(INC_PATH)
@@ -135,7 +160,7 @@ checkenv:
 		mkdir $(OUTPUT_DIR); \
 		mkdir $(OUTPUT_DIR)/lib; \
 	fi
-	if [ y = $(TARGET_OPENCV) ]; then \
+	if [ "xy" = "x$(TARGET_OPENCV)" ]; then \
 		find $(LIB_DIR)/opencv -name "*.so*" |xargs -i cp {} $(OUTPUT_DIR)/lib/; \
 	fi
 	find $(LIB_DIR)/$(SOC) -name "*.so*" |xargs -i cp {} $(OUTPUT_DIR)/lib/
@@ -155,7 +180,7 @@ Utils_Clean:
 
 App: checkenv
 	@$(ECHO) "##### Build app ####"
-	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG)
+	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_ALSA=$(TARGET_ALSA)
 	@if [ -f $(APP_DIR)/Lib/libApp.so ]; then \
 		cp $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
 	fi
@@ -166,7 +191,7 @@ App_Clean:
 
 Media: checkenv
 	@$(ECHO) "##### Build Media ####"
-	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_V4L2=$(TARGET_V4L2)
+	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_V4L2=$(TARGET_V4L2) TARGET_ALSA=$(TARGET_ALSA)
 	@if [ -f $(MEDIA_DIR)/Lib/libMedia.so ]; then \
 		cp $(MEDIA_DIR)/Lib/libMedia.so $(OUTPUT_DIR)/lib/; \
 	fi

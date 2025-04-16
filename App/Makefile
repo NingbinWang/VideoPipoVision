@@ -36,6 +36,12 @@ LD_C_FLAGS += -L$(FFMPEG_LIB_PATH)
 LD_CPP_FLAGS += -L$(FFMPEG_LIB_PATH)
 endif 
 
+ifneq (,$(findstring y,$(TARGET_ALSA)))
+MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/alsa/include
+ALSA_LIB_PATH = $(CURDIR)/../Libs/$(SOC)/alsa/lib
+LD_C_FLAGS += -L$(ALSA_LIB_PATH) 
+LD_CPP_FLAGS += -L$(ALSA_LIB_PATH)
+endif
 
 MODULE_NAME = App
 MODULE_CUR_PATH = $(CURDIR)

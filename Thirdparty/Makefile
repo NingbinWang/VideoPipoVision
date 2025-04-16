@@ -5,15 +5,24 @@ CURDIR = $(shell pwd)
 #export ROOT_PATH = $(CURDIR)/output
 export ROOT_PATH = $(CURDIR)
 # cross host
-TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu
-#TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu
-TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-linux-gnu
-#TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-rockchip-linux-gnu
-TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-linux-gnu/libc
-#TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-rockchip-linux-gnu/lib64
+#TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu
+##TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu
+#TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-linux-gnu
+##TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-rockchip-linux-gnu
+#TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-linux-gnu/libc
+##TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-rockchip-linux-gnu/lib64
+
+TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu
+
+TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-none-linux-gnu
+
+TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-none-linux-gnu/libc
+
 export $(TARGET_CROSS_HOST)
-#CROSS_COMPILE_HOST = aarch64-linux-gnu
-CROSS_COMPILE_HOST = aarch64-rockchip-linux-gnu
+##CROSS_COMPILE_HOST = aarch64-linux-gnu
+#CROSS_COMPILE_HOST = aarch64-rockchip-linux-gnu
+
+CROSS_COMPILE_HOST = aarch64-none-linux-gnu
 
 ARCH=aarch64
 include $(CURDIR)/linux.mk
@@ -35,6 +44,8 @@ XVID_VER=1.3.7
 FFMPEG_VER=4.2.10
 YOLOFAST_VER=v.1.1.0
 DRM_VER=2.4.124
+ALSA_VER=1.2.9
+FAAC_VER=1.28
 
 #####rockchip####
 SOC=rk3566
@@ -250,6 +261,32 @@ opencvenv:
 		mkdir -p $(ROOT_PATH)/opencv/lib; \
 		mkdir -p $(ROOT_PATH)/opencv/include; \
 	fi
+
+alsa_lib:opencvenv
+	if [ ! -e $(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER) ]; then \
+		tar -xvjf $(ROOT_PATH)/alsa-lib-$(ALSA_VER).tar.bz2; \
+		cd $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/&&./configure --prefix=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER) --host=$(CROSS_COMPILE_HOST) --enable-shared --disable-python --with-configdir=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/config --with-plugindir=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/plugin; \
+		make -C $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/; \
+		make -C $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/ install; \
+	fi
+	cp $(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/lib/* $(ROOT_PATH)/opencv/lib -rf
+	cp $(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/include/* $(ROOT_PATH)/opencv/include -rf
+
+faac:opencvenv
+	if [ ! -e $(ROOT_PATH)/faac-$(FAAC_VER) ]; then \
+		wget http://sourceforge.net/projects/faac/files/faac-src/faac-1.28/faac-1.28.tar.bz2;\
+		tar -xvjf faac-1.28.tar.bz2; \
+	fi
+	if [ ! -e $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER) ]; then \
+		cd $(ROOT_PATH)/faac-$(FAAC_VER)/&&./configure --target=arm-linux  --host=$(CROSS_COMPILE_HOST) --prefix=$(ROOT_PATH)/opencv/faa_install_$(FAAC_VER) --disable-shared --with-pic; \
+		make -C $(ROOT_PATH)/faac-$(FAAC_VER)/; \
+		make -C $(ROOT_PATH)/faac-$(FAAC_VER)/ install; \
+	fi
+	cp $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER)/lib/* $(ROOT_PATH)/opencv/lib -rf
+	cp $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER)/include/* $(ROOT_PATH)/opencv/include -rf
+
+
+
 
 zlib:opencvenv
 	if [ ! -e $(ROOT_PATH)/opencv/zlib_install_$(ZLIB_VER) ]; then \

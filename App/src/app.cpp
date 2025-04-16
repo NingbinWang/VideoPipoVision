@@ -4,7 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
-#include "opencv2/opencv.hpp"
+//#include "opencv2/opencv.hpp"
 #include <iostream>
 
 #include "Logger.h"
@@ -22,7 +22,7 @@
 #else
 #include "media/MediaVISource.h"
 #endif
-
+/*
 int opencv_demo()
 {
     cv::VideoCapture cap(0);
@@ -46,6 +46,7 @@ int opencv_demo()
     cap.release();
     return 0;
 }
+    */
 static unsigned char *load_data(FILE *fp, size_t ofst, size_t sz)
 {
   unsigned char *data;
@@ -110,7 +111,8 @@ int v4l2rtsp()
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
 #ifdef MEDIARKMPP
-     MediaSource* videoSource = MppVISource::createNew(env, "/dev/video0");
+     //MediaSource* videoSource = MppVISource::createNew(env, "/dev/video0");
+     MediaSource* videoSource = MppVISource::createNew(env, "/dev/video11");
 #else
     MediaSource* videoSource = MediaVISource::createNew(env, "/dev/video0");
 #endif  
