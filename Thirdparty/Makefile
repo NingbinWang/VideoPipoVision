@@ -41,19 +41,20 @@ LIBPNG_VER=1.6.44
 YASM_VER=1.3.0
 X264_VER=master
 XVID_VER=1.3.7
-FFMPEG_VER=4.2.10
+FFMPEG_VER=4.2.11
 YOLOFAST_VER=v.1.1.0
 DRM_VER=2.4.124
 ALSA_VER=1.2.9
 FAAC_VER=1.28
 
 #####rockchip####
-SOC=rk3566
+#SOC=rk3566
+SOC=rk3567
 MPP_DIR=$(CURDIR)/rkmpp
 RGA_DIR=$(CURDIR)/rkrga
 FFMPEG_DIR=$(CURDIR)/rkffmpeg
 #LIBDRM_DIR=$(CURDIR)/$(SOC)/libdrm-rockchip
-
+ 
 BUILD_ALL = wpa_supplicant
 BUILD_ALL += opencv
 #BUILD_INSTALL = i2c_tools_install
@@ -208,7 +209,7 @@ linuxrga_install:
 #--extra-ldflags=-L$(ROOT_PATH)/opencv/x264_install_$(X264_VER)/lib/ --enable-rkrga \
 	
 
-ffmpeg_rockchip:x264 libdrm mpp linuxrga
+ffmpeg_rockchip:x264 libdrm mpp librga
 	if [ ! -e $(FFMPEG_DIR) ]; then \
 		wget https://github.com/nyanmisaka/ffmpeg-rockchip/archive/refs/heads/master.zip; \
 		unzip master.zip; \
@@ -217,7 +218,7 @@ ffmpeg_rockchip:x264 libdrm mpp linuxrga
 	if [ ! -e $(ROOT_PATH)/rockchip/ffmpeg_rockchip ]; then \
 		export LD_LIBRARY_PATH=$(ROOT_PATH)/opencv/x264_install_$(X264_VER)/lib/:$(ROOT_PATH)/rockchip/linux-rga/lib/:$(ROOT_PATH)/rockchip/mpp/lib/:$(ROOT_PATH)/opencv/libdrm_install_$(DRM_VER)/lib; \
 		export PKG_CONFIG_LIBDIR=$(PKG_CONFIG_LIBDIR):$(ROOT_PATH)/opencv/x264_install_$(X264_VER)/lib/:$(ROOT_PATH)/rockchip/lib/:$(ROOT_PATH)/rockchip/linux-rga/lib/:$(ROOT_PATH)/rockchip/mpp/lib/:$(ROOT_PATH)/opencv/libdrm_install_$(DRM_VER)/lib; \
-		export PKG_CONFIG_PATH=$(PKG_CONFIG_PATH):$(ROOT_PATH)/opencv/x264_install_$(X264_VER)/lib/pkgconfig:$(ROOT_PATH)/rockchip/lib/pkgconfig:$(ROOT_PATH)/rockchip/linux-rga/lib/pkgconfig:$(ROOT_PATH)/rockchip/mpp/lib/pkgconfig:$(ROOT_PATH)/opencv/libdrm_install_$(DRM_VER)/lib/pkgconfig; \
+		export PKG_CONFIG_PATH=$(PKG_CONFIG_PATH):$(ROOT_PATH)/opencv/x264_install_$(X264_VER)/lib/pkgconfig:$(ROOT_PATH)/rockchip/lib/pkgconfig:$(ROOT_PATH)/rockchip/mpp/lib/pkgconfig:$(ROOT_PATH)/opencv/libdrm_install_$(DRM_VER)/lib/pkgconfig; \
 		cd $(FFMPEG_DIR)&&./configure --prefix=$(ROOT_PATH)/rockchip/ffmpeg_rockchip --enable-cross-compile --arch=$(ARCH) \
 		--disable-stripping --target-os=linux --cc=$(CC) \
 		--pkg-config-flags="--static" \
@@ -247,12 +248,7 @@ ffmpeg_rockchip_clean:
 	rm $(ROOT_PATH)/rockchip/ffmpeg_rockchip -rf
 	rm $(ROOT_PATH)/ffmpeg-rockchip-master -rf
 
-
-
-
-
 #opencv
-
 
 opencvenv:
 	if [ ! -e $(ROOT_PATH)/opencv ]; then \
@@ -332,6 +328,10 @@ yasm:opencvenv
 	cp $(ROOT_PATH)/opencv/yasm_install_$(YASM_VER)/bin/* $(ROOT_PATH)/opencv/bin -rf
 
 x264:opencvenv
+	if [ ! -e $(ROOT_PATH)/x264-$(X264_VER) ]; then \
+		wget https://code.videolan.org/videolan/x264/-/archive/master/x264-master.tar.bz2; \
+		tar -xvjf $(ROOT_PATH)/x264-$(X264_VER).tar.bz2; \
+	fi
 	if [ ! -e $(ROOT_PATH)/opencv/x264_install_$(X264_VER) ]; then \
 		tar -xvjf $(ROOT_PATH)/x264-$(X264_VER).tar.bz2; \
 		cd $(ROOT_PATH)/x264-$(X264_VER)/&&./configure --prefix=$(ROOT_PATH)/opencv/x264_install_$(X264_VER)  --disable-asm --enable-shared --enable-static --host=$(CROSS_COMPILE_HOST) --enable-pic; \
@@ -355,6 +355,9 @@ xvidcore:opencvenv
 
 
 libdrm:opencvenv
+	if [ ! -e libdrm-$(DRM_VER) ]; then \
+		wget https://dri.freedesktop.org/libdrm/libdrm-2.4.124.tar.xz; \
+	fi
 	echo "[binaries]"              >  $(ROOT_PATH)/cross_file.txt
 	echo "c = '$(CC)'"             >> $(ROOT_PATH)/cross_file.txt
 	echo "cpp = '$(CXX)'"          >> $(ROOT_PATH)/cross_file.txt
@@ -403,8 +406,11 @@ ffmpeg_clean:
 	rm $(ROOT_PATH)/zlib-$(ZLIB_VER) -rf
 
 opencv:ffmpeg_rockchip
+	if [ ! -e opencv-$(OPENCV_VER) ]; then \
+		wget https://github.com/opencv/opencv/archive/refs/tags/$(OPENCV_VER).zip; \
+		unzip $(OPENCV_VER).zip; \
+	fi
 	if [ ! -e $(ROOT_PATH)/opencv-$(OPENCV_VER)/build/ ]; then \
-		tar -zxvf $(ROOT_PATH)/opencv-$(OPENCV_VER).tar.gz; \
 		export PKG_CONFIG_PATH=$(ROOT_PATH)/opencv/lib/pkgconfig; \
     	export LD_LIBRARY_PATH=$(TARGET_COMPILE_LIBCDIR):$(ROOT_PATH)/opencv/lib; \
 		export PKG_CONFIG_LIBDIR=$(PKG_CONFIG_LIBDIR):$(ROOT_PATH)/opencv/lib; \
