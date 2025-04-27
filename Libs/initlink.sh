@@ -31,12 +31,13 @@ ln -s /lib/libopencv_videoio.so                /lib/libopencv_videoio.so.410
 # ffmpeg
 ln -s /lib/libavcodec.so                       /lib/libavcodec.so.60
 ln -s /lib/libavcodec.so                       /lib/libavcodec.so.60.31.102
-ln -s /lib/libavdevice.so                      /lib/libavcodec.so.60
-ln -s /lib/libavdevice.so                      /lib/libavcodec.so.60.3.100
+ln -s /lib/libavdevice.so                      /lib/libavdevice.so.60
+ln -s /lib/libavdevice.so                      /lib/libavdevice.so.60.3.100
 ln -s /lib/libavfilter.so                      /lib/libavfilter.so.9
 ln -s /lib/libavfilter.so                      /lib/libavfilter.so.9.12.100
 ln -s /lib/libavformat.so                      /lib/libavformat.so.60
 ln -s /lib/libavformat.so                      /lib/libavformat.so.60.16.100
+ln -s /lib/libavutil.so                        /lib/libavutil.so.58
 ln -s /lib/libavutil.so                        /lib/libavutil.so.60
 ln -s /lib/libavutil.so                        /lib/libavutil.so.60.3.100
 ln -s /lib/libpostproc.so                      /lib/libpostproc.so.57
@@ -46,7 +47,7 @@ ln -s /lib/libswresample.so                    /lib/libswresample.so.4.12.100
 ln -s /lib/libswscale.so                       /lib/libswscale.so.7
 ln -s /lib/libswscale.so                       /lib/libswscale.so.7.5.100
 #libx264
-ln -s /lib/libx264.so                          /lib/libx264.so.164
+ln -s /lib/libx264.so                          /lib/libx264.so.165
 #mpp
 ln -s /lib/librockchip_mpp.so                  /lib/librockchip_mpp.so.0
 ln -s /lib/librockchip_mpp.so                  /lib/librockchip_mpp.so.1

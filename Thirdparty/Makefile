@@ -342,6 +342,10 @@ x264:opencvenv
 	cp $(ROOT_PATH)/opencv/x264_install_$(X264_VER)/include/* $(ROOT_PATH)/opencv/include -rf
 	cp $(ROOT_PATH)/opencv/x264_install_$(X264_VER)/bin/* $(ROOT_PATH)/opencv/bin -rf
 
+x264_clean:
+	rm $(ROOT_PATH)/opencv/x264_install_$(DRM_VER) -rf
+	rm $(ROOT_PATH)/x264-$(X264_VER) -rf
+
 
 xvidcore:opencvenv
 	if [ ! -e $(ROOT_PATH)/opencv/xvidcore_install_$(XVID_VER) ]; then \

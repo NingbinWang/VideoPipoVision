@@ -28,7 +28,7 @@ OUTPUT_DIR= $(CURDIR)/output
 #lubanmav3
 TARGET_MEDIA = mpp
 TARGET_SOC = rk3576
-TARGET_OPENCV = n
+TARGET_OPENCV = y
 TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
 TARGET_V4L2 = y
@@ -152,6 +152,8 @@ BUILD_ALL += App
 all: $(BUILD_ALL)
 	$(CXX) -o $(OUTPUT_DIR)/VideoVision  $(PROJECTINC_PATH) -L $(OUTPUT_DIR)/lib/ $(PROJECTLIB_VAR) $(LD_CPP_FLAGS) main.cpp
 	$(RM)  *.o -rf
+	$(CP) $(LIB_DIR)/$(SOC)/mpp/bin/mpi_enc_test $(OUTPUT_DIR)/
+	$(CP) $(LIB_DIR)/$(SOC)/ffmpeg/bin/ffmpeg $(OUTPUT_DIR)/
 	$(ECHO) "Finish generating images at $(BUILD_COMPLETE_STRING)"
 	
 
@@ -160,17 +162,15 @@ checkenv:
 		mkdir $(OUTPUT_DIR); \
 		mkdir $(OUTPUT_DIR)/lib; \
 	fi
-	if [ "xy" = "x$(TARGET_OPENCV)" ]; then \
-		find $(LIB_DIR)/opencv -name "*.so*" |xargs -i cp {} $(OUTPUT_DIR)/lib/; \
-	fi
 	find $(LIB_DIR)/$(SOC) -name "*.so*" |xargs -i cp {} $(OUTPUT_DIR)/lib/
+	$(CP) $(LIB_DIR)/initlink.sh $(OUTPUT_DIR)/
 
 
 Utils: checkenv
 	@$(ECHO) "##### Build utils ####"
 	@make -C $(UTILS_DIR)
 	@if [ -f $(UTILS_DIR)/Lib/libUtils.so ]; then \
-		cp $(UTILS_DIR)/Lib/libUtils.so $(OUTPUT_DIR)/lib/; \
+		$(CP) $(UTILS_DIR)/Lib/libUtils.so $(OUTPUT_DIR)/lib/; \
 	fi
 
 Utils_Clean:
@@ -182,7 +182,7 @@ App: checkenv
 	@$(ECHO) "##### Build app ####"
 	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_ALSA=$(TARGET_ALSA)
 	@if [ -f $(APP_DIR)/Lib/libApp.so ]; then \
-		cp $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
+		$(CP) $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
 	fi
 
 App_Clean:
@@ -193,7 +193,7 @@ Media: checkenv
 	@$(ECHO) "##### Build Media ####"
 	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_V4L2=$(TARGET_V4L2) TARGET_ALSA=$(TARGET_ALSA)
 	@if [ -f $(MEDIA_DIR)/Lib/libMedia.so ]; then \
-		cp $(MEDIA_DIR)/Lib/libMedia.so $(OUTPUT_DIR)/lib/; \
+		$(CP) $(MEDIA_DIR)/Lib/libMedia.so $(OUTPUT_DIR)/lib/; \
 	fi
 
 Media_Clean: 
