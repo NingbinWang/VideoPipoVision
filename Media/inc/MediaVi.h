@@ -24,6 +24,7 @@ typedef enum
 typedef enum
 {
     CMOS_OV_5969 = 0,
+    CMOS_OV_8858 = 1,
 	VI_SENSOR_TYPE_MAX,
 }VI_SENSOR_TYPE_E;
 

@@ -49,6 +49,7 @@ include $(ROOT_PATH)/linux.mk
 
 #path
 APP_DIR=$(ROOT_PATH)/App
+HARDWARE_DIR = $(ROOT_PATH)/Hardware
 LIB_DIR=$(ROOT_PATH)/Libs
 MEDIA_DIR = $(ROOT_PATH)/Media
 UTILS_DIR = $(ROOT_PATH)/Utils
@@ -143,11 +144,12 @@ PROJECT_INC_DIRS = $(shell find $(PROJECT_INC_PATH) -maxdepth 0 -type d)
 PROJECTINC_PATH += $(patsubst %,-I%,$(PROJECT_INC_DIRS))
 endif
 BUILD_ALL = Utils
+BUILD_ALL += Hardware
 BUILD_ALL += Media
 BUILD_ALL += App
 
 
-.PHONY: App App_Clean  Media  Media_Clean Utils Utils_Clean
+.PHONY: App App_Clean  Media  Media_Clean Utils Utils_Clean Hardware Hardware_Clean
 
 all: $(BUILD_ALL)
 	$(CXX) -o $(OUTPUT_DIR)/VideoVision  $(PROJECTINC_PATH) -L $(OUTPUT_DIR)/lib/ $(PROJECTLIB_VAR) $(LD_CPP_FLAGS) main.cpp
@@ -177,6 +179,16 @@ Utils_Clean:
 	@$(ECHO) "##### Build utils clean ####"
 	make -C $(UTILS_DIR) clean
 
+Hardware: checkenv
+	@$(ECHO) "##### Build Hardware ####"
+	@make -C $(HARDWARE_DIR)
+	@if [ -f $(HARDWARE_DIR)/Lib/libHardware.so ]; then \
+		$(CP) $(HARDWARE_DIR)/Lib/libHardware.so $(OUTPUT_DIR)/lib/; \
+	fi
+
+Hardware_Clean:
+	@$(ECHO) "##### Build Hardware clean ####"
+	make -C $(HARDWARE_DIR) clean
 
 App: checkenv
 	@$(ECHO) "##### Build app ####"
@@ -200,7 +212,7 @@ Media_Clean:
 	@$(ECHO) "##### Build media clean ####"
 	make -C $(MEDIA_DIR) clean
 
-clean: App_Clean Media_Clean Utils_Clean
+clean: App_Clean Media_Clean Utils_Clean Hardware_Clean
 	@$(RM)  *.o -rf
 	@$(ECHO) "RM  $(OUTPUT_DIR)"
 	@$(RM)  $(OUTPUT_DIR)

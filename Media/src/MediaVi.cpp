@@ -29,6 +29,13 @@ bool MediaVi::initdev(const char *in_devname)
         width = m_params.image_viW;
         height = m_params.image_viH;
         fps =m_params.frame_rate;
+   }else if(m_params.vSensorType == CMOS_OV_8858)
+   {
+        format = V4l2Device::fourcc("NV12");
+        ioTypeIn =  IOTYPE_MMAP;
+        width = m_params.image_viW;
+        height = m_params.image_viH;
+        fps =m_params.frame_rate;
    }
    if(m_params.eType == VI_V4L2){
         V4L2DeviceParameters param(in_devname, format, width, height, fps, ioTypeIn);

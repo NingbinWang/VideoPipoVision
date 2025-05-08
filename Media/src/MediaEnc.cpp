@@ -29,6 +29,7 @@ int MediaEncInit(const ENC_STATUS_T* status)
     encoderparam.width = (RK_U32)status->viW;
     encoderparam.height = (RK_U32)status->viH;
     encoderparam.fmt = MPP_FMT_YUV420SP;
+    //encoderparam.fmt = MPP_FMT_BGRA8888;
     encoderparam.type = MPP_VIDEO_CodingAVC;
     encoderparam.rc_mode =  MPP_ENC_RC_MODE_BUTT;
     encoder = new MppEncoder();

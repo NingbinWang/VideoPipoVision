@@ -107,7 +107,7 @@ int v4l2rtsp()
     ThreadPool* threadPool = ThreadPool::createNew(2);//创建线程池
     UsageEnvironment* env = UsageEnvironment::createNew(scheduler, threadPool);//创建环境变量
 
-    Ipv4Address ipAddr("192.168.0.126", 8554);
+    Ipv4Address ipAddr("192.168.0.10", 8554);
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
 #ifdef MEDIARKMPP
@@ -131,8 +131,8 @@ int v4l2rtsp()
     return 0;
 }
 
-#define LABEL_NALE_TXT_PATH "/home/coco_80_labels_list.txt"
-#define MODEL_PATH "/home/yolov5s-640-640.rknn"
+#define LABEL_NALE_TXT_PATH "/home/cat/coco_80_labels_list.txt"
+#define MODEL_PATH "/home/cat/yolov5s-640-640.rknn"
 int app_main(void)
 {
 #ifdef MEDIARKAI
