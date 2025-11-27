@@ -11,15 +11,16 @@ LINK_SHARE=y
 MODULE_SUB_INC += $(CURDIR)/../Media/inc
 MODULE_SUB_INC += $(CURDIR)/../Utils/inc
 MODULE_SUB_INC += $(CURDIR)/../Utils/logger
-
+MODULE_SUB_INC += $(CURDIR)/../Utils/Thirdparty/lvgl
+MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/libdrm/include
 ifeq ($(TARGET_MEDIA),mpp)
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/mpp/include
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/rga/include
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/x264/include
 LD_C_FLAGS += -DMEDIARKMPP
 LD_CPP_FLAGS += -DMEDIARKMPP
-LD_C_FLAGS += -DMEDIARKAI
-LD_CPP_FLAGS += -DMEDIARKAI
+#LD_C_FLAGS += -DMEDIARKAI
+#LD_CPP_FLAGS += -DMEDIARKAI
 endif
 
 ifneq (,$(findstring y,$(TARGET_OPENCV)))

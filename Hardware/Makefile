@@ -1,8 +1,7 @@
 MODULE_CUR_PATH = $(CURDIR)
 MODULE_SUB_INC = include
 
-MODULE_SUB_DIR = diagnosis/block
-MODULE_SUB_DIR += diagnosis/filesystem
+MODULE_SUB_DIR =  wifi
 MODULE_SUB_DIR += gsensor
 MODULE_SUB_DIR += gps
 

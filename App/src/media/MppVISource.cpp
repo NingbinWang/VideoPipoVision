@@ -8,7 +8,7 @@
 #include "base/New.h"
 #include "Logger.h"
 
-#define MPPFILEOUT 1 //the fileout use for debug 
+#define MPPFILEOUT 0 //the fileout use for debug 
 #if MPPFILEOUT
 #include <fstream>
 #include <iostream>
@@ -30,12 +30,12 @@ MppVISource::MppVISource(UsageEnvironment* env, const std::string& dev) :
     VI_CFG_PARAM_T param;
     ENC_STATUS_T enc_status;
     const char* in_devname = mDev.c_str();
-    param.vSensorType = CMOS_OV_8858;
+    param.vSensorType = CMOS_OV_5969;
     param.image_viH = 1080;
     param.image_viW = 1920;
-    param.frame_rate = 15;
+    param.frame_rate = 30;
     param.eType = VI_V4L2;
-    setFps(15);
+    setFps(30);
 //MediaVi
     mVi = new MediaVi(param);
     ret = mVi->initdev(in_devname);

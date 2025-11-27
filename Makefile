@@ -14,26 +14,26 @@ OUTPUT_DIR= $(CURDIR)/output
 
 # media view
 #tsp config
-#TARGET_MEDIA = mpp
-#TARGET_SOC = rk3566
-#TARGET_OPENCV = y
-#TARGET_ROCKCHIP = y
-#TARGET_ROCKCHIP_FFMPEG = y
-#TARGET_V4L2 = y
-#TARGET_ALSA = n
-# cross host
-#TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
-#tsp end
-
-#lubanmav3
 TARGET_MEDIA = mpp
-TARGET_SOC = rk3576
+TARGET_SOC = rk3566
 TARGET_OPENCV = y
 TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
 TARGET_V4L2 = y
 TARGET_ALSA = n
-TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu
+# cross host
+TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
+#tsp end
+
+#lubanmav3
+#TARGET_MEDIA = mpp
+#TARGET_SOC = rk3576
+#TARGET_OPENCV = y
+#TARGET_ROCKCHIP = y
+#TARGET_ROCKCHIP_FFMPEG = y
+#TARGET_V4L2 = y
+#TARGET_ALSA = n
+#TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu
 
 export SOC     := $(TARGET_SOC)
 export MEDIATYPE   := $(TARGET_MEDIA)
@@ -165,12 +165,12 @@ checkenv:
 		mkdir $(OUTPUT_DIR)/lib; \
 	fi
 	find $(LIB_DIR)/$(SOC) -name "*.so*" |xargs -i cp {} $(OUTPUT_DIR)/lib/
-	$(CP) $(LIB_DIR)/initlink.sh $(OUTPUT_DIR)/
+	$(CP) $(LIB_DIR)/$(SOC)/initlink.sh $(OUTPUT_DIR)/
 
 
 Utils: checkenv
 	@$(ECHO) "##### Build utils ####"
-	@make -C $(UTILS_DIR)
+	@make -C $(UTILS_DIR) TARGET_MEDIA=$(TARGET_MEDIA)
 	@if [ -f $(UTILS_DIR)/Lib/libUtils.so ]; then \
 		$(CP) $(UTILS_DIR)/Lib/libUtils.so $(OUTPUT_DIR)/lib/; \
 	fi

@@ -22,6 +22,36 @@
 #else
 #include "media/MediaVISource.h"
 #endif
+
+//#ifdef LVGL
+#include "lvgl.h"
+#include "lv_conf.h"
+#include "demos/lv_demos.h"
+//#endif
+static const char *getenv_default(const char *name, const char *dflt)
+{
+    return getenv(name) ? : dflt;
+}
+
+#if LV_USE_LINUX_FBDEV
+static void lv_linux_disp_init(void)
+{
+    const char *device = getenv_default("LV_LINUX_FBDEV_DEVICE", "/dev/fb0");
+    lv_display_t * disp = lv_linux_fbdev_create();
+
+    lv_linux_fbdev_set_file(disp, device);
+}
+#elif LV_USE_LINUX_DRM
+static void lv_linux_disp_init(void)
+{
+    const char *device = getenv_default("LV_LINUX_DRM_CARD", "/dev/dri/card0");
+    lv_display_t * disp = lv_linux_drm_create();
+
+    lv_linux_drm_set_file(disp, device, -1);
+}
+#else
+#error Unsupported configuration
+#endif
 /*
 int opencv_demo()
 {
@@ -107,12 +137,12 @@ int v4l2rtsp()
     ThreadPool* threadPool = ThreadPool::createNew(2);//创建线程池
     UsageEnvironment* env = UsageEnvironment::createNew(scheduler, threadPool);//创建环境变量
 
-    Ipv4Address ipAddr("192.168.0.10", 8554);
+    Ipv4Address ipAddr("192.168.31.146", 5001);
     RtspServer* server = RtspServer::createNew(env, ipAddr);
     MediaSession* session = MediaSession::createNew("live");
 #ifdef MEDIARKMPP
-     //MediaSource* videoSource = MppVISource::createNew(env, "/dev/video0");
-     MediaSource* videoSource = MppVISource::createNew(env, "/dev/video11");
+     MediaSource* videoSource = MppVISource::createNew(env, "/dev/video0");
+     //MediaSource* videoSource = MppVISource::createNew(env, "/dev/video11");
 #else
     MediaSource* videoSource = MediaVISource::createNew(env, "/dev/video0");
 #endif  
@@ -133,6 +163,7 @@ int v4l2rtsp()
 
 #define LABEL_NALE_TXT_PATH "/home/cat/coco_80_labels_list.txt"
 #define MODEL_PATH "/home/cat/yolov5s-640-640.rknn"
+
 int app_main(void)
 {
 #ifdef MEDIARKAI
@@ -142,5 +173,20 @@ int app_main(void)
    MediaAi_Init(model,model_size,LABEL_NALE_TXT_PATH);
 #endif
    v4l2rtsp();
+    //lv_init();
+
+    /*Linux display device init*/
+    //lv_linux_disp_init();
+
+ 
+     // 启动官方 benchmark
+    //lv_demo_benchmark();
+   
+     /*Handle LVGL tasks*/
+   // while(1) {
+    //    lv_timer_handler();
+     //   usleep(5000);
+    //}
+
    return 0;
 }
