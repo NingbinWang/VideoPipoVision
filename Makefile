@@ -101,6 +101,8 @@ LIB_VAR += avfilter
 LIB_VAR += postproc
 LIB_VAR += swresample
 LIB_VAR += swscale
+LIB_VAR += gbm
+LIB_VAR += EGL
 endif
 ifneq (,$(findstring y,$(TARGET_ALSA)))
 LIB_VAR += asound

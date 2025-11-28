@@ -25,7 +25,6 @@
 
 //#ifdef LVGL
 #include "lvgl.h"
-#include "lv_conf.h"
 #include "demos/lv_demos.h"
 //#endif
 static const char *getenv_default(const char *name, const char *dflt)
@@ -52,6 +51,19 @@ static void lv_linux_disp_init(void)
 #else
 #error Unsupported configuration
 #endif
+
+/**
+ * @brief Print LVGL version
+ */
+static void print_lvgl_version(void)
+{
+    fprintf(stdout, "%d.%d.%d-%s\n",
+            LVGL_VERSION_MAJOR,
+            LVGL_VERSION_MINOR,
+            LVGL_VERSION_PATCH,
+            LVGL_VERSION_INFO);
+}
+
 /*
 int opencv_demo()
 {
@@ -173,20 +185,20 @@ int app_main(void)
    MediaAi_Init(model,model_size,LABEL_NALE_TXT_PATH);
 #endif
    v4l2rtsp();
-    //lv_init();
-
-    /*Linux display device init*/
-    //lv_linux_disp_init();
-
- 
-     // 启动官方 benchmark
-    //lv_demo_benchmark();
+   lv_init();
+   print_lvgl_version();
+   /*Linux display device init*/
+   lv_linux_disp_init();
    
+    /*Create a Demo*/
+    lv_demo_widgets();
+    lv_demo_widgets_start_slideshow();
+
      /*Handle LVGL tasks*/
-   // while(1) {
-    //    lv_timer_handler();
-     //   usleep(5000);
-    //}
+    while(1) {
+        lv_timer_handler();
+        usleep(5000);
+    }
 
    return 0;
 }

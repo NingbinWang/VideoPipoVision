@@ -9,7 +9,7 @@ LVGL_LDFLAGS = -lpthread -ldrm -lgbm
 #LV_DRIVERDIR = $(MODULE_CUR_PATH)/Thirdparty/lv_drivers
 # --- 源文件 ---
 LVGL_SRCDIR =  $(LVGL_DIR)/src/
-LVGL_SRCDIR +=  $(LVGL_DIR)/src/core
+LVGL_SRCDIR += $(LVGL_DIR)/src/core
 LVGL_SRCDIR += $(LVGL_DIR)/src/display
 LVGL_SRCDIR += $(LVGL_DIR)/src/draw
 LVGL_SRCDIR += $(LVGL_DIR)/src/draw/convert/
@@ -216,5 +216,5 @@ ifeq ($(TARGET_MEDIA),mpp)
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/include
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/libdrm/include
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/libgbm/include
-
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/gles/include
 endif
