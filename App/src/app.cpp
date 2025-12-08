@@ -6,27 +6,26 @@
 #include <signal.h>
 //#include "opencv2/opencv.hpp"
 #include <iostream>
-
 #include "Logger.h"
-#include "net/UsageEnvironment.h"
-#include "base/ThreadPool.h"
-#include "net/EventScheduler.h"
-#include "net/Event.h"
-#include "net/RtspServer.h"
-#include "net/MediaSession.h"
-#include "net/InetAddress.h"
-#include "net/H264FileMediaSource.h"
-#include "net/H264RtpSink.h"
+#include "Net/UsageEnvironment.h"
+#include "Base/ThreadPool.h"
+#include "Net/EventScheduler.h"
+#include "Net/Event.h"
+#include "Net/RtspServer.h"
+#include "Net/MediaSession.h"
+#include "Net/InetAddress.h"
+#include "Net/H264FileMediaSource.h"
+#include "Net/H264RtpSink.h"
 #ifdef MEDIARKMPP
 #include "media/MppVISource.h"
 #else
 #include "media/MediaVISource.h"
 #endif
 
-//#ifdef LVGL
-#include "lvgl.h"
+#ifdef LVGL
+#include "lvgl/lvgl.h"
 #include "demos/lv_demos.h"
-//#endif
+
 static const char *getenv_default(const char *name, const char *dflt)
 {
     return getenv(name) ? : dflt;
@@ -51,7 +50,7 @@ static void lv_linux_disp_init(void)
 #else
 #error Unsupported configuration
 #endif
-
+#endif
 /**
  * @brief Print LVGL version
  */
@@ -142,9 +141,6 @@ unsigned char *read_file_data(const char *filename, int *model_size)
 
 int v4l2rtsp()
 {
-     //Logger::setLogFile("xxx.log");
-    Logger::setLogLevel(Logger::LogDebug);
-
     EventScheduler* scheduler = EventScheduler::createNew(EventScheduler::POLLER_SELECT);//创建调度器
     ThreadPool* threadPool = ThreadPool::createNew(2);//创建线程池
     UsageEnvironment* env = UsageEnvironment::createNew(scheduler, threadPool);//创建环境变量
@@ -175,25 +171,116 @@ int v4l2rtsp()
 
 #define LABEL_NALE_TXT_PATH "/home/cat/coco_80_labels_list.txt"
 #define MODEL_PATH "/home/cat/yolov5s-640-640.rknn"
+// 全局变量
+static lv_img_dsc_t g_video_img;
+static uint8_t *g_rgb_frame = NULL;  // XRGB8888 缓冲区
+void lvgl_video_init(size_t frame_size)
+{
+    // 配置 LVGL 图像描述符
+    g_video_img.data = g_rgb_frame;
+    g_video_img.data_size = frame_size;
+    g_video_img.header.w = 720;
+    g_video_img.header.h = 1080;
+    g_video_img.header.cf = LV_COLOR_FORMAT_XRGB8888; // LVGL 9.4 新格式
 
+    // 创建图像控件（全屏）
+    lv_obj_t *img = lv_img_create(lv_scr_act());
+    lv_img_set_src(img, &g_video_img);
+    lv_obj_set_size(img, 1080, 720);
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+}
+MediaVi *mVi = NULL;
+void * vibuf = nullptr;
+size_t mpp_frame_size = 3110400;
+void VI_INIT(void)
+{
+    bool ret;
+    VI_CFG_PARAM_T param;
+    ENC_STATUS_T enc_status;
+    std::string mDev = "/dev/video0";
+    const char* in_devname = mDev.c_str();
+    param.vSensorType = CMOS_OV_5969;
+    param.image_viH = 1080;
+    param.image_viW = 1920;
+    param.frame_rate = 30;
+    param.eType = VI_V4L2;
+    //setFps(30);
+//MediaVi
+    mVi = new MediaVi(param);
+    ret = mVi->initdev(in_devname);
+    assert(ret == true);
+   
+}
+void convertxrgb8888()
+{
+    char * framebuf = nullptr;
+    size_t size = 0;
+    bool ret;
+    while(1)
+    {
+             void * vibuf = nullptr;
+             int index = -1;
+            ret = mVi->poll();
+            if(ret == false)
+                continue;
+            
+            printf("convertxrgb8888 1\n");
+#ifdef MEDIARKMPP
+            vibuf =  mVi->readtomppbuf(&index);
+            if(vibuf == nullptr)
+            {
+                LOG_WARNING("don't have framebuf\n");
+                return;
+            }
+#endif
+            IMAGE_FRAME_T srcimg = {0};
+            IMAGE_FRAME_T outimg = {0};
+            srcimg.width =  1920;
+            srcimg.height = 1080;
+            srcimg.width_stride = 1920;
+            srcimg.height_stride =  1080;
+            srcimg.virt_addr = (char *)vibuf;
+            outimg.width =  1920;
+            outimg.height = 1080;
+            outimg.width_stride = 1920;
+            outimg.height_stride =  1080;
+            outimg.virt_addr = (char *) g_rgb_frame;
+            printf("convertxrgb8888 2\n");
+            MediaDecRKConvertXRGB8888(&srcimg,&outimg);
+            break;
+    }
+}
 int app_main(void)
 {
+  
+    //Logger::setLogFile("xxx.log");
+    Logger::setLogLevel(Logger::LogDebug);
 #ifdef MEDIARKAI
    unsigned char *model;
    int model_size = 0;
    model = read_file_data(MODEL_PATH,&model_size);
    MediaAi_Init(model,model_size,LABEL_NALE_TXT_PATH);
 #endif
-   v4l2rtsp();
+  // v4l2rtsp();
+   VI_INIT();
+   Media_Init();
    lv_init();
    print_lvgl_version();
    /*Linux display device init*/
    lv_linux_disp_init();
    
+   lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x343247), 0);
     /*Create a Demo*/
-    lv_demo_widgets();
-    lv_demo_widgets_start_slideshow();
-
+    //lv_demo_widgets();
+    //lv_demo_widgets_start_slideshow();
+    //lv_demo_music();
+    size_t frame_size = 1080 * 720 * 4;  // XRGB8888
+    if (!g_rgb_frame) {
+        g_rgb_frame =(uint8_t *) malloc(frame_size);
+        memset(g_rgb_frame, 0, frame_size); // 初始黑屏
+    }
+    convertxrgb8888();
+    lvgl_video_init(frame_size);
      /*Handle LVGL tasks*/
     while(1) {
         lv_timer_handler();

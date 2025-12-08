@@ -21,6 +21,7 @@ TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
 TARGET_V4L2 = y
 TARGET_ALSA = n
+TARGET_LVGL = y
 # cross host
 TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
 #tsp end
@@ -101,15 +102,16 @@ LIB_VAR += avfilter
 LIB_VAR += postproc
 LIB_VAR += swresample
 LIB_VAR += swscale
-LIB_VAR += gbm
-LIB_VAR += EGL
+#LIB_VAR += gbm
+#LIB_VAR += EGL
 endif
 ifneq (,$(findstring y,$(TARGET_ALSA)))
 LIB_VAR += asound
 LIB_VAR += atopology
 endif
-
-
+ifneq (,$(findstring y,$(TARGET_LVGL)))
+LD_CPP_FLAGS += -DLVGL
+endif
 
 LIB_VAR += Media
 LIB_VAR += App
@@ -160,19 +162,26 @@ all: $(BUILD_ALL)
 	$(CP) $(LIB_DIR)/$(SOC)/ffmpeg/bin/ffmpeg $(OUTPUT_DIR)/
 	$(ECHO) "Finish generating images at $(BUILD_COMPLETE_STRING)"
 	
+pack:
+	$(CXX) -o $(OUTPUT_DIR)/VideoVision  $(PROJECTINC_PATH) -L $(OUTPUT_DIR)/lib/ $(PROJECTLIB_VAR) $(LD_CPP_FLAGS) main.cpp
+	$(RM)  *.o -rf
+	$(CP) $(LIB_DIR)/$(SOC)/mpp/bin/mpi_enc_test $(OUTPUT_DIR)/
+	$(CP) $(LIB_DIR)/$(SOC)/ffmpeg/bin/ffmpeg $(OUTPUT_DIR)/
+	$(ECHO) "Finish pack images at $(BUILD_COMPLETE_STRING)"
 
 checkenv:
 	@if [ ! -e $(OUTPUT_DIR)/lib ]; then \
 		mkdir $(OUTPUT_DIR); \
 		mkdir $(OUTPUT_DIR)/lib; \
 	fi
+	$(CP) $(ROOT_PATH)/Config/lv_conf.h $(UTILS_DIR)/Thirdparty/lvgl/
 	find $(LIB_DIR)/$(SOC) -name "*.so*" |xargs -i cp {} $(OUTPUT_DIR)/lib/
 	$(CP) $(LIB_DIR)/$(SOC)/initlink.sh $(OUTPUT_DIR)/
 
 
 Utils: checkenv
 	@$(ECHO) "##### Build utils ####"
-	@make -C $(UTILS_DIR) TARGET_MEDIA=$(TARGET_MEDIA)
+	@make -C $(UTILS_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_LVGL=$(TARGET_LVGL)
 	@if [ -f $(UTILS_DIR)/Lib/libUtils.so ]; then \
 		$(CP) $(UTILS_DIR)/Lib/libUtils.so $(OUTPUT_DIR)/lib/; \
 	fi
@@ -194,7 +203,7 @@ Hardware_Clean:
 
 App: checkenv
 	@$(ECHO) "##### Build app ####"
-	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_ALSA=$(TARGET_ALSA)
+	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_ALSA=$(TARGET_ALSA) TARGET_LVGL=$(TARGET_LVGL)
 	@if [ -f $(APP_DIR)/Lib/libApp.so ]; then \
 		$(CP) $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
 	fi

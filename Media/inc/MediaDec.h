@@ -1,7 +1,7 @@
 #ifndef _MEDIA_DEC_H_
 #define _MEDIA_DEC_H_
 #include "MediaConfig.h"
-
+#include "MediaFrame.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,5 +48,5 @@ typedef struct
 }
 #endif/*__cplusplus*/
 
-
+int MediaDecRKConvertXRGB8888(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg);
 #endif

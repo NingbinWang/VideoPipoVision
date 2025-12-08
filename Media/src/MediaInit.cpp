@@ -42,6 +42,17 @@ VI_CFG_PARAM_T *Media_Get_ViParam(void)
     return pMediaInitParam->viCfgParam;
 }
 
+RKrga *rkrga = nullptr;
+RKnpu * rknpu = nullptr;
+RKrga * Media_GetRkrga(void)
+{
+	return rkrga;
+}
+RKnpu * Media_GetRknpu(void)
+{
+	return rknpu;
+}
+
 
 int Media_Init(void)
 {
@@ -57,6 +68,10 @@ int Media_Init(void)
 	{
 		printf("hdal_system_init fail\n");
 	}
+#endif
+#ifdef MEDIARKMPP
+	rkrga = new RKrga();
+	rknpu = new RKnpu();
 #endif
     return 0;
 }

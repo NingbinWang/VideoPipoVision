@@ -17,7 +17,6 @@ class RKnpu {
     ~RKnpu();
   bool Init_Model(unsigned char *model_data,int model_data_size,RknnConText_T* app_ctx);
   bool Inference_Model(void *srcbuf,int srcwidth,int srcheight, RESULT_GROUP_T *detect_result,RknnConText_T *app_ctx);
-  RKrga * getrga();
 
 private:
  void dump_tensor_attr(rknn_tensor_attr *attr);

@@ -8,3 +8,7 @@ Thirdparty/*
 !Thirdparty/linux.mk
 !Thirdparty/Makefile
 !Thirdparty/wpa_supplicant.conf
+App/Lib
+Hardware/Lib
+Media/Lib
+Utils/Lib

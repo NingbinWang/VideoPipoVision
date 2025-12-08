@@ -2,21 +2,17 @@
 #include "MppEncoder.h"
 #include "Logger.h"
 
-RKrga *rga = nullptr;
+
 RKnpu::RKnpu()
 {
-  rga = new RKrga();
+
 }
 
 RKnpu::~RKnpu() 
 {
-	delete rga;
+
 }
 
-RKrga *RKnpu::getrga()
-{
-   return rga;
-}
 
 
 void RKnpu::dump_tensor_attr(rknn_tensor_attr *attr)

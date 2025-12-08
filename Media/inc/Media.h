@@ -226,7 +226,7 @@ typedef struct
     ENC_STATUS_T              encStatus[MAX_ENC_CHAN];
 }MEDIA_PARAM_T;
 
-
+int Media_Init(void);
 
 #ifdef __cplusplus
 }

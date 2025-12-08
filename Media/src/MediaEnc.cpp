@@ -1,7 +1,6 @@
-#include "Media.h"
+#include "MediaPriv.h"
 #include "MppEncoder.h"
-#include "RKrga.h"
-#include "Logger.h"
+
 
 MppEncoder * encoder = nullptr;
 
