@@ -12,10 +12,14 @@ MODULE_SUB_INC += $(CURDIR)/../Media/inc
 MODULE_SUB_INC += $(CURDIR)/../Utils/inc
 MODULE_SUB_INC += $(CURDIR)/../Utils/logger
 MODULE_SUB_INC += $(CURDIR)/../Utils/Thirdparty/
+MODULE_SUB_INC += $(CURDIR)/../Config/
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/libdrm/include
 ifneq (,$(findstring y,$(TARGET_LVGL)))
 MODULE_SUB_INC += inc/PageManager
 MODULE_SUB_INC += inc/ResourceManager
+MODULE_SUB_INC += inc/Pages/StartUp
+MODULE_SUB_INC += inc/Pages
+
 
 MODULE_SUB_INC += inc/Utils/Filters
 MODULE_SUB_INC += inc/Utils/Lvallocator
@@ -23,6 +27,7 @@ MODULE_SUB_INC += inc/Utils/Lvext
 
 MODULE_SUB_DIR += src/PageManager
 MODULE_SUB_DIR += src/Pages
+MODULE_SUB_DIR += src/Pages/StartUp
 MODULE_SUB_DIR += src/ResourceManager
 MODULE_SUB_DIR += src/Utils/Lvext
 MODULE_SUB_DIR += src/Utils/Lvext/Resources

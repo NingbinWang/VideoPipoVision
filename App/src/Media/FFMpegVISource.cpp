@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "media/FFMpegVISource.h"
+#include "Media/FFMpegVISource.h"
 #include "Base/New.h"
 #include "Logger.h"
 

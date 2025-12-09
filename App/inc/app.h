@@ -11,7 +11,15 @@
 #include "common_type.h"
 
 
+/**********************
+ *      TYPEDEFS
+ **********************/
 
+ typedef enum {
+    DISP_SMALL,
+    DISP_MEDIUM,
+    DISP_LARGE,
+} disp_size_t;
 
 
 

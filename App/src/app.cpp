@@ -16,15 +16,78 @@
 #include "Net/InetAddress.h"
 #include "Net/H264FileMediaSource.h"
 #include "Net/H264RtpSink.h"
+#include "autoconf.h"
 #ifdef MEDIARKMPP
-#include "media/MppVISource.h"
+#include "Media/MppVISource.h"
 #else
-#include "media/MediaVISource.h"
+#include "Media/MediaVISource.h"
 #endif
 
 #ifdef LVGL
 #include "lvgl/lvgl.h"
 #include "demos/lv_demos.h"
+
+const lv_font_t * font_large;
+const lv_font_t * font_normal;
+disp_size_t disp_size;
+lv_style_t style_title;
+lv_style_t style_text_muted;
+lv_style_t style_icon;
+lv_style_t style_bullet;
+lv_obj_t * tv;
+
+void lv_widgets_components_init(void)
+{
+    if(LV_HOR_RES <= 320) disp_size = DISP_SMALL;
+    else if(LV_HOR_RES < 720) disp_size = DISP_MEDIUM;
+    else disp_size = DISP_LARGE;
+
+    font_large = LV_FONT_DEFAULT;
+    font_normal = LV_FONT_DEFAULT;
+/*
+    if(disp_size == DISP_LARGE) {
+        #ifdef LV_FONT_MONTSERRAT_24
+                font_large     = &lv_font_montserrat_24;
+        #else
+                LV_LOG_WARN("LV_FONT_MONTSERRAT_24 or LV_DEMO_BENCHMARK_ALIGNED_FONTS is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
+        #endif
+        #ifdef LV_FONT_MONTSERRAT_16
+                font_normal    = &lv_font_montserrat_16;
+        #else
+                LV_LOG_WARN("LV_FONT_MONTSERRAT_16 or LV_DEMO_BENCHMARK_ALIGNED_FONTS is not enabled for the widgets demo. Using LV_FONT_DEFAULT instead.");
+        #endif
+    }
+*/
+    #if LV_USE_THEME_DEFAULT
+    lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), LV_THEME_DEFAULT_DARK,font_normal);
+    #endif
+    lv_obj_set_style_text_font(lv_screen_active(), font_normal, 0);
+    lv_style_init(&style_title);
+    lv_style_set_text_font(&style_title, font_large);
+
+    lv_style_init(&style_text_muted);
+    lv_style_set_text_opa(&style_text_muted, LV_OPA_50);
+
+
+    lv_style_init(&style_icon);
+    lv_style_set_text_color(&style_icon, lv_theme_get_color_primary(NULL));
+    lv_style_set_text_font(&style_icon, font_large);
+
+    lv_style_init(&style_bullet);
+    lv_style_set_border_width(&style_bullet, 0);
+    lv_style_set_radius(&style_bullet, LV_RADIUS_CIRCLE);
+
+}
+
+
+void init_touchpad(void) {
+    lv_indev_t* indev_drv;
+	indev_drv = lv_indev_create();
+	lv_indev_set_type(indev_drv,LV_INDEV_TYPE_POINTER);
+	lv_indev_set_read_cb(indev_drv,NULL);
+}
+
+
 
 static const char *getenv_default(const char *name, const char *dflt)
 {
@@ -209,7 +272,7 @@ void VI_INIT(void)
     mVi = new MediaVi(param);
     ret = mVi->initdev(in_devname);
     assert(ret == true);
-   
+    
 }
 void convertxrgb8888()
 {
@@ -218,35 +281,13 @@ void convertxrgb8888()
     bool ret;
     while(1)
     {
-             void * vibuf = nullptr;
-             int index = -1;
+            int index = -1;
             ret = mVi->poll();
             if(ret == false)
                 continue;
-            
-            printf("convertxrgb8888 1\n");
-#ifdef MEDIARKMPP
-            vibuf =  mVi->readtomppbuf(&index);
-            if(vibuf == nullptr)
-            {
-                LOG_WARNING("don't have framebuf\n");
-                return;
-            }
-#endif
-            IMAGE_FRAME_T srcimg = {0};
-            IMAGE_FRAME_T outimg = {0};
-            srcimg.width =  1920;
-            srcimg.height = 1080;
-            srcimg.width_stride = 1920;
-            srcimg.height_stride =  1080;
-            srcimg.virt_addr = (char *)vibuf;
-            outimg.width =  1920;
-            outimg.height = 1080;
-            outimg.width_stride = 1920;
-            outimg.height_stride =  1080;
-            outimg.virt_addr = (char *) g_rgb_frame;
-            printf("convertxrgb8888 2\n");
-            MediaDecRKConvertXRGB8888(&srcimg,&outimg);
+
+            mVi->readFramebuf((char *)vibuf,3110400);
+            memcpy(g_rgb_frame,vibuf,720 * 1080 * 2);
             break;
     }
 }
@@ -268,19 +309,20 @@ int app_main(void)
    print_lvgl_version();
    /*Linux display device init*/
    lv_linux_disp_init();
-   
    lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x343247), 0);
+    size_t frame_size = 720 * 1080 * 2;
+    if (!g_rgb_frame) {
+       g_rgb_frame =(uint8_t *) malloc(frame_size);
+       memset(g_rgb_frame, 0, frame_size); // 初始黑屏
+    }
     /*Create a Demo*/
     //lv_demo_widgets();
     //lv_demo_widgets_start_slideshow();
-    //lv_demo_music();
-    size_t frame_size = 1080 * 720 * 4;  // XRGB8888
-    if (!g_rgb_frame) {
-        g_rgb_frame =(uint8_t *) malloc(frame_size);
-        memset(g_rgb_frame, 0, frame_size); // 初始黑屏
-    }
-    convertxrgb8888();
-    lvgl_video_init(frame_size);
+   // lv_demo_music();
+    lv_widgets_components_init();
+   
+   // convertxrgb8888();
+    //lvgl_video_init(frame_size);
      /*Handle LVGL tasks*/
     while(1) {
         lv_timer_handler();

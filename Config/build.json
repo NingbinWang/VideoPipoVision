@@ -1,0 +1,20 @@
+{
+	"jsontype": "paerse_build",
+	"models": [
+		{
+            "name": "RK3566",
+            "target": {
+                 "TARGET_SOC": "rk3566"
+             },
+             "lv_conf" : {
+				 "LV_COLOR_DEPTH" : "32"
+             },
+             "autoconf" : {
+                 "WIFI_MODE" : "AP",
+                 "WIFI_SSID" : "\"ALEX\""
+             }
+            
+        }
+	]
+}
+

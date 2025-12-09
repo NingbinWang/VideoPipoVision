@@ -299,8 +299,19 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 				size = bufferSize;
 				std::cout << "Device " << m_params.m_devName << " buffer truncated available:" << bufferSize << " needed:" << buf.bytesused <<std::endl ;
 			}
+#ifdef MEDIARKMPP
+			MppBuffer mppbuffer = m_buffer[buf.index].start;
+			void *ptr = mpp_buffer_get_ptr(mppbuffer);
+			size_t length = mpp_buffer_get_size(mppbuffer);
+			if (size > length)
+			{
+				size = length;
+				std::cout << "Device " << m_params.m_devName << " buffer truncated available:" << bufferSize << " needed:" << length <<std::endl ;
+			}
+			memcpy(buffer, ptr, size);
+#else
 			memcpy(buffer, m_buffer[buf.index].start, size);
-
+#endif
 			if (-1 == ioctl(m_fd, VIDIOC_QBUF, &buf))
 			{
 				perror("VIDIOC_QBUF");

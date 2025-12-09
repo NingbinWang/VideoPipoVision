@@ -6,8 +6,8 @@
 #include "Media.h"
 #include "Logger.h"
 #include "Net/MediaSource.h"
-#include "media/FFMpegVISource.h"
-#include "media/Encoder.h"
+#include "Media/FFMpegVISource.h"
+#include "Media/Encoder.h"
 
 
 

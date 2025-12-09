@@ -1,7 +1,7 @@
 #pragma once
 
-#include "media/Encoder.h"
-#include "media/SafeAVFormat.h"
+#include "Media/Encoder.h"
+#include "Media/SafeAVFormat.h"
 #include <mutex>
 
 namespace FFmpeg {

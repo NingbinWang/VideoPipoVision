@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "media/MppVISource.h"
+#include "Media/MppVISource.h"
 #include "Base/New.h"
 #include "Logger.h"
 

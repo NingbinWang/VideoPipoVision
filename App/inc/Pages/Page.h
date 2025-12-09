@@ -3,8 +3,8 @@
 
 #include "lvgl/lvgl.h"
 #include "PageManager.h"
-#include "Utils/Lvext/lv_obj_ext_func.h"
-#include "Utils/Lvext/lv_anim_timeline_wrapper.h"
+#include "lv_obj_ext_func.h"
+#include "lv_anim_timeline_wrapper.h"
 //#include "Resources/ResourcePool.h"
 
 

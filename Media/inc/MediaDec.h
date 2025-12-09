@@ -48,5 +48,7 @@ typedef struct
 }
 #endif/*__cplusplus*/
 
+int MediaDecReSize(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg);
+
 int MediaDecRKConvertXRGB8888(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg);
 #endif

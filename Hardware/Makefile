@@ -1,9 +1,13 @@
 MODULE_CUR_PATH = $(CURDIR)
 MODULE_SUB_INC = include
+MODULE_SUB_INC += InputDevices
 
-MODULE_SUB_DIR =  wifi
-MODULE_SUB_DIR += gsensor
-MODULE_SUB_DIR += gps
+
+
+MODULE_SUB_DIR =  WiFi
+MODULE_SUB_DIR += Gsensor
+MODULE_SUB_DIR += Gps
+MODULE_SUB_DIR += InputDevices
 
 LINK_SHARE=y
 #外部的一些头文件

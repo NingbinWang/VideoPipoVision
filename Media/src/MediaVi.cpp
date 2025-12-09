@@ -54,9 +54,7 @@ bool MediaVi::initdev(const char *in_devname)
 int MediaVi::readFramebuf(char* buffer, int bufferSize)
 {
     int ret = -1 ;
-    LOG_DEBUG("readFramebuf \n");
     ret = videoCapture->read(buffer,bufferSize);
-    LOG_DEBUG("readFramebuf OK\n");
     return ret;
 }
 #ifdef MEDIARKMPP
