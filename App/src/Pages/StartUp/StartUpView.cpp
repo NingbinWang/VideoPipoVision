@@ -1,6 +1,9 @@
-﻿#include "StartUpView.h"
+﻿#include "StartUp/StartUpView.h"
 #include "lv_anim_timeline_wrapper.h"
 #include "lv_obj_ext_func.h"
+#include "autoconf.h"
+#include "Logger.h"
+#include "ResourcePool.h"
 using namespace Page;
 
 #define COLOR_ORANGE    lv_color_hex(0xff931e)
@@ -13,40 +16,40 @@ void StartupView::Create(lv_obj_t* root)
 
     lv_obj_t* cont = lv_obj_create(root);
     lv_obj_remove_style_all(cont);
-    lv_obj_set_size(cont, 110, 40);
+    lv_obj_set_size(cont, 220, 80);
     lv_obj_set_style_border_color(cont, COLOR_RED, 0);
     lv_obj_set_style_border_side(cont, LV_BORDER_SIDE_BOTTOM, 0);
     lv_obj_set_style_border_width(cont, 3, 0);
     lv_obj_set_style_border_post(cont, true, 0);
     lv_obj_center(cont);
     ui.cont = cont;
-
+	
     lv_obj_t *label = lv_label_create(cont);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_26, 0);
+    lv_obj_set_style_text_font(label, Resource.GetFont("customize_24_aligned"), 0);  
     lv_obj_set_style_text_color(label, lv_color_white(), 0);
     lv_label_set_text(label, STARTUP_LABLE);
     lv_obj_center(label);
     ui.labelLogo = label;
-
     ui.anim_timeline = lv_anim_timeline_create();
 
 #define ANIM_DEF(start_time, obj, attr, start, end) {start_time, obj, LV_ANIM_EXEC(attr), start, end, 500, lv_anim_path_ease_out, true}
 
     lv_anim_timeline_wrapper_t wrapper[] =
         {
-            ANIM_DEF(0, ui.cont, width, 0, lv_obj_get_style_width(ui.cont, 0)),
-            ANIM_DEF(500, ui.labelLogo, y, lv_obj_get_style_height(ui.cont, 0), lv_obj_get_y(ui.labelLogo)),
+            ANIM_DEF(0, ui.cont, width, 0, lv_obj_get_style_width(ui.cont, LV_PART_MAIN)),
+            ANIM_DEF(500, ui.labelLogo, y, lv_obj_get_style_height(ui.cont, LV_PART_MAIN), lv_obj_get_y(ui.labelLogo)),
             LV_ANIM_TIMELINE_WRAPPER_END
         };
 
     lv_anim_timeline_add_wrapper(ui.anim_timeline, wrapper);
+    
 }
 
 void StartupView::Delete()
 {
     if (ui.anim_timeline)
     {
-        lv_anim_timeline_del(ui.anim_timeline);
+        lv_anim_timeline_delete(ui.anim_timeline);
         ui.anim_timeline = nullptr;
     }
 }

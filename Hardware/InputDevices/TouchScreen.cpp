@@ -1,5 +1,6 @@
 #include "TouchScreen.h"
 #include <iostream>
+#include "Logger.h"
 
 TouchScreen::TouchScreen() {}
 

@@ -5,7 +5,7 @@
 #include "PageManager.h"
 #include "lv_obj_ext_func.h"
 #include "lv_anim_timeline_wrapper.h"
-//#include "Resources/ResourcePool.h"
+#include "ResourcePool.h"
 
 
 

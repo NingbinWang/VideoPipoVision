@@ -22,7 +22,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
 
     if (base == nullptr)
     {
-        LOG_ERROR("Page base is NULL");
+        LOG_ERROR("Page base is NULL\n");
         return;
     }
 
@@ -32,7 +32,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
 
     if (!manager->GetCurrentLoadAnimAttr(&animAttr))
     {
-        LOG_ERROR("Can't get current anim attr");
+        LOG_ERROR("Can't get current anim attr\n");
         return;
     }
 
@@ -44,7 +44,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
         if (!manager->AnimState.IsBusy)
             return;
 
-        LOG_INFO("Root anim interrupted");
+        LOG_INFO("Root anim interrupted\n");
         lv_anim_del(root, animAttr.setter);
         manager->AnimState.IsBusy = false;
     }
@@ -88,12 +88,12 @@ void PageManager::onRootDragEvent(lv_event_t* event)
         if (animAttr.dragDir == ROOT_DRAG_DIR_HOR)
         {
             end += x_predict;
-            LOG_INFO("Root drag x_predict = %d", end);
+            LOG_INFO("Root drag x_predict = %d\n", end);
         }
         else if (animAttr.dragDir == ROOT_DRAG_DIR_VER)
         {
             end += y_predict;
-            LOG_INFO("Root drag y_predict = %d", end);
+            LOG_INFO("Root drag y_predict = %d\n", end);
         }
 
         if (ABS(end) > ABS(offset_sum) / 2)
@@ -112,7 +112,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
             lv_anim_set_exec_cb(&a, animAttr.setter);
             lv_anim_set_ready_cb(&a, onRootAnimFinish);
             lv_anim_start(&a);
-            LOG_INFO("Root anim start");
+            LOG_INFO("Root anim start\n");
         }
     }
 }
@@ -125,7 +125,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
 void PageManager::onRootAnimFinish(lv_anim_t* a)
 {
     PageManager* manager = (PageManager*)lv_anim_get_user_data(a);
-    LOG_INFO("Root anim finish");
+    LOG_INFO("Root anim finish\n");
     manager->AnimState.IsBusy = false;
 }
 
@@ -155,7 +155,7 @@ void PageManager::RootEnableDrag(lv_obj_t* root)
         LV_EVENT_RELEASED,
         base
     );
-    LOG_INFO("Root drag enabled");
+    LOG_INFO("Root drag enabled\n");
 }
 
 /**
@@ -166,7 +166,7 @@ void PageManager::RootEnableDrag(lv_obj_t* root)
 void PageManager::onRootAsyncLeave(void* data)
 {
     PageBase* base = (PageBase*)data;
-    LOG_INFO("Page(%s) send event: LV_EVENT_LEAVE, need to handle...", base->Name);
+    LOG_INFO("Page(%s) send event: LV_EVENT_LEAVE, need to handle...\n", base->Name);
     //lv_event_send(base->root, LV_EVENT_LEAVE, base);
 }
 

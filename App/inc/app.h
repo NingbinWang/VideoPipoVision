@@ -9,6 +9,14 @@
 #include <pthread.h>
 #include <memory>
 #include "common_type.h"
+#include "Media.h"
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include "opencv2/opencv.hpp"
+#include <iostream>
+#include "Logger.h"
 
 
 /**********************

@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
+#include "Logger.h"
 
 InputDevice::InputDevice() {}
 

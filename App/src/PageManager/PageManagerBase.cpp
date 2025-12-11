@@ -78,14 +78,14 @@ PageBase* PageManager::Install(const char* className, const char* appName)
 {
     if (Factory == nullptr)
     {
-        LOG_ERROR("Factory is not regsite, can't install page");
+        LOG_ERROR("Factory is not regsite, can't install page\n");
         return nullptr;
     }
 
     PageBase* base = Factory->CreatePage(className);
     if (base == nullptr)
     {
-        LOG_ERROR("Factory has not %s", className);
+        LOG_ERROR("Factory has not %s\n", className);
         return nullptr;
     }
 
@@ -99,10 +99,10 @@ PageBase* PageManager::Install(const char* className, const char* appName)
 
     if (appName == nullptr)
     {
-        LOG_WARNING("appName has not set");
+        LOG_WARNING("appName has not set\n");
         appName = className;
     }
-    LOG_INFO("Install Page[class = %s, name = %s]", className, appName);
+    LOG_INFO("Install Page[class = %s, name = %s]\n", className, appName);
     Register(base, appName);
 
     return base;
@@ -115,34 +115,34 @@ PageBase* PageManager::Install(const char* className, const char* appName)
   */
 bool PageManager::Uninstall(const char* appName)
 {
-    LOG_INFO("Page(%s) uninstall...", appName);
+    LOG_INFO("Page(%s) uninstall...\n", appName);
 
     PageBase* base = FindPageInPool(appName);
     if (base == nullptr)
     {
-        LOG_ERROR("Page(%s) was not found", appName);
+        LOG_ERROR("Page(%s) was not found\n", appName);
         return false;
     }
 
     if (!Unregister(appName))
     {
-        LOG_ERROR("Page(%s) unregister failed", appName);
+        LOG_ERROR("Page(%s) unregister failed\n", appName);
         return false;
     }
 
     if (base->priv.IsCached)
     {
-        LOG_WARNING("Page(%s) has cached, unloading...", appName);
+        LOG_WARNING("Page(%s) has cached, unloading...\n", appName);
         base->priv.State = PageBase::PAGE_STATE_UNLOAD;
         StateUpdate(base);
     }
     else
     {
-        LOG_INFO("Page(%s) has not cache", appName);
+        LOG_INFO("Page(%s) has not cache\n", appName);
     }
 
     delete base;
-    LOG_INFO("Uninstall OK");
+    LOG_INFO("Uninstall OK\n");
     return true;
 }
 
@@ -155,7 +155,7 @@ bool PageManager::Register(PageBase* base, const char* name)
 {
     if (FindPageInPool(name) != nullptr)
     {
-        LOG_ERROR("Page(%s) was multi registered", name);
+        LOG_ERROR("Page(%s) was multi registered\n", name);
         return false;
     }
 
@@ -174,20 +174,20 @@ bool PageManager::Register(PageBase* base, const char* name)
   */
 bool PageManager::Unregister(const char* name)
 {
-    LOG_INFO("Page(%s) unregister...", name);
+    LOG_INFO("Page(%s) unregister...\n", name);
 
     PageBase* base = FindPageInStack(name);
 
     if (base != nullptr)
     {
-        LOG_ERROR("Page(%s) was in stack", name);
+        LOG_ERROR("Page(%s) was in stack\n", name);
         return false;
     }
 
     base = FindPageInPool(name);
     if (base == nullptr)
     {
-        LOG_ERROR("Page(%s) was not found", name);
+        LOG_ERROR("Page(%s) was not found\n", name);
         return false;
     }
 
@@ -195,13 +195,13 @@ bool PageManager::Unregister(const char* name)
 
     if (iter == PagePool.end())
     {
-        LOG_ERROR("Page(%s) was not found in PagePool", name);
+        LOG_ERROR("Page(%s) was not found in PagePool\n", name);
         return false;
     }
 
     PagePool.erase(iter);
 
-    LOG_INFO("Unregister OK");
+    LOG_INFO("Unregister OK\n");
     return true;
 }
 
@@ -251,7 +251,7 @@ void PageManager::SetStackClear(bool keepBottom)
 
         if (top == nullptr)
         {
-            LOG_INFO("Page stack is empty, breaking...");
+            LOG_INFO("Page stack is empty, breaking...\n");
             break;
         }
 
@@ -262,7 +262,7 @@ void PageManager::SetStackClear(bool keepBottom)
             if (keepBottom)
             {
                 PagePrev = top;
-                LOG_INFO("Keep page stack bottom(%s), breaking...", top->Name);
+                LOG_INFO("Keep page stack bottom(%s), breaking...\n", top->Name);
                 break;
             }
             else
@@ -275,7 +275,7 @@ void PageManager::SetStackClear(bool keepBottom)
 
         PageStack.pop();
     }
-    LOG_INFO("Stack clear done");
+    LOG_INFO("Stack clear done\n");
 }
 
 /**

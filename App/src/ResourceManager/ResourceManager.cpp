@@ -42,7 +42,7 @@ bool ResourceManager::AddResource(const char* name, void* ptr)
     ResourceNode_t node;
     if (SearchNode(name, &node))
     {
-        LOG_WARNING("Resource: %s was register", name);
+        LOG_WARNING("Resource: %s was register\n", name);
         return false;
     }
 
@@ -50,7 +50,7 @@ bool ResourceManager::AddResource(const char* name, void* ptr)
     node.ptr = ptr;
     NodePool.push_back(node);
 
-    LOG_INFO("Resource: %s[0x%p] add success", node.name, node.ptr);
+    LOG_INFO("Resource: %s[0x%p] add success\n", node.name, node.ptr);
 
     return true;
 }
@@ -65,7 +65,7 @@ bool ResourceManager::RemoveResource(const char* name)
     ResourceNode_t node;
     if (!SearchNode(name, &node))
     {
-        LOG_ERROR("Resource: %s was not found", name);
+        LOG_ERROR("Resource: %s was not found\n", name);
         return false;
     }
 
@@ -73,13 +73,13 @@ bool ResourceManager::RemoveResource(const char* name)
 
     if (iter == NodePool.end())
     {
-        LOG_ERROR("Resource: %s was not found", name);
+        LOG_ERROR("Resource: %s was not found\n", name);
         return false;
     }
 
     NodePool.erase(iter);
 
-    LOG_INFO("Resource: %s remove success", name);
+    LOG_INFO("Resource: %s remove success\n", name);
 
     return true;
 }
@@ -95,11 +95,11 @@ void* ResourceManager::GetResource(const char* name)
 
     if (!SearchNode(name, &node))
     {
-        LOG_WARNING("Resource: %s was not found, return default[0x%p]", name, DefaultPtr);
+        LOG_WARNING("Resource: %s was not found, return default[0x%p]\n", name, DefaultPtr);
         return DefaultPtr;
     }
 
-    LOG_INFO("Resource: %s[0x%p] was found", name, node.ptr);
+    LOG_INFO("Resource: %s[0x%p] was found\n", name, node.ptr);
 
     return node.ptr;
 }
@@ -112,5 +112,5 @@ void* ResourceManager::GetResource(const char* name)
 void ResourceManager::SetDefault(void* ptr)
 {
     DefaultPtr = ptr;
-    LOG_INFO("Resource: set [0x%p] to default", DefaultPtr);
+    LOG_INFO("Resource: set [0x%p] to default\n", DefaultPtr);
 }

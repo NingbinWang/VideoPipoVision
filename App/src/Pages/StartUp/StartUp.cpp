@@ -1,5 +1,5 @@
-﻿#include "StartUp.h"
-
+﻿#include "StartUp/StartUp.h"
+#include "StatusBar/StatusBar.h"
 using namespace Page;
 
 Startup::Startup()
@@ -49,7 +49,7 @@ void Startup::onViewWillDisappear()
 
 void Startup::onViewDidDisappear()
 {
-    //StatusBar::Appear(true);
+    StatusBar::Appear(true);
 }
 
 void Startup::onViewDidUnload()
@@ -61,6 +61,6 @@ void Startup::onViewDidUnload()
 
 void Startup::onTimer(lv_timer_t* timer)
 {
-    //Startup* instance = (Startup*)timer->user_data;
-    //instance->Manager->Push("Pages/Template");
+    Startup* instance = (Startup*)lv_timer_get_user_data(timer);
+    instance->Manager->Push("Pages/VideoStream");
 }

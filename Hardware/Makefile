@@ -1,6 +1,7 @@
 MODULE_CUR_PATH = $(CURDIR)
 MODULE_SUB_INC = include
 MODULE_SUB_INC += InputDevices
+MODULE_SUB_INC += $(CURDIR)/../Utils/logger
 
 
 
