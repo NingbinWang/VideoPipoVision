@@ -21,3 +21,4 @@ private:
     int mHeight;
     char *mFramebuf=nullptr;
 };
+

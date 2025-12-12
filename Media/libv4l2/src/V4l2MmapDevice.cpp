@@ -267,6 +267,9 @@ bool V4l2MmapDevice::stop()
 size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 {
 	size_t size = 0;
+	LOG_INFO("buffer=%p buffersize=%ld\n",buffer,bufferSize);
+	if(buffer == NULL|| bufferSize == 0)
+		return -1;
 	if (n_buffers > 0)
 	{
 		struct v4l2_buffer buf;	
@@ -308,6 +311,7 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 				size = length;
 				std::cout << "Device " << m_params.m_devName << " buffer truncated available:" << bufferSize << " needed:" << length <<std::endl ;
 			}
+			LOG_INFO("ptr = %p length= %ld buffer=%p buffersize=%ld\n",ptr,length,buffer,bufferSize);
 			memcpy(buffer, ptr, size);
 #else
 			memcpy(buffer, m_buffer[buf.index].start, size);

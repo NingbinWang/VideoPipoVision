@@ -1,4 +1,4 @@
-﻿#ifndef _STARTUP_MODEL_H
+#ifndef _STARTUP_MODEL_H
 #define _STARTUP_MODEL_H
 
 

@@ -14,7 +14,6 @@ V4L2VISource::V4L2VISource( const std::string& dev) :
     bool ret;
     VI_CFG_PARAM_T param;
     ENC_STATUS_T enc_status;
-
     const char* in_devname = mDev.c_str();
     param.vSensorType = CMOS_OV_5969;
     param.image_viH = 1080;
@@ -25,21 +24,12 @@ V4L2VISource::V4L2VISource( const std::string& dev) :
     mVi = new MediaVi(param);
     ret = mVi->initdev(in_devname);
     assert(ret == true);
-//MediaEnc
-    enc_status.viW = 1920;
-    enc_status.viH = 1080;
-    MediaEncInit(&enc_status);
-    this->mOutputbuf = (char *)malloc(V4L2_MAX_SIZE);
-
-  
     LOG_DEBUG("V4L2VISource OK\n");
 }
 
 V4L2VISource::~V4L2VISource()
 {
-    if(this->mOutputbuf != nullptr)
-        free(this->mOutputbuf);
-
+  
 }
 
 size_t V4L2VISource::readFrame(char *outputbuf)
@@ -52,14 +42,15 @@ size_t V4L2VISource::readFrame(char *outputbuf)
         ret = mVi->poll();
         if(ret == false)
                 continue;
-        size = mVi->readFramebuf(this->mFramebuf,V4L2_MAX_SIZE);
+		LOG_INFO("read a Frame  outputbuf = %p\n",outputbuf);
+        size = mVi->readFramebuf(outputbuf,V4L2_MAX_SIZE);
         if(size < 0)
         {
                 LOG_WARNING("don't have framebuf\n");
                 return size;
         }
-        memcpy(outputbuf, this->mFramebuf, size);
         return size;
     }
   
 }
+

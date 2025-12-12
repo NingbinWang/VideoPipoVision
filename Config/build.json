@@ -1,5 +1,6 @@
 {
 	"jsontype": "paerse_build",
+	"output_dir": "./release",
 	"models": [
         {
             "name": "RK3576",
@@ -7,16 +8,16 @@
                  "TARGET_SOC": "rk3576"
              },
              "lv_conf" : {
-				 "LV_COLOR_DEPTH" : "32"
-             },
+                                "LV_COLOR_DEPTH" : "32"
+            },
              "autoconf" : {
                  "WIFI_MODE" : "AP",
                  "WIFI_SSID" : "\"ALEX\""
-             }
-            
+             }            
         },
+
 		{
-            "name": "RK3566",
+            "name": "tsp",
             "target": {
                  "TARGET_SOC": "rk3566"
              },

@@ -1,4 +1,4 @@
-﻿#ifndef _PAGE_BASE_H_
+#ifndef _PAGE_BASE_H_
 #define _PAGE_BASE_H_
 #include "lvgl/lvgl.h"
 #include <string.h>

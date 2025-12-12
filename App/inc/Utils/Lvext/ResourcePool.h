@@ -1,4 +1,4 @@
-﻿#ifndef __RESOURCE_POOL
+#ifndef __RESOURCE_POOL
 #define __RESOURCE_POOL
 
 #include "ResourceManager.h"

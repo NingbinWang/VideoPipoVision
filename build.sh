@@ -1,8 +1,1 @@
-#!/bin/bash
-
-if [ ! -d "Build" ];then
-    mkdir Build
-fi
-cd Build
-cmake ..
-make
+Config/parse_build.py -j  Config/build.json

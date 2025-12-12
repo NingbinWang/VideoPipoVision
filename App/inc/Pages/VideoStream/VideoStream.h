@@ -39,8 +39,8 @@ private:
     VideoStreamView View;
     VideoStreamModel Model;
     lv_timer_t* timer;
-    char *mFramebuf=nullptr;
-     char *mOutputbuf=nullptr;
+	char *mFramebuf=nullptr;
+    char *mOutputbuf=nullptr;
 };
 
 }

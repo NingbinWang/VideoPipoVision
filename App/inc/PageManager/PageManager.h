@@ -1,4 +1,4 @@
-﻿#ifndef _PAGESMANAGER_H_
+#ifndef _PAGESMANAGER_H_
 #define _PAGESMANAGER_H_
 
 #include "PageBase.h"

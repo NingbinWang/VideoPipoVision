@@ -1,4 +1,4 @@
-﻿/**
+/**
   * Reference link: http://www.josuttis.com/cppcode/myalloc.hpp.html
   * The following code example is taken from the book
   * The C++ Standard Library - A Tutorial and Reference

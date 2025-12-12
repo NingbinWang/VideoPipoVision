@@ -1,4 +1,4 @@
-﻿#ifndef _STARTUP_H_
+#ifndef _STARTUP_H_
 #define _STARTUP_H_
 
 #include "StartUpView.h"

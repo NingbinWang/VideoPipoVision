@@ -1,4 +1,4 @@
-﻿#ifndef _STARTUP_VIEW_H_
+#ifndef _STARTUP_VIEW_H_
 #define _STARTUP_VIEW_H_
 
 #include "Page.h"

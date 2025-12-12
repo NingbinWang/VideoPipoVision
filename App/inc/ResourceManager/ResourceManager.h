@@ -1,4 +1,4 @@
-﻿#ifndef _RESOURCE_MANAGER_H_
+#ifndef _RESOURCE_MANAGER_H_
 #define _RESOURCE_MANAGER_H_
 
 #include <vector>

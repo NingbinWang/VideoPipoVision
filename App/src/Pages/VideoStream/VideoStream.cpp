@@ -6,14 +6,32 @@
 #include "autoconf.h"
 #include "MediaDec.h"
 #include "lvgl/lvgl.h"
+#include "ResourcePool.h"
+
 V4L2VISource* pV4L2;
 using namespace Page;
+static lv_image_dsc_t videoimg ={0};
+static uint32_t framebuf[720 * 1080];
+
+#define MPPFILEOUT 1//the fileout use for debug 
+#if MPPFILEOUT
+#include <fstream>
+#include <iostream>
+FILE* fp_output = nullptr;
+#endif
+
 
 VideoStream::VideoStream()
 {
 	pV4L2 = new V4L2VISource(V4L2DEVNAME);
-	this->mFramebuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
-	this->mOutputbuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
+#if MPPFILEOUT
+	fp_output = fopen("/userdata/mytest.yuv", "w+b");
+	if (nullptr == fp_output) {
+				LOG_DEBUG("failed to open output file\n");
+	}
+#endif
+
+	
 }
 
 VideoStream::~VideoStream()
@@ -86,29 +104,40 @@ void VideoStream::Update()
 {
 	IMAGE_FRAME_T srcimg = {0};
 	IMAGE_FRAME_T dstimg = {0};
-	lv_image_dsc_t videoimg = {0};
-    videoimg.header.magic = LV_IMAGE_HEADER_MAGIC;
-    videoimg.header.cf = LV_COLOR_FORMAT_ARGB8888;
-    videoimg.header.flags = 0;
-    videoimg.header.w = 720;
-    videoimg.header.h = 1080;
-    videoimg.header.stride = 448;
+	videoimg.header.magic = LV_IMAGE_HEADER_MAGIC;
+	videoimg.header.cf = LV_COLOR_FORMAT_ARGB8888;
+	videoimg.header.flags = 0;
+	videoimg.header.w = 720;
+	videoimg.header.h = 1080;
+	videoimg.data_size = 720*1080*sizeof(uint32_t);
+	this->mFramebuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
+	this->mOutputbuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
 	size_t size = pV4L2->readFrame(this->mFramebuf);
 	srcimg.width =  1920;
     srcimg.height = 1080;
     srcimg.width_stride = 1920;
     srcimg.height_stride =  1080;
     srcimg.virt_addr = this->mFramebuf;
-	dstimg.width =  1920;
+	dstimg.width =  720;
     dstimg.height = 1080;
-    dstimg.width_stride = 1920;
+    dstimg.width_stride = 720;
     dstimg.height_stride =  1080;
     dstimg.virt_addr = this->mOutputbuf;
 	lv_label_set_text_fmt(View.ui.labelTick, "tick = %d save = %d", Model.GetData(), Model.TickSave);
-	MediaDecRKConvertXRGB8888(&srcimg,&dstimg);
-	videoimg.data_size = 720*1080;
-	videoimg.data = (const uint8_t *)this->mOutputbuf;
+	MediaDecRKConvertARGB8888(&srcimg,&dstimg);
+	memcpy((void *)framebuf,dstimg.virt_addr,720*1080*sizeof(uint32_t));
+#if MPPFILEOUT
+	if(fp_output != nullptr) {
+				 fwrite(this->mOutputbuf, 1, 720*1080*sizeof(uint32_t),fp_output);
+				 fclose(fp_output);
+				fp_output = nullptr;
+	}
+#endif
+	videoimg.data = (const uint8_t *)framebuf;
 	lv_img_set_src(View.ui.canvas,&videoimg);
+	lv_obj_invalidate(View.ui.canvas);
+	lv_free_core((void *)this->mFramebuf);
+	lv_free_core((void *)this->mOutputbuf);
 }
 
 void VideoStream::onTimerUpdate(lv_timer_t* timer)

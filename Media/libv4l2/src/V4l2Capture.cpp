@@ -18,7 +18,7 @@
 #include "V4l2MmapDevice.h"
 #include "V4l2ReadWriteDevice.h"
 #include <poll.h>
-
+#include "Logger.h"
 // -----------------------------------------
 //    create video capture interface
 // -----------------------------------------
@@ -117,6 +117,7 @@ bool V4l2Capture::isReadable(timeval* tv)
 // -----------------------------------------
 size_t V4l2Capture::read(char* buffer, size_t bufferSize)
 {
+	LOG_INFO("buffer = %p,bufferSize = %d\n",buffer,bufferSize);
 	return m_device->readInternal(buffer, bufferSize);
 }
 

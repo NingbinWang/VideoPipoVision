@@ -50,5 +50,5 @@ typedef struct
 
 int MediaDecReSize(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg);
 
-int MediaDecRKConvertXRGB8888(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg);
+int MediaDecRKConvertARGB8888(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg);
 #endif

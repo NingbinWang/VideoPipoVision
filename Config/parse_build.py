@@ -49,7 +49,7 @@ def initiate(argv):
 
 
 def modify_targetmk(model, cfg):
-    path_target_mk = "./Target.mk"
+    path_target_mk = "./Config/Target.mk"
    
     # modify Target.mk
     text = ""
@@ -71,7 +71,7 @@ def modify_targetmk(model, cfg):
 
 
 def modify_lv_conf(model, cfg):
-    path_lv_conf_h = r"./lv_conf.h"
+    path_lv_conf_h = r"./Config/lv_conf.h"
 
     # modify bl_func.h
     text = ""
@@ -92,7 +92,7 @@ def modify_lv_conf(model, cfg):
     return 0
 
 def modify_autoconf(model, cfg):
-    path_auto_conf_h = r"./autoconf.h"
+    path_auto_conf_h = r"./Config/autoconf.h"
 
     # modify bl_func.h
     text = ""
@@ -112,22 +112,55 @@ def modify_autoconf(model, cfg):
                 "ascii", errors="ignore"))  # fix cp950 error
     return 0
 
+def make_clean(model, cfg):
+    cmd = ' make clean '
+    er, _ = system_call(cmd, False)
+    return er
+
+def make_all(model, cfg):
+    cmd = ' make Media '
+    er, _ = system_call(cmd, False)
+    return er
+
+def copy_result(model, output_dir):
+    output_dir = os.path.join(output_dir, model["name"])
+    cmd = \
+        "mkdir -p {} && ".format(output_dir) + \
+        "mv output/* {} -f;".format(output_dir)
+    er, _ = system_call(cmd, False)
+    return er
 
 def main(argv):
     cfg = initiate(argv)
     if cfg is None:
         return -1
-
+  
+    # create autobuild output folder
+    output_dir = cfg["output_dir"]
+    er, _ = system_call('rm -rf ' + output_dir, False)
+    if er != 0:
+            return -1
+    
+    er, _ = system_call('mkdir -p ' + output_dir, False)
+    if er != 0:
+            return -1
    
     for model in cfg["models"]:
         system_call('echo -e "============================================================================================"', False)
         system_call('echo -e "Current Model: {}"'.format(model["name"]), False)
         system_call('echo -e "============================================================================================"', False)
         # to guarantee code is clean for built-NG before
-      
+        if make_clean(model, cfg) != 0:
+            return -1
         if modify_targetmk(model, cfg) != 0:
             return -1
         if modify_lv_conf(model, cfg) != 0:
+            return -1
+        if make_all(model, cfg) != 0:
+            return -1
+        if copy_result(model, output_dir) != 0:
+            return -1
+        if make_clean(model, cfg) != 0:
             return -1
 
     return 0

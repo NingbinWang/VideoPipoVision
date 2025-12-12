@@ -1,4 +1,4 @@
-﻿#ifndef _PAGEFACTORY_H_
+#ifndef _PAGEFACTORY_H_
 #define _PAGEFACTORY_H_
 #include "PageBase.h"
 

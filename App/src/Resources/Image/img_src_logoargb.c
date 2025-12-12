@@ -119,7 +119,6 @@ const lv_image_dsc_t img_src_logoargb = {
     .header.flags = 0,
     .header.w = 100,
     .header.h = 100,
-    .header.stride = 448,
     .data_size = sizeof(img_lvgl_logo_argb_map),
     .data = img_lvgl_logo_argb_map,
 };
