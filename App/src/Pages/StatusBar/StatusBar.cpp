@@ -161,7 +161,7 @@ static lv_obj_t* StatusBar_Create(lv_obj_t* par)
     static lv_style_t style;
     lv_style_init(&style);
     lv_style_set_text_color(&style, lv_color_white());
-    lv_style_set_text_font(&style, Resource.GetFont("bahnschrift_13"));
+    lv_style_set_text_font(&style, Resource.GetFont("customize_24_aligned"));
     lv_obj_t* img;
     lv_obj_t* label;
 //  satellite

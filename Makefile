@@ -116,7 +116,7 @@ endif
 
 LIB_VAR += Media
 LIB_VAR += App
-
+LIB_VAR += Hardware
 PROJECT_LIB_VAR += $(LIB_VAR)
 ifneq ($(PROJECT_LIB_VAR), "")
 PROJECTLIB_VAR += $(patsubst %,-l%,$(PROJECT_LIB_VAR))

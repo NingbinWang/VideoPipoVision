@@ -6,7 +6,7 @@ int MediaDecInit(const DEC_STATUS_T* status)
 }
 
 
-int MediaDecRKConvertARGB8888(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg)
+int MediaDecConvertBGRA8888(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg)
 {
     srcimg->format = RK_FORMAT_YCbCr_420_SP;
     RKrga * Rkrga = Media_GetRkrga();

@@ -14,6 +14,7 @@ MODULE_SUB_INC += $(CURDIR)/../Utils/logger
 MODULE_SUB_INC += $(CURDIR)/../Utils/Thirdparty/
 MODULE_SUB_INC += $(CURDIR)/../Config/
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/libdrm/include
+MODULE_SUB_INC += $(CURDIR)/../Hardware/include
 ifneq (,$(findstring y,$(TARGET_LVGL)))
 MODULE_SUB_INC += inc/PageManager
 MODULE_SUB_INC += inc/ResourceManager

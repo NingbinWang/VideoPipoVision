@@ -25,7 +25,6 @@ public:
 
     InputDevice();
     virtual ~InputDevice();
-
     // 禁止拷贝
     InputDevice(const InputDevice&) = delete;
     InputDevice& operator=(const InputDevice&) = delete;

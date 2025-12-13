@@ -29,7 +29,7 @@ Notification::Notification(
 
         if (!buf0)
         {
-            LOG_ERROR("[%s] buf0 malloc failed!", ID);
+            LOG_ERROR("[%s] buf0 malloc failed!\n", ID);
             return;
         }
 
@@ -38,20 +38,20 @@ Notification::Notification(
         if (!buf1)
         {
             delete [] buf0;
-            LOG_ERROR("[%s] buf1 malloc failed!", ID);
+            LOG_ERROR("[%s] buf1 malloc failed!\n", ID);
             return;
         }
 
         memset(buf0, 0, bufSize);
         memset(buf1, 0, bufSize);
         PingPongBuffer_Init(&priv.BufferManager, buf0, buf1);
-        LOG_INFO("[%s] cached %d x2 bytes", ID, bufSize);
+        LOG_INFO("[%s] cached %d x2 bytes\n", ID, bufSize);
         priv.BufferSize = bufSize;
     }
 
     Center->AddAccount(this);
 
-    LOG_INFO("[%s] created", ID);
+    LOG_INFO("[%s] created\n", ID);
 }
 
 /**
@@ -61,7 +61,7 @@ Notification::Notification(
   */
 Notification::~Notification()
 {
-    LOG_INFO("[%s] deleting...", ID);
+    LOG_INFO("[%s] deleting...\n", ID);
 
     /* Release cache */
     if(priv.BufferSize)
@@ -74,26 +74,26 @@ Notification::~Notification()
     if (priv.timer)
     {
         lv_timer_del(priv.timer);
-        LOG_INFO("[%s] task deleted", ID);
+        LOG_INFO("[%s] task deleted\n", ID);
     }
 
     /* Let subscribers unfollow */
     for(auto iter : subscribers)
     {
         iter->Unsubscribe(ID);
-        LOG_INFO("sub[%s] unsubscribed pub[%s]", iter->ID, ID);
+        LOG_INFO("sub[%s] unsubscribed pub[%s]\n", iter->ID, ID);
     }
 
     /* Ask the publisher to delete this subscriber */
     for (auto iter : publishers)
     {
         Center->Remove(&iter->subscribers, this);
-        LOG_INFO("pub[%s] removed sub[%s]", iter->ID, ID);
+        LOG_INFO("pub[%s] removed sub[%s]\n", iter->ID, ID);
     }
 
     /* Let the data center delete the account */
     Center->RemoveAccount(this);
-    LOG_INFO("[%s] deleted", ID);
+    LOG_INFO("[%s] deleted\n", ID);
 }
 
 /**
@@ -106,7 +106,7 @@ Notification* Notification::Subscribe(const char* pubID)
     /* Not allowed to subscribe to yourself */
     if (strcmp(pubID, ID) == 0)
     {
-        LOG_ERROR("[%s] try to subscribe to it itself", ID);
+        LOG_ERROR("[%s] try to subscribe to it itself\n", ID);
         return nullptr;
     }
 
@@ -114,7 +114,7 @@ Notification* Notification::Subscribe(const char* pubID)
     Notification* pub = Center->Find(&publishers, pubID);
     if(pub != nullptr)
     {
-        LOG_ERROR("Multi subscribe pub[%s]", pubID);
+        LOG_ERROR("Multi subscribe pub[%s]\n", pubID);
         return nullptr;
     }
 
@@ -122,7 +122,7 @@ Notification* Notification::Subscribe(const char* pubID)
     pub = Center->SearchAccount(pubID);
     if (pub == nullptr)
     {
-        LOG_ERROR("pub[%s] was not found", pubID);
+        LOG_ERROR("pub[%s] was not found\n", pubID);
         return nullptr;
     }
 
@@ -132,7 +132,7 @@ Notification* Notification::Subscribe(const char* pubID)
     /* Let the publisher add this subscriber */
     pub->subscribers.push_back(this);
 
-    LOG_INFO("sub[%s] subscribed pub[%s]", ID, pubID);
+    LOG_INFO("sub[%s] subscribed pub[%s]\n", ID, pubID);
 
     return pub;
 }
@@ -148,7 +148,7 @@ bool Notification::Unsubscribe(const char* pubID)
     Notification* pub = Center->Find(&publishers, pubID);
     if (pub == nullptr)
     {
-        LOG_WARNING("sub[%s] was not subscribe pub[%s]", ID, pubID);
+        LOG_WARNING("sub[%s] was not subscribe pub[%s]\n", ID, pubID);
         return false;
     }
 
@@ -171,7 +171,7 @@ bool Notification::Commit(const void* data_p, uint32_t size)
 {
     if (!size || size != priv.BufferSize)
     {
-        LOG_ERROR("pub[%s] has not cache", ID);
+        LOG_ERROR("pub[%s] has not cache\n", ID);
         return false;
     }
 
@@ -182,7 +182,7 @@ bool Notification::Commit(const void* data_p, uint32_t size)
 
     PingPongBuffer_SetWriteDone(&priv.BufferManager);
 
-    LOG_INFO("pub[%s] commit data(0x%p)[%d] >> data(0x%p)[%d] done",
+    LOG_INFO("pub[%s] commit data(0x%p)[%d] >> data(0x%p)[%d] done\n",
                 ID, data_p, size, wBuf, size);
 
     return true;
@@ -199,14 +199,14 @@ int Notification::Publish()
 
     if (priv.BufferSize == 0)
     {
-        LOG_ERROR("pub[%s] has not cache", ID);
+        LOG_ERROR("pub[%s] has not cache\n", ID);
         return ERROR_NO_CACHE;
     }
 
     void* rBuf;
     if (!PingPongBuffer_GetReadBuf(&priv.BufferManager, &rBuf))
     {
-        LOG_WARNING("pub[%s] data was not commit", ID);
+        LOG_WARNING("pub[%s] data was not commit\n", ID);
         return ERROR_NO_COMMITED;
     }
 
@@ -223,7 +223,7 @@ int Notification::Publish()
         Notification* sub = iter;
         EventCallback_t callback = sub->priv.eventCallback;
 
-        LOG_INFO("pub[%s] push >> data(0x%p)[%d] >> sub[%s]...",
+        LOG_INFO("pub[%s] push >> data(0x%p)[%d] >> sub[%s]...\n",
                     ID, param.data_p, param.size, sub->ID);
 
         if (callback != nullptr)
@@ -236,7 +236,7 @@ int Notification::Publish()
         }
         else
         {
-            LOG_INFO("sub[%s] not register callback", sub->ID);
+            LOG_INFO("sub[%s] not register callback\n", sub->ID);
         }
     }
 
@@ -257,7 +257,7 @@ int Notification::Pull(const char* pubID, void* data_p, uint32_t size)
     Notification* pub = Center->Find(&publishers, pubID);
     if (pub == nullptr)
     {
-        LOG_ERROR("sub[%s] was not subscribe pub[%s]", ID, pubID);
+        LOG_ERROR("sub[%s] was not subscribe pub[%s]\n", ID, pubID);
         return ERROR_NOT_FOUND;
     }
     return Pull(pub, data_p, size);
@@ -272,7 +272,7 @@ int Notification::Pull(Notification* pub, void* data_p, uint32_t size)
         return ERROR_NOT_FOUND;
     }
 
-    LOG_INFO("sub[%s] pull << data(0x%p)[%d] << pub[%s] ...",
+    LOG_INFO("sub[%s] pull << data(0x%p)[%d] << pub[%s] ...\n",
                 ID, data_p, size, pub->ID);
 
     EventCallback_t callback = pub->priv.eventCallback;
@@ -287,12 +287,12 @@ int Notification::Pull(Notification* pub, void* data_p, uint32_t size)
 
         int ret = callback(pub, &param);
 
-        LOG_INFO("pull done: %d", ret);
+        LOG_INFO("pull done: %d\n", ret);
         retval = ret;
     }
     else
     {
-        LOG_INFO("pub[%s] not registed pull callback, read commit cache...", pub->ID);
+        LOG_INFO("pub[%s] not registed pull callback, read commit cache...\n", pub->ID);
 
         if (pub->priv.BufferSize == size)
         {
@@ -301,18 +301,18 @@ int Notification::Pull(Notification* pub, void* data_p, uint32_t size)
             {
                 memcpy(data_p, rBuf, size);
                 PingPongBuffer_SetReadDone(&pub->priv.BufferManager);
-                LOG_INFO("read done");
+                LOG_INFO("read done\n");
                 retval = 0;
             }
             else
             {
-                LOG_WARNING("pub[%s] data was not commit!", pub->ID);
+                LOG_WARNING("pub[%s] data was not commit!\n", pub->ID);
             }
         }
         else
         {
             LOG_ERROR(
-                "Data size pub[%s]:%d != sub[%s]:%d",
+                "Data size pub[%s]:%d != sub[%s]:%d\n",
                 pub->ID,
                 pub->priv.BufferSize,
                 this->ID,
@@ -336,7 +336,7 @@ int Notification::Notify(const char* pubID, const void* data_p, uint32_t size)
     Notification* pub = Center->Find(&publishers, pubID);
     if (pub == nullptr)
     {
-        LOG_ERROR("sub[%s] was not subscribe pub[%s]", ID, pubID);
+        LOG_ERROR("sub[%s] was not subscribe pub[%s]\n", ID, pubID);
         return ERROR_NOT_FOUND;
     }
     return Notify(pub, data_p, size);
@@ -358,7 +358,7 @@ int Notification::Notify(Notification* pub, const void* data_p, uint32_t size)
         return ERROR_NOT_FOUND;
     }
 
-    LOG_INFO("sub[%s] notify >> data(0x%p)[%d] >> pub[%s] ...",
+    LOG_INFO("sub[%s] notify >> data(0x%p)[%d] >> pub[%s] ...\n",
                 ID, data_p, size, pub->ID);
 
     EventCallback_t callback = pub->priv.eventCallback;
@@ -373,12 +373,12 @@ int Notification::Notify(Notification* pub, const void* data_p, uint32_t size)
 
         int ret = callback(pub, &param);
 
-        LOG_INFO("send done: %d", ret);
+        LOG_INFO("send done: %d\n", ret);
         retval = ret;
     }
     else
     {
-        LOG_WARNING("pub[%s] not register callback", pub->ID);
+        LOG_WARNING("pub[%s] not register callback\n", pub->ID);
         retval = ERROR_NO_CALLBACK;
     }
 

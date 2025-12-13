@@ -81,7 +81,7 @@ bool NotifyBroker::AddAccount(Notification* account)
 
     if (SearchAccount(account->ID) != nullptr)
     {
-        LOG_ERROR("Multi add Account[%s]", account->ID);
+        LOG_ERROR("Multi add Account[%s]\n", account->ID);
         return false;
     }
 
@@ -114,7 +114,7 @@ bool NotifyBroker::Remove(std::vector<Notification*>* vec, Notification* account
 
     if (iter == vec->end())
     {
-        LOG_ERROR("Account[%s] was not found", account->ID);
+        LOG_ERROR("Account[%s] was not found\n", account->ID);
         return false;
     }
 

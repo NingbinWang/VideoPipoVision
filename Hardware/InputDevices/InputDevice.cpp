@@ -19,7 +19,7 @@ std::vector<InputDevice::DeviceInfo> InputDevice::enumerateDevices() {
     
     DIR* dir = opendir("/dev/input");
     if (!dir) {
-        perror("无法打开 /dev/input");
+        LOG_ERROR(" can 't open /dev/input\n");
         return devices;
     }
     
@@ -27,7 +27,7 @@ std::vector<InputDevice::DeviceInfo> InputDevice::enumerateDevices() {
     while ((entry = readdir(dir)) != nullptr) {
         if (strncmp(entry->d_name, "event", 5) == 0) {
             std::string path = std::string("/dev/input/") + entry->d_name;
-            
+            LOG_INFO("path = %s\n",path.c_str());
             int fd = open(path.c_str(), O_RDONLY);
             if (fd < 0) continue;
             
@@ -49,17 +49,17 @@ std::vector<InputDevice::DeviceInfo> InputDevice::enumerateDevices() {
             }
             
             // 获取支持的事件类型
-            /*
-            unsigned long evbit[EV_MAX/8/sizeof(unsigned long)] = {0};
-            if (ioctl(fd, EVIOCGBIT(0, EV_MAX), evbit) >= 0) {
-                for (int i = 0; i < EV_MAX; i++) {
-                    if (evbit[i/8/sizeof(unsigned long)] & 
-                        (1UL << (i % (8*sizeof(unsigned long))))) {
-                        info.supported_events.push_back(i);
+             unsigned long evbit[(EV_MAX + sizeof(unsigned long) * 8 - 1) / (sizeof(unsigned long) * 8)] = {0};
+            if (ioctl(fd, EVIOCGBIT(0, sizeof(evbit)), evbit) >= 0) {
+                    for (unsigned int i = 0; i < EV_MAX && i < sizeof(evbit)*8; i++) {
+                        unsigned int byte_index = i / (8 * sizeof(unsigned long));
+                        unsigned int bit_index = i % (8 * sizeof(unsigned long));
+                        if (evbit[byte_index] & (1UL << bit_index)) {
+                            info.supported_events.push_back(i);
+                        }
                     }
-                }
             }
-            */
+       
             devices.push_back(info);
             close(fd);
         }
@@ -74,7 +74,7 @@ bool InputDevice::openDevice(const std::string& device_path) {
         closeDevice();
     }
     
-    fd_ = open(device_path.c_str(), O_RDONLY | O_NONBLOCK);
+    fd_ = open(device_path.c_str(), O_RDONLY);
     if (fd_ < 0) {
         return false;
     }
@@ -165,18 +165,15 @@ void InputDevice::processEvent(const input_event& ev) {
 }
 
 void InputDevice::onKeyEvent(const input_event& ev) {
-    std::cout << "按键事件: 代码=" << ev.code 
-              << ", 值=" << ev.value << std::endl;
+    LOG_INFO("onKeyEvent code %d vlaue:%d \n",ev.code,ev.value);
 }
 
 void InputDevice::onAbsEvent(const input_event& ev) {
-    std::cout << "绝对坐标事件: 代码=" << ev.code 
-              << ", 值=" << ev.value << std::endl;
+     LOG_INFO("onAbsEvent code %d vlaue:%d \n",ev.code,ev.value);
 }
 
 void InputDevice::onRelEvent(const input_event& ev) {
-    std::cout << "相对坐标事件: 代码=" << ev.code 
-              << ", 值=" << ev.value << std::endl;
+     LOG_INFO("onRelEvent code %d vlaue:%d \n",ev.code,ev.value);
 }
 
 void InputDevice::onSynEvent(const input_event& ev) {
@@ -203,17 +200,17 @@ InputDevice::DeviceInfo InputDevice::getDeviceInfo() const {
         memset(&info.id, 0, sizeof(info.id));
     }
     
-    // 获取支持的事件类型
-    /*
-    unsigned long evbit[EV_MAX/8/sizeof(unsigned long)] = {0};
-    if (ioctl(fd_, EVIOCGBIT(0, EV_MAX), evbit) >= 0) {
-        for (int i = 0; i < EV_MAX; i++) {
-            if (evbit[i/8/sizeof(unsigned long)] & 
-                (1UL << (i % (8*sizeof(unsigned long))))) {
-                info.supported_events.push_back(i);
+// 获取支持的事件类型
+        unsigned long evbit[(EV_MAX + sizeof(unsigned long) * 8 - 1) / (sizeof(unsigned long) * 8)] = {0};
+        if (ioctl(fd_, EVIOCGBIT(0, sizeof(evbit)), evbit) >= 0) {
+            for (unsigned int i = 0; i < EV_MAX && i < sizeof(evbit) * 8; i++) {
+                unsigned int byte_index = i / (8 * sizeof(unsigned long));
+                unsigned int bit_index = i % (8 * sizeof(unsigned long));
+                if (byte_index < sizeof(evbit)/sizeof(unsigned long) && 
+                    (evbit[byte_index] & (1UL << bit_index))) {
+                    info.supported_events.push_back(i);
+                }
             }
         }
-    }
-    */
     return info;
 }

@@ -124,7 +124,7 @@ void VideoStream::Update()
     dstimg.height_stride =  1080;
     dstimg.virt_addr = this->mOutputbuf;
 	lv_label_set_text_fmt(View.ui.labelTick, "tick = %d save = %d", Model.GetData(), Model.TickSave);
-	MediaDecRKConvertARGB8888(&srcimg,&dstimg);
+	MediaDecConvertBGRA8888(&srcimg,&dstimg);
 	memcpy((void *)framebuf,dstimg.virt_addr,720*1080*sizeof(uint32_t));
 #if MPPFILEOUT
 	if(fp_output != nullptr) {
