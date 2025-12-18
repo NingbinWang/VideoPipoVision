@@ -1,6 +1,6 @@
 #ifndef _HALMEDIA_H_
 #define _HALMEDIA_H_
-#include "common_type.h"
+#include "sys_common.h"
 #include "MediaConfig.h"
 #include "MediaVi.h"
 #include "MediaVo.h"
@@ -11,22 +11,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif/*__cplusplus*/
-
-/*日期、时间*/
-#ifndef _DATE_TIME_
-#define _DATE_TIME_
-typedef struct
-{
-    short year;
-    short month;
-    short dayOfWeek;        /*0:星期日-6:星期六*/
-    short day;
-    short hour;
-    short minute;
-    short second;
-    short milliSecond;
-} DATE_TIME_T;
-#endif
 
 /*特殊应用*/
 typedef enum 

@@ -91,4 +91,4 @@ void TouchScreen::onSynEvent(const input_event& ev) {
      }
 	 LOG_INFO("touch: x=%d y=%d press=%d ID=%d\n",current_point_.x,current_point_.y,current_point_.pressure, current_point_.tracking_id);
 }
-
+

@@ -8,7 +8,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <memory>
-#include "common_type.h"
+#include "sys_common.h"
 #include "Media.h"
 #include <unistd.h>
 #include <string.h>

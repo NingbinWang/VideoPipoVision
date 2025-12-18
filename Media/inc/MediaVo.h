@@ -1,6 +1,6 @@
 #ifndef _MEDIA_VO_H_
 #define _MEDIA_VO_H_
-#include "common_type.h"
+#include "sys_common.h"
 #include "MediaConfig.h"
 #ifdef __cplusplus
 extern "C" {
