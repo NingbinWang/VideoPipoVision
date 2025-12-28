@@ -100,7 +100,7 @@ VOID sys_mem_free(VOID *ptr)
  * @param  [IN]uLength  拷贝长度
  * @return 无
  */
-VOID *sys_mem_dma_copy(VOID *pDst, VOID *pSrc, UINT32 uLength)
+VOID *sys_mem_copy(VOID *pDst, VOID *pSrc, UINT32 uLength)
 {
     if(NULL == pDst || NULL == pSrc)
     {

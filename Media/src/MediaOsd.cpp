@@ -3,6 +3,19 @@
 #include "Logger.h"
 #include <time.h>
 #include <sys/time.h>
+#include "sys_time.h"
+
+INT32 MediaOsdInit(VOID)
+{
+    return 0;
+}
+
+
+INT32 MediaOsdSetTime(IMAGE_FRAME_T* srcimg,IMAGE_FRAME_T *outimg)
+{
+    return 0;
+}
+
 
 // 获取当前时间戳（格式：YYYY-MM-DD HH:MM:SS）
 //void get_current_time(char *time_str, int buffer_size) {

@@ -3,7 +3,7 @@ MODULE_SUB_DIR = src
 MODULE_SUB_INC = inc
 MODULE_SUB_INC += src
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Utils/inc
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Utils/logger
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc
 LINK_SHARE=y
 ifeq ($(TARGET_MEDIA),mpp)
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/include

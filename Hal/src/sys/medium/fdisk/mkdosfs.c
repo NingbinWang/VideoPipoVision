@@ -89,8 +89,7 @@ typedef long long ll_t;
 
 /* Compute ceil(a/b) */
 
-inline int
-cdiv (int a, int b)
+int cdiv (int a, int b)
 {
   return (a + b - 1) / b;
 }

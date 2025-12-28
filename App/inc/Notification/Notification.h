@@ -21,7 +21,7 @@ public:
         EVENT_NOTIFY,      // Subscribers send notifications to publishers
         EVENT_TIMER,       // Timed event
         _EVENT_LAST
-    } EventCode_t;
+    } EVENT_CODE_E;
 
     /* Error type enumeration */
     typedef enum
@@ -40,7 +40,7 @@ public:
     /* Event parameter structure */
     typedef struct
     {
-        EventCode_t event; // Event type
+        EVENT_CODE_E event; // Event type
         Notification* tran;     // Pointer to sender
         Notification* recv;     // Pointer to receiver
         void* data_p;      // Pointer to data

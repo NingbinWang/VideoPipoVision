@@ -55,7 +55,7 @@ HARDWARE_DIR = $(ROOT_PATH)/Hardware
 LIB_DIR=$(ROOT_PATH)/Libs
 MEDIA_DIR = $(ROOT_PATH)/Media
 UTILS_DIR = $(ROOT_PATH)/Utils
-
+HAL_DIR = $(ROOT_PATH)/Hal
 
 
 CROSS_COMPILE=$(TARGET_CROSS_HOST)- 
@@ -117,6 +117,7 @@ endif
 LIB_VAR += Media
 LIB_VAR += App
 LIB_VAR += Hardware
+LIB_VAR += Hal
 PROJECT_LIB_VAR += $(LIB_VAR)
 ifneq ($(PROJECT_LIB_VAR), "")
 PROJECTLIB_VAR += $(patsubst %,-l%,$(PROJECT_LIB_VAR))
@@ -125,7 +126,8 @@ endif
 INC_PATH = $(APP_DIR)/inc
 INC_PATH += $(MEDIA_DIR)/inc
 INC_PATH += $(UTILS_DIR)/inc
-INC_PATH += $(UTILS_DIR)/logger
+INC_PATH += $(HAL_DIR)/inc
+INC_PATH += $(HARDWARE_DIR)/include
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/mpp/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/rga/include
@@ -149,12 +151,13 @@ PROJECT_INC_DIRS = $(shell find $(PROJECT_INC_PATH) -maxdepth 0 -type d)
 PROJECTINC_PATH += $(patsubst %,-I%,$(PROJECT_INC_DIRS))
 endif
 BUILD_ALL = Utils
+BUILD_ALL += Hal
 BUILD_ALL += Hardware
 BUILD_ALL += Media
 BUILD_ALL += App
 
 
-.PHONY: App App_Clean  Media  Media_Clean Utils Utils_Clean Hardware Hardware_Clean
+.PHONY: App App_Clean  Media  Media_Clean Utils Utils_Clean Hardware Hardware_Clean Hal Hal_Clean
 
 all: $(BUILD_ALL)
 	$(CXX) -o $(OUTPUT_DIR)/VideoVision  $(PROJECTINC_PATH) -L $(OUTPUT_DIR)/lib/ $(PROJECTLIB_VAR) $(LD_CPP_FLAGS) main.cpp
@@ -202,6 +205,17 @@ Hardware_Clean:
 	@$(ECHO) "##### Build Hardware clean ####"
 	make -C $(HARDWARE_DIR) clean
 
+Hal: checkenv
+	@$(ECHO) "##### Build Hal ####"
+	@make -C $(HAL_DIR)
+	@if [ -f $(HAL_DIR)/Lib/libHal.so ]; then \
+		$(CP) $(HAL_DIR)/Lib/libHal.so $(OUTPUT_DIR)/lib/; \
+	fi
+
+Hal_Clean:
+	@$(ECHO) "##### Build Hal clean ####"
+	make -C $(HAL_DIR) clean
+
 App: checkenv
 	@$(ECHO) "##### Build app ####"
 	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_ALSA=$(TARGET_ALSA) TARGET_LVGL=$(TARGET_LVGL)
@@ -224,7 +238,7 @@ Media_Clean:
 	@$(ECHO) "##### Build media clean ####"
 	make -C $(MEDIA_DIR) clean
 
-clean: App_Clean Media_Clean Utils_Clean Hardware_Clean
+clean: App_Clean Media_Clean Utils_Clean Hardware_Clean Hal_Clean
 	@$(RM)  *.o -rf
 	@$(ECHO) "RM  $(OUTPUT_DIR)"
 	@$(RM)  $(OUTPUT_DIR)

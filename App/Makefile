@@ -9,8 +9,8 @@ MODULE_SUB_DIR += src/Media
 LINK_SHARE=y
 #外部的一些头文件
 MODULE_SUB_INC += $(CURDIR)/../Media/inc
+MODULE_SUB_INC += $(CURDIR)/../Hal/inc
 MODULE_SUB_INC += $(CURDIR)/../Utils/inc
-MODULE_SUB_INC += $(CURDIR)/../Utils/logger
 MODULE_SUB_INC += $(CURDIR)/../Utils/Thirdparty/
 MODULE_SUB_INC += $(CURDIR)/../Config/
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/libdrm/include

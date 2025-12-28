@@ -289,20 +289,11 @@ typedef struct
 #define STATUS    int
 #endif /* STATUS */
 
-#ifdef _MSC_VER
-#undef ERROR
-#endif /* _MSC_VER */
 
-#ifndef ERROR
-//
-#define ERROR               -1
-#endif /* ERROR */
-
-#ifndef OK
-//
-#define OK                  0
-#endif /* OK */
-
+typedef enum{
+	ERROR = -1,
+ 	OK = 0
+}HAL_STATUS_E;
 //
 #ifndef TYPE_ADDR
 #define TYPE_ADDR

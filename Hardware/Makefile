@@ -1,7 +1,7 @@
 MODULE_CUR_PATH = $(CURDIR)
 MODULE_SUB_INC = include
-MODULE_SUB_INC += $(CURDIR)/../Utils/logger
-
+MODULE_SUB_INC += $(CURDIR)/../Utils/inc
+MODULE_SUB_INC += $(CURDIR)/../Hal/inc
 
 
 MODULE_SUB_DIR =  WiFi

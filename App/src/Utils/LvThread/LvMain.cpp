@@ -7,7 +7,6 @@
 #include "ResourcePool.h"
 #include "Logger.h"
 #include "StatusBar/StatusBar.h"
-#include "Logger.h"
 #include "TouchScreen.h"
 
 static TouchScreen ts;

@@ -7,9 +7,12 @@
 #include <algorithm>
 #include "Logger.h"
 
-InputDevice::InputDevice() {}
+InputDevice::InputDevice() 
+{
+}
 
-InputDevice::~InputDevice() {
+InputDevice::~InputDevice() 
+{
     stopListening();
     closeDevice();
 }
