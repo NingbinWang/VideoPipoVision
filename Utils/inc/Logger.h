@@ -1,6 +1,8 @@
-#pragma once
-#include <string>
 
+#ifndef _LOGGER_H_
+#define _LOGGER_H_
+
+#include <string>
 class Logger;
 
 #define LOG_ERROR(format, ...) \
@@ -17,7 +19,7 @@ class Logger;
 
 #define LOG_INFO(format, ...) \
     if(Logger::LogInfo <= Logger::getLogLevel()) \
-        Logger().write(Logger::LogDebug, __FILE__, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
+        Logger().write(Logger::LogInfo, __FILE__, __FUNCTION__, __LINE__, format, ##__VA_ARGS__)
 
 
 
@@ -52,4 +54,6 @@ private:
     static std::string mLogFile;
     static bool mIsStdout;
 };
+
+#endif
 

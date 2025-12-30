@@ -1,10 +1,6 @@
 #include "SystemNotify.h"
 #include "Systeminfo_Def.h"
-#include "Framework/Utils/StorageService/StorageService.h"
-#include  "HAL/HAL.h"
-#include "Configs/Config.h"
-#include "Framework/Utils/MapConv/MapConv.h"
-#include "App/Notify/App/Appinfo_Def.h"
+
 
 using namespace SystemInfoDef;
 static StorageService storageService(CONFIG_SYSTEM_SAVE_FILE_PATH);

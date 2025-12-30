@@ -1,7 +1,6 @@
 #include "SystemNotify.h"
 #include "Systeminfo_Def.h"
-#include "HAL/HAL.h"
-#include "Framework/Utils/Filters/Filters.h"
+#include "Filters.h"
 
 static void onTimer(Notification* account)
 {
@@ -54,7 +53,6 @@ static int onEvent(Notification* account, Notification::EventParam_t* param)
 }
 
 void SYS_Power_Init(Notification* account){
-   // account->Subscribe("MusicPlayer");
     account->SetEventCallback(onEvent);
     account->SetTimerPeriod(500);
 }
