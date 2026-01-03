@@ -20,9 +20,10 @@ TARGET_OPENCV = y
 TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
 TARGET_V4L2 = y
-TARGET_ALSA = n
+TARGET_AUDIO = n
 TARGET_LVGL = y
-
+TARGET_LVGL_DEMO = n
+TARGET_AI = y
 # cross host
 TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
 #tsp end
@@ -140,7 +141,7 @@ ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/ffmpeg/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/x264/include
 endif
-ifneq (,$(findstring y,$(TARGET_ALSA)))
+ifneq (,$(findstring y,$(TARGET_AUDIO)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/alsa/include
 endif
 
@@ -185,7 +186,7 @@ checkenv:
 
 Utils: checkenv
 	@$(ECHO) "##### Build utils ####"
-	@make -C $(UTILS_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_LVGL=$(TARGET_LVGL)
+	@make -C $(UTILS_DIR)  TARGET_LVGL=$(TARGET_LVGL) TARGET_LVGL_DEMO=$(TARGET_LVGL_DEMO)
 	@if [ -f $(UTILS_DIR)/Lib/libUtils.so ]; then \
 		$(CP) $(UTILS_DIR)/Lib/libUtils.so $(OUTPUT_DIR)/lib/; \
 	fi
@@ -207,7 +208,7 @@ Hardware_Clean:
 
 Hal: checkenv
 	@$(ECHO) "##### Build Hal ####"
-	@make -C $(HAL_DIR)
+	@make -C $(HAL_DIR) TARGET_LVGL=$(TARGET_LVGL) 
 	@if [ -f $(HAL_DIR)/Lib/libHal.so ]; then \
 		$(CP) $(HAL_DIR)/Lib/libHal.so $(OUTPUT_DIR)/lib/; \
 	fi
@@ -218,7 +219,7 @@ Hal_Clean:
 
 App: checkenv
 	@$(ECHO) "##### Build app ####"
-	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_ALSA=$(TARGET_ALSA) TARGET_LVGL=$(TARGET_LVGL)
+	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_AUDIO=$(TARGET_AUDIO) TARGET_LVGL=$(TARGET_LVGL) TARGET_LVGL_DEMO=$(TARGET_LVGL_DEMO) TARGET_AI =$(TARGET_AI)
 	@if [ -f $(APP_DIR)/Lib/libApp.so ]; then \
 		$(CP) $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
 	fi
@@ -229,7 +230,7 @@ App_Clean:
 
 Media: checkenv
 	@$(ECHO) "##### Build Media ####"
-	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_V4L2=$(TARGET_V4L2) TARGET_ALSA=$(TARGET_ALSA)
+	@make -C $(MEDIA_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_V4L2=$(TARGET_V4L2) TARGET_AUDIO=$(TARGET_AUDIO)
 	@if [ -f $(MEDIA_DIR)/Lib/libMedia.so ]; then \
 		$(CP) $(MEDIA_DIR)/Lib/libMedia.so $(OUTPUT_DIR)/lib/; \
 	fi

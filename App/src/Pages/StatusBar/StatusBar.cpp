@@ -130,8 +130,8 @@ static lv_obj_t* StatusBar_Create(lv_obj_t* par)
     lv_obj_set_y(cont, CONFIG_STATUS_BAR_HEIGHT);//设置状态栏的位置
 
     /* style1 */
-    lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(cont, lv_color_hex(0x333333), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(cont, LV_OPA_TRANSP, LV_STATE_DEFAULT);//设置默认透明度
+    lv_obj_set_style_bg_color(cont, lv_color_hex(0xffffff), LV_STATE_DEFAULT);//设置背景颜色
 
     /* style2 */
     lv_obj_set_style_bg_opa(cont, LV_OPA_60, LV_STATE_USER_1);

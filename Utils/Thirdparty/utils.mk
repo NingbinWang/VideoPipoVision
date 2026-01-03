@@ -1,7 +1,7 @@
 LVGL_DIR = $(MODULE_CUR_PATH)/Thirdparty/lvgl
 LVGL_INC = $(MODULE_CUR_PATH)/Thirdparty/lvgl
 LVGL_INC += $(MODULE_CUR_PATH)/Thirdparty/lvgl/src
-LVGL_DEF =  -DLV_CONF_INCLUDE_SIMPLE
+
 LVGL_DEF += -DUSE_DRM
 LVGL_DEF += -DLV_CONF_PATH=\"$(MODULE_CUR_PATH)/Thirdparty/lvgl/lv_conf.h\"
 LVGL_LDFLAGS = -lpthread -ldrm -lgbm
@@ -204,20 +204,12 @@ ifneq (,$(findstring y,$(TARGET_LVGL)))
 MODULE_SUB_DIR += $(LVGL_SRCDIR)
 MODULE_SUB_INC += $(LVGL_INC)
 # dmeos
-#MODULE_SUB_DIR += $(DEMO_SRCDIR)
-#MODULE_SUB_INC += $(DEMO_INCDIR)
-LD_C_FLAGS += -DLVGL
-LD_CPP_FLAGS += -DLVGL
+ifneq (,$(findstring y,$(TARGET_LVGL_DEMO)))
+LVGL_DEF =  -DLV_CONF_INCLUDE_SIMPLE
+MODULE_SUB_DIR += $(DEMO_SRCDIR)
+MODULE_SUB_INC += $(DEMO_INCDIR)
+endif
 
 LD_C_FLAGS += $(LVGL_DEF) $(LVGL_LDFLAGS)
 LD_CPP_FLAGS += $(LVGL_DEF) $(LVGL_LDFLAGS)
-endif
-
-
-
-ifeq ($(TARGET_MEDIA),mpp)
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/include
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/libdrm/include
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/libgbm/include
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/gles/include
 endif

@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "StatusBar/StatusBar.h"
 #include "LvIndev.h"
+#include "Thread.h"
 
 static const char *getenv_default(const char *name, const char *dflt)
 {
@@ -58,11 +59,20 @@ static int LvLinuxPort(void)
    return 0;
 }
 
-
+VOID Lvgl_MainProcess(VOID* UserData)
+{
+	/*Handle LVGL tasks*/
+	  while(1) {
+		  lv_timer_handler();
+		  usleep(5000);
+	  }
+}
 
 
 int LvMain(void)
 {
+	TASK_ID Tlv_main;
+
 	static Factory factory;
     static PageManager manager(&factory);
 	LvLinuxPort(); 
@@ -75,13 +85,7 @@ int LvMain(void)
 	manager.Install("VideoStream", "Pages/VideoStream");
     manager.SetGlobalLoadAnimType(PageManager::LOAD_ANIM_OVER_TOP, 500);
     manager.Push("Pages/Startup");
+
+	sys_pthread_create(&Tlv_main,"lvgl_main",TASK_PRIORITY_5,1024,Lvgl_MainProcess,0,NULL);
   
-     /*Handle LVGL tasks*/
-    while(1) {
-        lv_timer_handler();
-        usleep(5000);
-    }
-
-
-
 }

@@ -92,7 +92,7 @@ def modify_lv_conf(model, cfg):
     return 0
 
 def modify_autoconf(model, cfg):
-    path_auto_conf_h = r"./Config/autoconf.h"
+    path_auto_conf_h = r"./Config/inc/autoconf.h"
 
     # modify bl_func.h
     text = ""

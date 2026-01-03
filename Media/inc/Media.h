@@ -1,6 +1,6 @@
 #ifndef _HALMEDIA_H_
 #define _HALMEDIA_H_
-#include "sys_common.h"
+#include "Common.h"
 #include "MediaConfig.h"
 #include "MediaVi.h"
 #include "MediaVo.h"
