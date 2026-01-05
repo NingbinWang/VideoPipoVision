@@ -2,10 +2,10 @@
 #define _TCP_SERVER_H_
 #include <map>
 
-#include "Net/Acceptor.h"
-#include "Net/UsageEnvironment.h"
-#include "Net/InetAddress.h"
-#include "Net/TcpConnection.h"
+#include "Acceptor.h"
+#include "UsageEnvironment.h"
+#include "InetAddress.h"
+#include "TcpConnection.h"
 
 //class TcpConnection;
 

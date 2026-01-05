@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "Media.h"
 #include "Logger.h"
-#include "Net/MediaSource.h"
+#include "MediaSource.h"
 #include "x264.h"
 
 

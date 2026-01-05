@@ -1,4 +1,6 @@
-#include "app.h"
+#include "AiParse.h"
+#include "SysFile.h"
+#include "SysMemory.h"
 static unsigned char *load_data(FILE *fp, size_t ofst, size_t sz)
 {
   unsigned char *data;
@@ -27,7 +29,8 @@ static unsigned char *load_data(FILE *fp, size_t ofst, size_t sz)
   ret = fread(data, 1, sz, fp);
   return data;
 }
-unsigned char *read_file_data(const char *filename, int *model_size)
+
+unsigned char *AiReadFileData(const char *filename, int *model_size)
 {
   FILE *fp;
   unsigned char *data;

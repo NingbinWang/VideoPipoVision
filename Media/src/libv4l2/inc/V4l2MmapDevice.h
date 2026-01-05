@@ -17,7 +17,7 @@
 #include "rockchip/rk_mpi.h" 
 #endif
 
-#define V4L2MMAP_NBBUFFER 10
+#define V4L2MMAP_NBBUFFER 3
 #define FMT_NUM_PLANES 1
 
 class V4l2MmapDevice : public V4l2Device

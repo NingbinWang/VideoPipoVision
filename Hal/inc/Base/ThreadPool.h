@@ -42,6 +42,7 @@ public:
     void addTask(Task& task);
 
 private:
+	//继承Thread
     class MThread : public Thread
     {
     protected:

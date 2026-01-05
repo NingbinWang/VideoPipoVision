@@ -1,9 +1,9 @@
 #ifndef _AAC_RTP_SINK_H_
 #define _AAC_RTP_SINK_H_
 
-#include "Net/UsageEnvironment.h"
-#include "Net/RtpSink.h"
-#include "Net/MediaSource.h"
+#include "UsageEnvironment.h"
+#include "RtpSink.h"
+#include "MediaSource.h"
 
 class AACRtpSink : public RtpSink
 {

@@ -4,8 +4,8 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "Media/MppVISource.h"
-#include "Base/New.h"
+#include "MppVISource.h"
+#include "New.h"
 #include "Logger.h"
 
 #define MPPFILEOUT 0 //the fileout use for debug 

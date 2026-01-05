@@ -4,8 +4,8 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "Media/V4L2VISource.h"
-#include "Base/New.h"
+#include "V4L2VISource.h"
+#include "New.h"
 #include "Logger.h"
 
 V4L2VISource::V4L2VISource( const std::string& dev) :

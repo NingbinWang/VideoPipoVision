@@ -1,9 +1,9 @@
 #ifndef _TCP_CONNECTION_H_
 #define _TCP_CONNECTION_H_
-#include "Net/UsageEnvironment.h"
-#include "Net/Event.h"
-#include "Net/TcpSocket.h"
-#include "Net/Buffer.h"
+#include "UsageEnvironment.h"
+#include "Event.h"
+#include "TcpSocket.h"
+#include "Buffer.h"
 
 class TcpConnection
 {

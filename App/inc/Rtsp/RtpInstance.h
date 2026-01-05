@@ -4,9 +4,10 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#include "Net/InetAddress.h"
-#include "Net/SocketsOps.h"
-#include "Net/Rtp.h"
+#include "InetAddress.h"
+#include "SysSocket.h"
+
+#include "Rtp.h"
 #include "New.h"
 
 class RtpInstance
@@ -33,7 +34,7 @@ public:
 
     ~RtpInstance()
     { 
-        sockets::close(mSockfd);
+       SysSocket_close(mSockfd);
     }
 
     uint16_t getLocalPort() const { return mLocalPort; }
@@ -62,14 +63,14 @@ public:
     uint16_t sessionId() const { return mSessionId; }
 
 private:
-    int sendOverUdp(void* buf, int size)
+    int sendOverUdp(void* pBuf, int iLen)
     {
-        return sockets::sendto(mSockfd, buf, size, mDestAddr.getAddr());
+        return SysSocket_send_to(mSockfd,pBuf,iLen, AF_INET, mDestAddr.getIp().c_str(),mDestAddr.getPort());
     }
 
-    int sendOverTcp(void* buf, int size)
+    int sendOverTcp(void* pBuf, int iLen)
     {
-        return sockets::write(mSockfd, buf, size);
+        return SysSocket_send(mSockfd,pBuf,iLen);
     }
 
 public:
@@ -109,12 +110,12 @@ public:
 
     ~RtcpInstance()
     {
-        sockets::close(mLocalSockfd);
+    	SysSocket_close(mLocalSockfd);
     }
 
     int send(void* buf, int size)
     {
-        return sockets::sendto(mLocalSockfd, buf, size, mDestAddr.getAddr());
+        return SysSocket_send_to(mLocalSockfd, buf, size,  AF_INET, mDestAddr.getIp().c_str(),mDestAddr.getPort());
     }
 
     int recv(void* buf, int size, Ipv4Address* addr)

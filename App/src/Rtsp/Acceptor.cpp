@@ -1,7 +1,7 @@
-#include "Net/Acceptor.h"
-#include "Net/SocketsOps.h"
+#include "Acceptor.h"
+#include "TcpSocket.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 Acceptor* Acceptor::createNew(UsageEnvironment* env, const Ipv4Address& addr)
 {
@@ -12,7 +12,7 @@ Acceptor* Acceptor::createNew(UsageEnvironment* env, const Ipv4Address& addr)
 Acceptor::Acceptor(UsageEnvironment* env, const Ipv4Address& addr) :
     mEnv(env),
     mAddr(addr),
-    mSocket(sockets::createTcpSock()),
+    mSocket(mSocket.creat_socket()),
     mNewConnectionCallback(NULL)
 {
     mSocket.setReuseAddr(1);
@@ -26,8 +26,6 @@ Acceptor::~Acceptor()
 {
     if(mListenning)
         mEnv->scheduler()->removeIOEvent(mAcceptIOEvent);
-
-    //delete mAcceptIOEvent;
     Delete::release(mAcceptIOEvent);
 }
 

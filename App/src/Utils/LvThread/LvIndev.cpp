@@ -16,7 +16,8 @@ void Touchscreen_read_cb(lv_indev_t * indev, lv_indev_data_t * data) {
             data->state = LV_INDEV_STATE_RELEASED;
         }
 }
-int lv_linux_indev_init(void) {
+int LvLinuxIndevInit(void)
+{
     lv_indev_t* indev_drv;
      // 枚举所有输入设备
     auto devices = InputDevice::enumerateDevices();

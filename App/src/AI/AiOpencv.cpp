@@ -1,5 +1,5 @@
-#include "app.h"
-/*
+#ifdef USE_OPENCV
+#include "opencv2/opencv.hpp"
 int opencv_demo()
 {
     cv::VideoCapture cap(0);
@@ -23,4 +23,4 @@ int opencv_demo()
     cap.release();
     return 0;
 }
-    */
+#endif

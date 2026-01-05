@@ -1,6 +1,6 @@
 #pragma once
-#include "Media/Demuxer.h"
-#include "Media/SafeAVFormat.h"
+#include "Demuxer.h"
+#include "SafeAVFormat.h"
 
 namespace FFmpeg {
 class Decoder {

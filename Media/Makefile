@@ -15,17 +15,20 @@ MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/npu/include
 RGA_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/npu/lib
 #-ldl -lm -lpthread -lrt --std=c99 -D _GNU_SOURCE
 WARNING		= -Wall -Wundef -Wsign-compare -Wno-missing-braces -Werror
-LD_C_FLAGS += -L$(MPP_LIB_PATH)
+LD_C_FLAGS += -L$(MPP_LIB_PATH) -DMEDIARKMPP
 LD_CPP_FLAGS += $(WARNING) -L$(MPP_LIB_PATH) -L$(RGA_LIB_PATH) -DMEDIARKMPP
 MODULE_SUB_INC += src/rockchip/inc
 MODULE_SUB_DIR += src/rockchip/src
 else ifeq ($(TARGET_MEDIA),hdal)
+LD_C_FLAGS += -DHDAL_DEF
+LD_CPP_FLAGS += -DHDAL_DEF
 endif
 
 #libv4l2
+ifneq (,$(findstring y,$(TARGET_V4L2)))
 MODULE_SUB_DIR += src/libv4l2/src
 MODULE_SUB_INC += src/libv4l2/inc
-
+endif
 
 MODULE_NAME = Media
 LINK_SHARE=y

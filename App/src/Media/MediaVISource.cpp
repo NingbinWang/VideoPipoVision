@@ -4,8 +4,8 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "Media/MediaVISource.h"
-#include "Base/New.h"
+#include "MediaVISource.h"
+#include "New.h"
 #include "Logger.h"
 
 MediaVISource* MediaVISource::createNew(UsageEnvironment* env, std::string dev)

@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <assert.h>
 
-#include "Net/Poller/PollPoller.h"
+#include "PollPoller.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 static const int pollTimeout = 10000;
 

@@ -24,18 +24,6 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
 {
     bool ret;
     img->format = RK_FORMAT_YCbCr_420_SP;
- //   void *mppbuffer = MediaEncGetInputFrame();
-  //  IMAGE_FRAME_T srcimg;
-   // srcimg.format = RK_FORMAT_RGB_888;
-   // srcimg.height = img->height;
-  //  srcimg.height_stride = img->height_stride;
-   // srcimg.width = img->width;
-   // srcimg.width_stride = img->width_stride;
-   // srcimg.virt_addr = (char *)MediaEncGetInputFrameBufferAddr(mppbuffer);
-    //srcimg.fd = MediaEncGetInputFrameBufferFd(mppbuffer);
-
-    //mediarga->img_cvtcolor_virt((IMAGE_T *)img,(IMAGE_T *)&srcimg);
-
     IMAGE_FRAME_T dstimg= {0};
     void *resize_buf = nullptr;
     dstimg.format = RK_FORMAT_RGB_888;
@@ -84,34 +72,3 @@ int MediaAi_VideoDrawRect(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_resul
     mediarga->img_fillrectangle_array_virt((IMAGE_T *)img,osdrect,detect_result->count);
     return 0;
 }
-
-
-/*
-
-int MediaAi_VideoDrawobj(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_result,void * mppbuffer)
-{
-    img->format = RK_FORMAT_YCbCr_420_SP;
-    IMAGE_FRAME_T outimg;
-    outimg.format = RK_FORMAT_YCbCr_420_SP;
-    outimg.height = img->height;
-    outimg.height_stride = img->height_stride;
-    outimg.width = img->width;
-    outimg.width_stride = img->width_stride;
-    outimg.virt_addr = (char *)MediaEncGetInputFrameBufferAddr(mppbuffer);
-    outimg.fd = MediaEncGetInputFrameBufferFd(mppbuffer);
-    mediarga->img_copy_fd((IMAGE_T *)img,(IMAGE_T *)&outimg);
-     // Draw objects
-    for (int i = 0; i < detect_result->count; i++)
-   {
-      RESULT_T *det_result =(RESULT_T *) &(detect_result->results[i]);
-      //LOG_DEBUG("%s @ (%d %d %d %d) %f\n", det_result->name, det_result->box.left, det_result->box.top, det_result->box.right, det_result->box.bottom, det_result->prop);
-    int x1 = det_result->box.left;
-    int y1 = det_result->box.top;
-    int x2 = det_result->box.right;
-    int y2 = det_result->box.bottom;
-    draw_rectangle_yuv420sp((unsigned char *)outimg.virt_addr, outimg.width_stride, outimg.height_stride, x1, y1, x2 - x1 + 1, y2 - y1 + 1, 0x00FF0000, 4);
-  }
-  return 0;
-
-}
-  */

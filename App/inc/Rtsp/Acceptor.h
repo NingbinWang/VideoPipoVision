@@ -1,9 +1,9 @@
 #ifndef _ACCEPTOR_H_
 #define _ACCEPTOR_H_
 #include "Event.h"
-#include "Net/InetAddress.h"
-#include "Net/TcpSocket.h"
-
+#include "InetAddress.h"
+#include "TcpSocket.h"
+#include "UsageEnvironment.h"
 class Acceptor
 {
 public:

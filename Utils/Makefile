@@ -5,7 +5,7 @@ MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Config/inc
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/Base
 
 # logger
-MODULE_SUB_DIR += src/logger
+MODULE_SUB_DIR += src/Logger
 #Libs
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/libdrm/include
 

@@ -3,8 +3,8 @@
 #include <string>
 #include <list>
 
-#include "Net/RtpInstance.h"
-#include "Net/RtpSink.h"
+#include "RtpInstance.h"
+#include "RtpSink.h"
 
 #define MEDIA_MAX_TRACK_NUM 2
 

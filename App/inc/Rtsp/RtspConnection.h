@@ -2,10 +2,10 @@
 #define _RTSP_CONNECTION_
 #include <map>
 
-#include "Net/TcpConnection.h"
-#include "Net/RtspServer.h"
-#include "Net/RtpInstance.h"
-#include "Net/MediaSession.h"
+#include "TcpConnection.h"
+#include "RtspServer.h"
+#include "RtpInstance.h"
+#include "MediaSession.h"
 
 class RtspServer;
 

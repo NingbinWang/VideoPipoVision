@@ -4,10 +4,10 @@
 #include <algorithm>
 #include <assert.h>
 
-#include "Net/MediaSession.h"
-#include "Net/SocketsOps.h"
+#include "MediaSession.h"
+#include "SysNet.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 MediaSession* MediaSession::createNew(std::string sessionName)
 {
@@ -50,10 +50,10 @@ MediaSession::~MediaSession()
 
 std::string MediaSession::generateSDPDescription()
 {
+	char strIp[64];
     if(!mSdp.empty())
         return mSdp;
-    
-    std::string ip = sockets::getLocalIp();
+	SysNet_get_ip("eth0", PF_INET, strIp, 64);
     char buf[2048] = {0};
 
     snprintf(buf, sizeof(buf),
@@ -62,7 +62,7 @@ std::string MediaSession::generateSDPDescription()
         "t=0 0\r\n"
         "a=control:*\r\n"
         "a=type:broadcast\r\n",
-        (long)time(NULL), ip.c_str());
+        (long)time(NULL), strIp);
 
     if(isStartMulticast())
     {
@@ -194,16 +194,16 @@ bool MediaSession::startMulticast()
     uint16_t rtpPort2, rtcpPort2;
     bool ret;
 
-    rtpSockfd1 = sockets::createUdpSock();
+    rtpSockfd1 = SysSocket_create(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP); 
     assert(rtpSockfd1 > 0);
 
-    rtpSockfd2 = sockets::createUdpSock();
+    rtpSockfd2 = SysSocket_create(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP); 
     assert(rtpSockfd2 > 0);
 
-    rtcpSockfd1 = sockets::createUdpSock();
+    rtcpSockfd1 = SysSocket_create(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     assert(rtcpSockfd1 > 0);
 
-    rtcpSockfd2 = sockets::createUdpSock();
+    rtcpSockfd2 = SysSocket_create(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     assert(rtcpSockfd2 > 0);
 
     uint16_t port = rand() & 0xfffe;

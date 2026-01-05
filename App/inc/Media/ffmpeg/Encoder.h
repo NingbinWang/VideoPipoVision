@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Media/SafeAVFormat.h"
+#include "SafeAVFormat.h"
 
 namespace FFmpeg {
 

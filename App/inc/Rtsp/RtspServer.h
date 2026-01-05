@@ -4,12 +4,12 @@
 #include <vector>
 #include <string>
 
-#include "Net/TcpServer.h"
-#include "Net/UsageEnvironment.h"
-#include "Net/RtspConnection.h"
-#include "Net/MediaSession.h"
-#include "Net/Event.h"
-#include "Base/Mutex.h"
+#include "TcpServer.h"
+#include "UsageEnvironment.h"
+#include "RtspConnection.h"
+#include "MediaSession.h"
+#include "Event.h"
+#include "Mutex.h"
 
 class RtspConnection;
 

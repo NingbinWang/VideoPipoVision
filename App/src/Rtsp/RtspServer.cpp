@@ -2,8 +2,10 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "Net/RtspServer.h"
-#include "Base/New.h"
+#include "RtspServer.h"
+#include "New.h"
+#include "SysSocket.h"
+#include "SysNet.h"
 
 RtspServer* RtspServer::createNew(UsageEnvironment* env, Ipv4Address& addr)
 {
@@ -68,9 +70,9 @@ MediaSession* RtspServer::loopupMediaSession(std::string name)
 std::string RtspServer::getUrl(MediaSession* session)
 {
     char url[200];
-
-    snprintf(url, sizeof(url), "rtsp://%s:%d/%s", sockets::getLocalIp().c_str(),
-                mAddr.getPort(), session->name().c_str());
+    char ip[64];
+	SysNet_get_ip("eth0", PF_INET, ip, 64);
+    snprintf(url, sizeof(url), "rtsp://%s:%d/%s", ip,mAddr.getPort(), session->name().c_str());
 
     return std::string(url);
 }

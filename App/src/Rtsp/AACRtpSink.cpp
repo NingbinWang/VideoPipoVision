@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Net/AACRtpSink.h"
+#include "AACRtpSink.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 AACRtpSink* AACRtpSink::createNew(UsageEnvironment* env, MediaSource* mediaSource)
 {

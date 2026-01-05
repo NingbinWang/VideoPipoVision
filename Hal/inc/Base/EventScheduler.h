@@ -11,14 +11,14 @@ class EventScheduler
 {
 public:
     typedef void (*Callback)(void*);
-
+    //回调的类型
     enum PollerType
     {
         POLLER_SELECT,
         POLLER_POLL,
         POLLER_EPOLL
     };
-
+    //创建一个EventScheduler
     static EventScheduler* createNew(PollerType type);
 
     EventScheduler(PollerType type, int fd);

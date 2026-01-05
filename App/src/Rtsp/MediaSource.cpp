@@ -1,6 +1,6 @@
-#include "Net/MediaSource.h"
+#include "MediaSource.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 MediaSource::MediaSource(UsageEnvironment* env) :
     mEnv(env)

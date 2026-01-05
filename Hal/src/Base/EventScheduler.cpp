@@ -8,6 +8,7 @@
 #include "Poller/EPollPoller.h"
 #include "Logger.h"
 #include "New.h"
+#include "Common.h"
 
 static int createEventFd()
 {

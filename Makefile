@@ -64,7 +64,7 @@ CROSS_COMPILE=$(TARGET_CROSS_HOST)-
 LD_C_FLAGS   +=  -ldl -lm -lpthread -lrt  -std=c99
 LD_CPP_FLAGS +=  -ldl -lm -lpthread -lrt  -lstdc++  #C++参数 
 
-LIB_VAR = Utils
+LIB_VAR=Utils
 ifneq (,$(findstring y,$(TARGET_OPENCV)))
 LIB_VAR += opencv_calib3d
 LIB_VAR += opencv_core
@@ -111,15 +111,12 @@ ifneq (,$(findstring y,$(TARGET_ALSA)))
 LIB_VAR += asound
 LIB_VAR += atopology
 endif
-ifneq (,$(findstring y,$(TARGET_LVGL)))
-LD_CPP_FLAGS += -DLVGL
-endif
 
 LIB_VAR += Media
 LIB_VAR += App
 LIB_VAR += Hardware
 LIB_VAR += Hal
-PROJECT_LIB_VAR += $(LIB_VAR)
+PROJECT_LIB_VAR=$(LIB_VAR)
 ifneq ($(PROJECT_LIB_VAR), "")
 PROJECTLIB_VAR += $(patsubst %,-l%,$(PROJECT_LIB_VAR))
 endif
@@ -219,7 +216,7 @@ Hal_Clean:
 
 App: checkenv
 	@$(ECHO) "##### Build app ####"
-	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA)  TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_AUDIO=$(TARGET_AUDIO) TARGET_LVGL=$(TARGET_LVGL) TARGET_LVGL_DEMO=$(TARGET_LVGL_DEMO) TARGET_AI =$(TARGET_AI)
+	@make -C $(APP_DIR) TARGET_MEDIA=$(TARGET_MEDIA) TARGET_OPENCV=$(TARGET_OPENCV) TARGET_FFMPEG=$(TARGET_ROCKCHIP_FFMPEG) TARGET_AUDIO=$(TARGET_AUDIO) TARGET_LVGL=$(TARGET_LVGL) TARGET_LVGL_DEMO=$(TARGET_LVGL_DEMO) TARGET_AI=$(TARGET_AI)
 	@if [ -f $(APP_DIR)/Lib/libApp.so ]; then \
 		$(CP) $(APP_DIR)/Lib/libApp.so $(OUTPUT_DIR)/lib/; \
 	fi

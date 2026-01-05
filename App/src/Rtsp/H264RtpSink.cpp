@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Net/H264RtpSink.h"
+#include "H264RtpSink.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 H264RtpSink* H264RtpSink::createNew(UsageEnvironment* env, MediaSource* mediaSource)
 {

@@ -1,8 +1,8 @@
 #include <arpa/inet.h>
 
-#include "Net/RtpSink.h"
+#include "RtpSink.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 RtpSink::RtpSink(UsageEnvironment* env, MediaSource* mediaSource, int payloadType) :
     mMediaSource(mediaSource),

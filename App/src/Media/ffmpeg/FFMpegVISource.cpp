@@ -4,8 +4,8 @@
 #include <fcntl.h>
 #include <string.h>
 
-#include "Media/FFMpegVISource.h"
-#include "Base/New.h"
+#include "FFMpegVISource.h"
+#include "New.h"
 #include "Logger.h"
 
 #ifdef __cplusplus

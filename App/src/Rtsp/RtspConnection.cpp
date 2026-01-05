@@ -4,11 +4,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "Net/RtspConnection.h"
-#include "Net/MediaSession.h"
+#include "RtspConnection.h"
+#include "MediaSession.h"
 #include "Logger.h"
-#include "Base/New.h"
-
+#include "New.h"
+#include "SysNet.h"
 static void getPeerIp(int sockfd, std::string& ip)
 {
     struct sockaddr_in addr;
@@ -418,6 +418,8 @@ bool RtspConnection::handleCmdSetup()
 
     if(session->isStartMulticast())
     {
+    	char strIP[64] = {0};
+    	SysNet_get_ip("eth0",PF_INET,strIP,64);
         snprintf((char*)mBuffer, sizeof(mBuffer),
                     "RTSP/1.0 200 OK\r\n"
                     "CSeq: %d\r\n"
@@ -427,7 +429,7 @@ bool RtspConnection::handleCmdSetup()
                     "\r\n",
                     mCSeq,
                     session->getMulticastDestAddr().c_str(),
-                    sockets::getLocalIp().c_str(),
+                    strIP,
                     session->getMulticastDestRtpPort(mTrackId),
                     session->getMulticastDestRtpPort(mTrackId)+1,
                     mSessionId);
@@ -569,16 +571,16 @@ bool RtspConnection::createRtpRtcpOverUdp(MediaSession::TrackId trackId, std::st
     int i;
     for(i = 0; i < 10; ++i)
     {
-        rtpSockfd = sockets::createUdpSock();
+        rtpSockfd = SysSocket_create(SYS_AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP);
         if(rtpSockfd < 0)
         {
             return false;
         }
 
-        rtcpSockfd = sockets::createUdpSock();
+        rtcpSockfd = SysSocket_create(SYS_AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP);
         if(rtcpSockfd < 0)
         {
-            close(rtpSockfd);
+            SysSocket_close(rtpSockfd);
             return false;
         }
 
@@ -588,20 +590,19 @@ bool RtspConnection::createRtpRtcpOverUdp(MediaSession::TrackId trackId, std::st
         
         rtpPort = port;
         rtcpPort = port+1;
-
-        ret = sockets::bind(rtpSockfd, "0.0.0.0", rtpPort);
+		ret = SysSocket_bind(rtpSockfd,AF_INET,"0.0.0.0", rtpPort);
         if(ret != true)
         {
-            sockets::close(rtpSockfd);
-            sockets::close(rtcpSockfd);
+            SysSocket_close(rtpSockfd);
+            SysSocket_close(rtcpSockfd);
             continue;
         }
 
-        ret = sockets::bind(rtcpSockfd, "0.0.0.0", rtcpPort);
+        ret = SysSocket_bind(rtcpSockfd,AF_INET, "0.0.0.0", rtcpPort);
         if(ret != true)
         {
-            sockets::close(rtpSockfd);
-            sockets::close(rtcpSockfd);
+            SysSocket_close(rtpSockfd);
+            SysSocket_close(rtcpSockfd);
             continue;
         }
 

@@ -2,7 +2,7 @@
 #define _H264_MEDIA_SINK_H_
 #include <stdint.h>
 
-#include "Net/RtpSink.h"
+#include "RtpSink.h"
 
 class H264RtpSink : public RtpSink
 {

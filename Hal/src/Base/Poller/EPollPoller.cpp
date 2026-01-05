@@ -2,16 +2,15 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "Net/Poller/EPollPoller.h"
+#include "EPollPoller.h"
 #include "Logger.h"
-#include "Base/New.h"
+#include "New.h"
 
 static const int InitEventListSize = 16;
 static const int epollTimeout = 10000;
 
 EPollPoller* EPollPoller::createNew()
 {
-    //return new EPollPoller();
     return New<EPollPoller>::allocate();
 }
 

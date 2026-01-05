@@ -8,13 +8,22 @@ MODULE_SUB_INC += inc/Rtsp
 MODULE_SUB_INC += inc/Media
 MODULE_SUB_DIR += src/Rtsp
 MODULE_SUB_DIR += src/Media
+MODULE_SUB_INC += inc/Record
+MODULE_SUB_INC += inc/Replay
+MODULE_SUB_DIR += src/Record
+MODULE_SUB_DIR += src/Replay
+MODULE_SUB_INC += inc/WebSocket
+MODULE_SUB_DIR += src/WebSocket
+#Config
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Config/inc
 #Hal部分
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/Base
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/Base/Poller
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/System
 ifneq (,$(findstring y,$(TARGET_LVGL)))
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/Notificaiton
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/Notification
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/PageManager
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/ResourceManager
-MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/System
 endif
 
 #Hardware
@@ -27,14 +36,18 @@ MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Media/inc
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Utils/inc
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Utils/Thirdparty/
 #外部的一些头文件
+MODULE_SUB_INC += inc/Utils/Filters
 
+#LVGL
+ifneq (,$(findstring y,$(TARGET_LVGL)))
 #Libs
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/libdrm/include
-
-ifneq (,$(findstring y,$(TARGET_LVGL)))
+#page
 MODULE_SUB_INC += inc/Pages
 MODULE_SUB_INC += inc/Notify
-MODULE_SUB_INC += inc/Utils
+MODULE_SUB_INC += inc/Utils/Lvallocator
+MODULE_SUB_INC += inc/Utils/Lvext
+MODULE_SUB_INC += inc/Utils/LvThread
 #notify
 MODULE_SUB_DIR += src/Notify
 #pages
@@ -75,8 +88,8 @@ endif
 ifneq (,$(findstring y,$(TARGET_OPENCV)))
 MODULE_SUB_INC += $(CURDIR)/../Libs/opencv/include
 OPENCV_LIB_PATH = $(CURDIR)/../Libs/opencv/lib
-LD_C_FLAGS += -L$(OPENCV_LIB_PATH) 
-LD_CPP_FLAGS += -L$(OPENCV_LIB_PATH) 
+LD_C_FLAGS += -L$(OPENCV_LIB_PATH) -DUSE_OPENCV
+LD_CPP_FLAGS += -L$(OPENCV_LIB_PATH) -DUSE_OPENCV
 endif
 
 #App use ffmpeg
