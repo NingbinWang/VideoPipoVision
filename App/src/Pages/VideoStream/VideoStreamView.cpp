@@ -1,4 +1,4 @@
-#include "VideoStreamView.h"
+#include "VideoStream/VideoStreamView.h"
 #include "Logger.h"
 #include "ResourcePool.h"
 

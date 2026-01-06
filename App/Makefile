@@ -50,6 +50,7 @@ MODULE_SUB_INC += inc/Utils/Lvext
 MODULE_SUB_INC += inc/Utils/LvThread
 #notify
 MODULE_SUB_DIR += src/Notify
+MODULE_SUB_DIR += src/Notify/PagesNotify
 #pages
 MODULE_SUB_DIR += src/Pages
 MODULE_SUB_DIR += src/Pages/StartUp

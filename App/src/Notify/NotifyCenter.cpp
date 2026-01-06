@@ -1,8 +1,8 @@
 #include "NotifyCenter.h"
 
-static NotifyBroker SystemCenter("SystemNotify");
+static NotifyBroker PagesNotifyCenter("PagesNotify");
 
 NotifyBroker* NotifyCenter::Broker()
 {
-    return &SystemCenter;
+    return &PagesNotifyCenter;
 }

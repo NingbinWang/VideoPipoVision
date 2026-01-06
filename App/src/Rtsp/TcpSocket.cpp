@@ -10,7 +10,7 @@ TcpSocket::~TcpSocket()
 
 int TcpSocket::creat_socket()
 {
-    mSockfd =  SysSocket_create(SYS_AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+    mSockfd =  SysSocket_create(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     return mSockfd;
 }
 

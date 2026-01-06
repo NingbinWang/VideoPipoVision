@@ -16,6 +16,7 @@ public:
 
     int fd() const { return mSockfd; }
     int sendto(void *pBuf,int iLen,Ipv4Address& addr);
+    int bind(Ipv4Address& addr);
    
 
 private:

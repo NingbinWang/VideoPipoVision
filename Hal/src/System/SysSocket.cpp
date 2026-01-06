@@ -39,7 +39,7 @@
  {
      INT32 iSockFd = -1;
  
-     if(SYS_AF_INET6 != iDomain && SYS_AF_INET != iDomain && AF_UNIX != iDomain)
+     if(AF_INET6 != iDomain && AF_INET != iDomain && AF_UNIX != iDomain)
      {
          LOG_ERROR("socket iDomain is no support iDomain:%d \n", iDomain);
          return ERROR;

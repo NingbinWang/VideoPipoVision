@@ -1,4 +1,4 @@
-#include "VideoStream.h"
+#include "VideoStream/VideoStream.h"
 #include "Media.h"
 #include <iostream>
 #include "Logger.h"

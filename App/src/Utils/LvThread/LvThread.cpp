@@ -10,7 +10,7 @@
 #include "LvDisplay.h"
 #include "Common.h"
 #include <unistd.h>
-
+#include "PagesNotify.h"
 
 static void ShowLvglVersion(void)
 {
@@ -41,7 +41,8 @@ int LvThreadInit(void)
 {
 	static Factory factory;
     static PageManager manager(&factory);
-	LvLinuxPorting(); 
+	LvLinuxPorting();
+	PagesNotify_Init();
     Resource.Init();
     /*----------------------- Pages Init -----------------------*/
     StatusBar::Init(lv_layer_top());
@@ -50,4 +51,5 @@ int LvThreadInit(void)
 	manager.Install("VideoStream", "Pages/VideoStream");
     manager.SetGlobalLoadAnimType(PageManager::LOAD_ANIM_OVER_TOP, 500);
     manager.Push("Pages/Startup");
+    
 }

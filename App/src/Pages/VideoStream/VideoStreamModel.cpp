@@ -1,4 +1,4 @@
-#include "VideoStreamModel.h"
+#include "VideoStream/VideoStreamModel.h"
 
 using namespace Page;
 

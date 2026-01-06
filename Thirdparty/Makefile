@@ -45,7 +45,8 @@ FFMPEG_VER=4.2.11
 YOLOFAST_VER=v.1.1.0
 DRM_VER=2.4.124
 ALSA_VER=1.2.9
-FAAC_VER=1.28
+FDKAAC_VER=master
+MP4V2_VER=main
 
 #####rockchip####
 #SOC=rk3566
@@ -268,21 +269,22 @@ alsa_lib:opencvenv
 	cp $(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/lib/* $(ROOT_PATH)/opencv/lib -rf
 	cp $(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/include/* $(ROOT_PATH)/opencv/include -rf
 
-faac:opencvenv
-	if [ ! -e $(ROOT_PATH)/faac-$(FAAC_VER) ]; then \
-		wget http://sourceforge.net/projects/faac/files/faac-src/faac-1.28/faac-1.28.tar.bz2;\
-		tar -xvjf faac-1.28.tar.bz2; \
+fdkaac:opencvenv
+	if [ ! -e $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER) ]; then \
+		wget https://github.com/mstorsjo/fdk-aac/archive/refs/heads/master.zip;\
+		unzip master.zip; \
 	fi
-	if [ ! -e $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER) ]; then \
-		cd $(ROOT_PATH)/faac-$(FAAC_VER)/&&./configure --target=arm-linux  --host=$(CROSS_COMPILE_HOST) --prefix=$(ROOT_PATH)/opencv/faa_install_$(FAAC_VER) --disable-shared --with-pic; \
-		make -C $(ROOT_PATH)/faac-$(FAAC_VER)/; \
-		make -C $(ROOT_PATH)/faac-$(FAAC_VER)/ install; \
+	if [ ! -e $(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER) ]; then \
+		mkdir -p $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build; \
+		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&cmake -D CMAKE_INSTALL_PREFIX=$(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER) CMAKE_C_COMPILER=$(CC) CMAKE_CXX_COMPILER=$(CXX) ..;\
+		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&make; \
+		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&make install; \
 	fi
 	cp $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER)/lib/* $(ROOT_PATH)/opencv/lib -rf
 	cp $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER)/include/* $(ROOT_PATH)/opencv/include -rf
 
-
-
+#https://codeload.github.com/mstorsjo/fdk-aac/zip/refs/heads/master
+#https://github.com/mstorsjo/fdk-aac.git
 
 zlib:opencvenv
 	if [ ! -e $(ROOT_PATH)/opencv/zlib_install_$(ZLIB_VER) ]; then \
@@ -505,5 +507,18 @@ wpa_supplicant_clean:
 	rm $(ROOT_PATH)/libnl-$(LIBNL_VER) -rf
 	rm $(ROOT_PATH)/openssl-$(OPENSSL_VER) -rf
 
+mp4v2:opencvenv
+	if [ ! -e mp4v2-$(MP4V2_VER) ]; then \
+		wget https://github.com/TechSmith/mp4v2/archive/refs/tags/$(MP4V2_VER).zip; \
+		unzip $(MP4V2_VER).zip; \
+	fi
+	#cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)&&./configure --prefix=$(ROOT_PATH)/opencv/mp4v2_install_$(MP4V2_VER) --host=arm --disable-optimize --enable-util --disable-debug
+	mkdir -p $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build
+	cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build&&cmake -D CMAKE_INSTALL_PREFIX=$(ROOT_PATH)/opencv/mp4v2_install_$(MP4V2_VER) ..
+	cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build&&make
+#https://github.com/enzo1983/mp4v2.git
 
-
+mp4v2_install:opencvenv
+	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build/libmp4v2.so  $(ROOT_PATH)/opencv/lib
+	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build/mp4info      $(ROOT_PATH)/opencv/bin
+	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/include/* $(ROOT_PATH)/opencv/include/ -rf

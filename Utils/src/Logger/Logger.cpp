@@ -78,6 +78,10 @@ void Logger::write(Logger::LogLevel level, const char* file, const char* func,
     {
         sprintf(mCurPtr, " <ERROR> ");
     }
+	else if(level == Logger::LogInfo)
+    {
+        sprintf(mCurPtr, " <INFO> ");
+    }
     else
     {
         return;

@@ -2,14 +2,18 @@
 #include "ResourcePool.h"
 #include "lv_obj_ext_func.h"
 #include "autoconf.h"
+#include "PagesNotify.h"
+#include "PagesNotify_Def.h"
+
+
 #define BATT_USAGE_HEIGHT (lv_obj_get_style_height(ui.battery.img, LV_PART_MAIN) - 6)
 #define BATT_USAGE_WIDTH  (lv_obj_get_style_width(ui.battery.img, LV_PART_MAIN) - 4)
 #define STATUS_BAR_HEIGHT 22
 
-//static Notification* actStatusBar;
+static Notification* actStatusBar;
 
 static void StatusBar_AnimCreate(lv_obj_t* contBatt);
-/*
+
 static int onEvent(Notification* account, Notification::EventParam_t* param)
 {
     if (param->event != Notification::EVENT_NOTIFY)
@@ -17,17 +21,17 @@ static int onEvent(Notification* account, Notification::EventParam_t* param)
         return Notification::ERROR_UNSUPPORTED_REQUEST;
     }
 
-    if (param->size != sizeof(SystemInfoDef::StatusBar_Info_t))
+    if (param->size != sizeof(PagesNotifyDef::STATUSBAR_INFO_T))
     {
         return Notification::ERROR_SIZE_MISMATCH;
     }
 
-    SystemInfoDef::StatusBar_Info_t* info = (SystemInfoDef::StatusBar_Info_t*)param->data_p;
+    PagesNotifyDef::STATUSBAR_INFO_T* info = (PagesNotifyDef::STATUSBAR_INFO_T*)param->data_p;
 
-    if (info->showLabelRec)
+    if (info->bShowLabelRec)
     {
         lv_obj_clear_flag(ui.labelRec, LV_OBJ_FLAG_HIDDEN);
-        const char* str = info->labelRecStr;
+        const char* str = info->strLabelRec;
 
         if (str)
         {
@@ -41,7 +45,7 @@ static int onEvent(Notification* account, Notification::EventParam_t* param)
 
     return 0;
 }
-*/
+
 static void StatusBar_ConBattSetOpa(lv_obj_t* obj, int32_t opa)
 {
     lv_obj_set_style_opa(obj, opa, 0);
@@ -301,14 +305,12 @@ void StatusBar::Appear(bool en)
     lv_anim_start(&a);
 }
 
-/*
+
 void SYS_StatusBar_Init(Notification* account)
 {
-    account->Subscribe("Power");
     account->Subscribe("Storage");
     account->SetEventCallback(onEvent);
-
     actStatusBar = account;
 }
-*/
+
 

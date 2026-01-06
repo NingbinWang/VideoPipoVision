@@ -1,16 +1,16 @@
-#ifndef _SYSTEMINFO_DEF_H_
-#define _SYSTEMINFO_DEF_H_
+#ifndef _PAGESNOTIFY_DEF_H_
+#define _PAGESNOTIFY_DEF_H_
 #include <stdint.h>
 
-namespace SystemInfoDef
+namespace PagesNotifyDef
 {
 
 // StatusBar 
 typedef struct
 {
-    bool showLabelRec;
-    const char* labelRecStr;
-} StatusBar_Info_t;
+    bool bShowLabelRec;
+    const char* strLabelRec;
+} STATUSBAR_INFO_T;
 
 // Storage
 typedef enum
@@ -19,7 +19,7 @@ typedef enum
     STORAGE_CMD_SAVE,
     STORAGE_CMD_ADD,
     STORAGE_CMD_REMOVE
-} Storage_Cmd_t;
+} STORAGE_CMD_E;
 
 typedef enum
 {
@@ -28,25 +28,25 @@ typedef enum
     STORAGE_TYPE_FLOAT,
     STORAGE_TYPE_DOUBLE,
     STORAGE_TYPE_STRING
-} Storage_Type_t;
+} STORAGE_TYPE_E;
 
 typedef struct
 {
-    Storage_Cmd_t cmd;
-    const char* key;
-    void* value;
+    STORAGE_CMD_E eCmd;
+    const char* strKey;
+    void* pValue;
     uint16_t size;
-    Storage_Type_t type;
-} Storage_Info_t;
+    STORAGE_TYPE_E type;
+} STORAGE_INFO_T;
 
 
 
 #define STORAGE_VALUE_REG(act, data, dataType)\
 do{\
-    SystemInfoDef::Storage_Info_t info; \
-    info.cmd = SystemInfoDef::STORAGE_CMD_ADD; \
-    info.key = #data; \
-    info.value = &data; \
+    PagesNotifyDef::STORAGE_INFO_T info; \
+    info.eCmd = PagesNotifyDef::STORAGE_CMD_ADD; \
+    info.strKey = #data; \
+    info.pValue = &data; \
     info.size = sizeof(data); \
     info.type = dataType; \
     act->Notify("Storage", &info, sizeof(info)); \
@@ -54,10 +54,10 @@ do{\
 
 typedef struct
 {
-    bool isDetect;
-    float totalSizeMB;
-    float freeSizeMB;
-} Storage_Basic_Info_t;
+    bool  bIsDetect;
+    float fTotalSizeMB;
+    float fFreeSizeMB;
+} STORAGE_BASIC_INFO_T;
 
 
 

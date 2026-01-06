@@ -1,4 +1,4 @@
-#include "TemplateView.h"
+#include "Template/TemplateView.h"
 #include "Logger.h"
 #include "ResourcePool.h"
 

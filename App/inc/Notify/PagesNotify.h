@@ -1,10 +1,10 @@
-#ifndef _SYSTEMNOTIFY_H_
-#define _SYSTEMNOTIFY_H_
+#ifndef _PAGESNOTIFY_H_
+#define _PAGESNOTIFY_H_
 
-#include "../NotifyCenter.h"
-#include "Systeminfo_Def.h"
+#include "NotifyCenter.h"
+#include "PagesNotify_Def.h"
 
-void SystemNotify_Init(void);
+void PagesNotify_Init(void);
 
 
 #endif

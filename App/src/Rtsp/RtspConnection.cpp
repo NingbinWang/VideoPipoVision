@@ -571,19 +571,17 @@ bool RtspConnection::createRtpRtcpOverUdp(MediaSession::TrackId trackId, std::st
     int i;
     for(i = 0; i < 10; ++i)
     {
-        rtpSockfd = SysSocket_create(SYS_AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP);
+        rtpSockfd = SysSocket_create(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
         if(rtpSockfd < 0)
         {
             return false;
         }
-
-        rtcpSockfd = SysSocket_create(SYS_AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_UDP);
+        rtcpSockfd = SysSocket_create(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
         if(rtcpSockfd < 0)
         {
             SysSocket_close(rtpSockfd);
             return false;
         }
-
         uint16_t port = rand() & 0xfffe;
         if(port < 10000)
             port += 10000;
@@ -591,15 +589,14 @@ bool RtspConnection::createRtpRtcpOverUdp(MediaSession::TrackId trackId, std::st
         rtpPort = port;
         rtcpPort = port+1;
 		ret = SysSocket_bind(rtpSockfd,AF_INET,"0.0.0.0", rtpPort);
-        if(ret != true)
+        if(ret == ERROR)
         {
             SysSocket_close(rtpSockfd);
             SysSocket_close(rtcpSockfd);
             continue;
         }
-
         ret = SysSocket_bind(rtcpSockfd,AF_INET, "0.0.0.0", rtcpPort);
-        if(ret != true)
+        if(ret  == ERROR)
         {
             SysSocket_close(rtpSockfd);
             SysSocket_close(rtcpSockfd);

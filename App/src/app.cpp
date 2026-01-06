@@ -40,11 +40,13 @@ INT32 AppRtspServer(const char* strIp)
     MediaSession* session = MediaSession::createNew("live");//创建一个session
 #ifdef MEDIARKMPP
     MediaSource* videoSource = MppVISource::createNew(env, V4L2DEVNAME);
-#else
-    MediaSource* videoSource = MediaVISource::createNew(env, V4L2DEVNAME);
 #endif  
     RtpSink* rtpSink = H264RtpSink::createNew(env, videoSource);
+	//MediaSource* audioSource = AlsaMediaSource::createNew(env);
+    //RtpSink* audioRtpSink = AACRtpSink::createNew(env, audioSource);
+    
     session->addRtpSink(MediaSession::TrackId0, rtpSink);
+   // session->addRtpSink(MediaSession::TrackId1, audioRtpSink);
     server->addMeidaSession(session);
     server->start();
     std::cout<<"Play the media using the URL \""<<server->getUrl(session)<<"\""<<std::endl;
@@ -56,14 +58,14 @@ int app_main(void)
 {
   
    //Logger::setLogFile("xxx.log");
-   Logger::setLogLevel(Logger::LogInfo);
+   Logger::setLogLevel(Logger::LogDebug);
    Media_Init();
 #ifdef USE_AI
    AiModelInit();
 #endif
 #ifdef USE_LVGL
-   LvThreadInit();
+   //LvThreadInit();
 #endif
-
+	AppRtspServer("192.168.0.14");
    return 0;
 }

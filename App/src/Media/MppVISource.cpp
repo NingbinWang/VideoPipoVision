@@ -8,13 +8,6 @@
 #include "New.h"
 #include "Logger.h"
 
-#define MPPFILEOUT 0 //the fileout use for debug 
-#if MPPFILEOUT
-#include <fstream>
-#include <iostream>
-FILE* fp_output = nullptr;
-#endif
-
 MppVISource* MppVISource::createNew(UsageEnvironment* env, std::string dev)
 {
     //return new V4l2MediaSource(env, dev);
@@ -46,12 +39,6 @@ MppVISource::MppVISource(UsageEnvironment* env, const std::string& dev) :
     enc_status.viH = 1080;
     MediaEncInit(&enc_status);
     this->mOutputbuf = (char *)malloc(FRAME_MAX_SIZE);
-#if MPPFILEOUT
-    fp_output = fopen("/home/mytest.h264", "w+b");
-    if (nullptr == fp_output) {
-            LOG_DEBUG("failed to open output file\n");
-    }
-#endif
     for(int i = 0; i < DEFAULT_FRAME_NUM; ++i)
        mEnv->threadPool()->addTask(mTask);
     LOG_DEBUG("MppVISource OK\n");
@@ -112,7 +99,6 @@ void MppVISource::readFrame()
             size_t mpp_frame_size =MediaEncGetFrameSize();
             void* mpp_frame_addr = MediaEncGetInputFrameBufferAddr(vibuf);
             int mpp_frame_fd = MediaEncGetInputFrameBufferFd(vibuf);
-            //LOG_DEBUG("MediaEncGetInputFrame mpp_frame_size: %d mpp_frame_fd:%d mpp_frame_addr:%p\n",mpp_frame_size,mpp_frame_fd,mpp_frame_addr);
             srcimg.width =  1920;
             srcimg.height = 1080;
             srcimg.width_stride = 1920;
@@ -121,16 +107,9 @@ void MppVISource::readFrame()
             srcimg.fd = mpp_frame_fd;
             DETECT_RESULT_GROUP_T result = {0};
             MediaAi_VideoReport(&srcimg,&result);
-            //void* mppbuffer = MediaEncGetInputFrame();
             MediaAi_VideoDrawRect(&srcimg,&result);
-            //MediaAi_VideoDrawobj(&srcimg,&result,mppbuffer);
 #endif
            size =  MediaEncEncode(vibuf,this->mOutputbuf,MPPENCOERSIZE);
-#if MPPFILEOUT
-           if(fp_output != nullptr) {
-             fwrite(this->mOutputbuf, 1, size,fp_output);
-           }
-#endif
 #ifdef MEDIARKMPP
            mVi->readputmppbuf(index);
 #endif
