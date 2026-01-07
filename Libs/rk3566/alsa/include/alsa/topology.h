@@ -12,7 +12,7 @@
  *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *  Copyright (C) 2015 Intel Corporation
  *
@@ -997,12 +997,12 @@ struct snd_tplg_pcm_template {
 struct snd_tplg_hw_config_template {
 	int id;                         /* unique ID - - used to match */
 	unsigned int fmt;               /* SND_SOC_DAI_FORMAT_ format value */
-	unsigned char clock_gated;      /* 1 if clock can be gated to save power */
+	unsigned char clock_gated;      /* SND_SOC_TPLG_DAI_CLK_GATE_ value */
 	unsigned char  invert_bclk;     /* 1 for inverted BCLK, 0 for normal */
 	unsigned char  invert_fsync;    /* 1 for inverted frame clock, 0 for normal */
-	unsigned char  bclk_master;     /* 1 for master of BCLK, 0 for slave */
-	unsigned char  fsync_master;    /* 1 for master of FSYNC, 0 for slave */
-	unsigned char  mclk_direction;  /* 0 for input, 1 for output */
+	unsigned char  bclk_master;     /* SND_SOC_TPLG_BCLK_ value */
+	unsigned char  fsync_master;    /* SND_SOC_TPLG_FSYNC_ value */
+	unsigned char  mclk_direction;  /* SND_SOC_TPLG_MCLK_ value */
 	unsigned short reserved;        /* for 32bit alignment */
 	unsigned int mclk_rate;	        /* MCLK or SYSCLK freqency in Hz */
 	unsigned int bclk_rate;	        /* BCLK freqency in Hz */
