@@ -20,12 +20,13 @@ TARGET_OPENCV = y
 TARGET_ROCKCHIP = y
 TARGET_ROCKCHIP_FFMPEG = y
 TARGET_V4L2 = y
-TARGET_AUDIO = n
+TARGET_AUDIO = y
 TARGET_LVGL = y
 TARGET_LVGL_DEMO = n
 TARGET_AI = y
 # cross host
 TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu//bin/aarch64-linux-gnu
+#TARGET_CROSS_HOST = $(ROOT_PATH)/../prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu/bin/aarch64-rockchip-linux-gnu
 #tsp end
 
 #lubanmav3
@@ -87,6 +88,7 @@ LIB_VAR += rockchip_mpp
 LIB_VAR += rockchip_vpu
 LIB_VAR += rknnrt
 LD_CPP_FLAGS += -DMEDIARKMPP
+LIB_VAR += mp4v2
 endif
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP_FFMPEG)))
 LIB_VAR += drm_amdgpu
@@ -107,9 +109,9 @@ LIB_VAR += swscale
 #LIB_VAR += gbm
 #LIB_VAR += EGL
 endif
-ifneq (,$(findstring y,$(TARGET_ALSA)))
+ifneq (,$(findstring y,$(TARGET_AUDIO)))
 LIB_VAR += asound
-LIB_VAR += atopology
+LIB_VAR += fdk-aac
 endif
 
 LIB_VAR += Media
@@ -125,7 +127,7 @@ INC_PATH = $(APP_DIR)/inc
 INC_PATH += $(MEDIA_DIR)/inc
 INC_PATH += $(UTILS_DIR)/inc
 INC_PATH += $(HAL_DIR)/inc
-INC_PATH += $(HARDWARE_DIR)/include
+INC_PATH += $(HARDWARE_DIR)/inc
 ifneq (,$(findstring y,$(TARGET_ROCKCHIP)))
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/mpp/include
 INC_PATH += $(LIB_DIR)/$(TARGET_SOC)/rga/include

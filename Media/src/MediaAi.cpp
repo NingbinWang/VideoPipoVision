@@ -28,9 +28,7 @@ int MediaAi_VideoReport(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *results)
     void *resize_buf = nullptr;
     dstimg.format = RK_FORMAT_RGB_888;
     dstimg.height = npu_ctx->model_height;
-    //dstimg.height_stride = npu_ctx->model_height;
     dstimg.width = npu_ctx->model_width;
-   // dstimg.width_stride = npu_ctx->model_width;
     resize_buf = malloc((dstimg.height) * (dstimg.width) * (npu_ctx->model_channel));
     dstimg.virt_addr = (char* )resize_buf;
     mediarga->img_resize_ai_virt((IMAGE_T *)img,(IMAGE_T *)&dstimg);

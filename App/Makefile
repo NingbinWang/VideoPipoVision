@@ -81,6 +81,7 @@ ifeq ($(TARGET_MEDIA),mpp)
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/include
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/rga/include
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/x264/include
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/mp4v2/include
 LD_C_FLAGS += -DMEDIARKMPP
 LD_CPP_FLAGS += -DMEDIARKMPP
 endif
@@ -104,11 +105,13 @@ MODULE_SUB_DIR += src/Media/ffmpeg
 endif 
 
 #App use audio
-ifneq (,$(findstring y,$(TARGET_ALSA)))
+ifneq (,$(findstring y,$(TARGET_AUDIO)))
 MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/alsa/include
 ALSA_LIB_PATH = $(CURDIR)/../Libs/$(SOC)/alsa/lib
-LD_C_FLAGS += -L$(ALSA_LIB_PATH) 
-LD_CPP_FLAGS += -L$(ALSA_LIB_PATH)
+MODULE_SUB_INC += $(CURDIR)/../Libs/$(SOC)/fdkacc/include
+ACC_LIB_PATH = $(CURDIR)/../Libs/$(SOC)/fdkacc/lib
+LD_C_FLAGS += -L$(ALSA_LIB_PATH) -L$(ACC_LIB_PATH) -DUSE_AUDIO
+LD_CPP_FLAGS += -L$(ALSA_LIB_PATH) -L$(ACC_LIB_PATH) -DUSE_AUDIO
 endif
 
 MODULE_NAME = App

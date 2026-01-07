@@ -28,6 +28,7 @@
 #ifdef USE_AI
 #include "AiModel.h"
 #endif
+#include "MediaManager.h"
 
 INT32 AppRtspServer(const char* strIp)
 {
@@ -59,7 +60,7 @@ int app_main(void)
   
    //Logger::setLogFile("xxx.log");
    Logger::setLogLevel(Logger::LogDebug);
-   Media_Init();
+   MediaManagerInit();
 #ifdef USE_AI
    AiModelInit();
 #endif

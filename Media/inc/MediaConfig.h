@@ -23,6 +23,18 @@ extern "C" {
 #define MEDIA_VI_MAX_VCAP_PER_CHIP	1           /*每个VI硬件chip内部包含的VCAP个数*/
 #define MEDIA_VI_MAX_VI_PER_VCAP		4           /*每个VCAP内部包含的VI设备个数*/
 #define MEDIA_VI_MAX_CHN_PER_VI		4           /*每个VI设备内部包含的通道个数*/
+/*解码通道个数*/
+#define MAX_DEC_CHAN_SOC  0
+/*显示通道个数*/
+#define MAX_VO_CHAN_SOC   0
+/*USB摄像头通道个数*/
+#define MAX_USB_CHAN_SOC  0
+#define MAX_VI_CHAN_SOC 8
+#define MAX_ENC_CHAN_SOC  16
+/*编码通道个数*/
+#define MAX_ENC_CHAN      16
+
+
 #endif
 
 #ifdef MEDIARKMPP
@@ -39,11 +51,27 @@ extern "C" {
 #define MEDIA_VI_MAX_DEV_NUM	4
 #define MEDIA_VI_MAX_CHN_NUM	4
 #define MEDIA_VI_MAX_PATH_NUM	8
+/*芯片内部VI 硬件chip个数*/
+#define MEDIA_VI_MAX_CHIP_CNT			2           
+/*每个VI硬件chip内部包含的VCAP个数*/
+#define MEDIA_VI_MAX_VCAP_PER_CHIP	1           
+/*每个VCAP内部包含的VI设备个数*/
+#define MEDIA_VI_MAX_VI_PER_VCAP		4           
+/*每个VI设备内部包含的通道个数*/
+#define MEDIA_VI_MAX_CHN_PER_VI		4           
+/*解码通道个数*/
+#define MAX_DEC_CHAN_SOC  0
+/*显示通道个数*/
+#define MAX_VO_CHAN_SOC   0
+/*USB摄像头通道个数*/
+#define MAX_USB_CHAN_SOC  0
 
-#define MEDIA_VI_MAX_CHIP_CNT			2           /*芯片内部VI 硬件chip个数*/
-#define MEDIA_VI_MAX_VCAP_PER_CHIP	1           /*每个VI硬件chip内部包含的VCAP个数*/
-#define MEDIA_VI_MAX_VI_PER_VCAP		4           /*每个VCAP内部包含的VI设备个数*/
-#define MEDIA_VI_MAX_CHN_PER_VI		4           /*每个VI设备内部包含的通道个数*/
+#define MAX_VI_CHAN_SOC 8
+#define MAX_ENC_CHAN_SOC  16
+/*编码通道个数*/
+#define MAX_ENC_CHAN      16
+
+
 #endif
 
 

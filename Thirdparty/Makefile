@@ -5,18 +5,19 @@ CURDIR = $(shell pwd)
 #export ROOT_PATH = $(CURDIR)/output
 export ROOT_PATH = $(CURDIR)
 # cross host
-#TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu
-##TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu
-#TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-linux-gnu
-##TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-rockchip-linux-gnu
-#TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-linux-gnu/libc
-##TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-rockchip-linux-gnu/lib64
+TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu
+#TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-buildroot-9.3.0-2020.03-x86_64_aarch64-rockchip-linux-gnu
+TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-linux-gnu
+#TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-rockchip-linux-gnu
+TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-linux-gnu/libc
+#TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-rockchip-linux-gnu/lib64
+#TARGET_COMPILE_SYSROOT=$(TARGET_CROSS_COMPILE_DIR)/aarch64-rockchip-linux-gnu/sysroot
 
-TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu
+##TARGET_CROSS_COMPILE_DIR = $(CURDIR)/../../prebuilts/gcc/linux-x86/aarch64/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu
 
-TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-none-linux-gnu
+#TARGET_CROSS_HOST = $(TARGET_CROSS_COMPILE_DIR)/bin/aarch64-none-linux-gnu
 
-TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-none-linux-gnu/libc
+#TARGET_COMPILE_LIBCDIR=$(TARGET_CROSS_COMPILE_DIR)/aarch64-none-linux-gnu/libc
 
 export $(TARGET_CROSS_HOST)
 ##CROSS_COMPILE_HOST = aarch64-linux-gnu
@@ -44,13 +45,13 @@ XVID_VER=1.3.7
 FFMPEG_VER=4.2.11
 YOLOFAST_VER=v.1.1.0
 DRM_VER=2.4.124
-ALSA_VER=1.2.9
+ALSA_VER=1.1.5
 FDKAAC_VER=master
 MP4V2_VER=main
 
 #####rockchip####
-#SOC=rk3566
-SOC=rk3567
+SOC=rk3566
+#SOC=rk3567
 MPP_DIR=$(CURDIR)/rkmpp
 RGA_DIR=$(CURDIR)/rkrga
 FFMPEG_DIR=$(CURDIR)/rkffmpeg
@@ -258,11 +259,11 @@ opencvenv:
 		mkdir -p $(ROOT_PATH)/opencv/lib; \
 		mkdir -p $(ROOT_PATH)/opencv/include; \
 	fi
-
+#https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.9.tar.bz2
 alsa_lib:opencvenv
 	if [ ! -e $(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER) ]; then \
 		tar -xvjf $(ROOT_PATH)/alsa-lib-$(ALSA_VER).tar.bz2; \
-		cd $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/&&./configure --prefix=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER) --host=$(CROSS_COMPILE_HOST) --enable-shared --disable-python --with-configdir=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/config --with-plugindir=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER)/plugin; \
+		cd $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/&&./configure --prefix=$(ROOT_PATH)/opencv/alsa_lib_install_$(ALSA_VER) --host=$(CROSS_COMPILE_HOST) --disable-static --disable-python --without-debug; \
 		make -C $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/; \
 		make -C $(ROOT_PATH)/alsa-lib-$(ALSA_VER)/ install; \
 	fi
@@ -271,21 +272,20 @@ alsa_lib:opencvenv
 
 fdkaac:opencvenv
 	if [ ! -e $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER) ]; then \
-		wget https://github.com/mstorsjo/fdk-aac/archive/refs/heads/master.zip;\
-		unzip master.zip; \
+		if [ -e $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER).zip ]; then unzip $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER).zip; else echo "please download https://github.com/mstorsjo/fdk-aac.git";fi; \
 	fi
 	if [ ! -e $(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER) ]; then \
 		mkdir -p $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build; \
-		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&cmake -D CMAKE_INSTALL_PREFIX=$(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER) CMAKE_C_COMPILER=$(CC) CMAKE_CXX_COMPILER=$(CXX) ..;\
+		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&cmake -DCMAKE_INSTALL_PREFIX=$(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER) -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) ..;\
 		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&make; \
 		cd $(ROOT_PATH)/fdk-aac-$(FDKAAC_VER)/build&&make install; \
 	fi
-	cp $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER)/lib/* $(ROOT_PATH)/opencv/lib -rf
-	cp $(ROOT_PATH)/opencv/faa_install_$(FAAC_VER)/include/* $(ROOT_PATH)/opencv/include -rf
 
-#https://codeload.github.com/mstorsjo/fdk-aac/zip/refs/heads/master
-#https://github.com/mstorsjo/fdk-aac.git
-
+fdkaac_install:
+	mkdir -p $(CURDIR)/../Libs/$(SOC)/fakacc
+	cp $(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER)/lib  $(CURDIR)/../Libs/$(SOC)/fdkacc/ -rf
+	cp $(ROOT_PATH)/opencv/fdkaac_install_$(FDKAAC_VER)/include $(CURDIR)/../Libs/$(SOC)/fdkacc/ -rf
+	
 zlib:opencvenv
 	if [ ! -e $(ROOT_PATH)/opencv/zlib_install_$(ZLIB_VER) ]; then \
 		tar -zxvf $(ROOT_PATH)/zlib-$(ZLIB_VER).tar.gz; \
@@ -509,16 +509,18 @@ wpa_supplicant_clean:
 
 mp4v2:opencvenv
 	if [ ! -e mp4v2-$(MP4V2_VER) ]; then \
-		wget https://github.com/TechSmith/mp4v2/archive/refs/tags/$(MP4V2_VER).zip; \
-		unzip $(MP4V2_VER).zip; \
+		if [ -e $(ROOT_PATH)/mp4v2-$(MP4V2_VER).zip ]; then unzip $(ROOT_PATH)/mp4v2-$(MP4V2_VER).zip; else echo "please download https://github.com/TechSmith/mp4v2";fi; \
 	fi
-	#cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)&&./configure --prefix=$(ROOT_PATH)/opencv/mp4v2_install_$(MP4V2_VER) --host=arm --disable-optimize --enable-util --disable-debug
 	mkdir -p $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build
-	cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build&&cmake -D CMAKE_INSTALL_PREFIX=$(ROOT_PATH)/opencv/mp4v2_install_$(MP4V2_VER) ..
+	cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build&&cmake -DCMAKE_INSTALL_PREFIX=$(ROOT_PATH)/opencv/mp4v2_install_$(MP4V2_VER) -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) ..
 	cd $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build&&make
-#https://github.com/enzo1983/mp4v2.git
+	mkdir -p $(ROOT_PATH)/opencv/mp4v2_install/lib
+	mkdir -p $(ROOT_PATH)/opencv/mp4v2_install/include 
+	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build/libmp4v2.so $(ROOT_PATH)/opencv/mp4v2_install/lib/ -rf
+	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/include/* $(ROOT_PATH)/opencv/mp4v2_install/include/ -rf
 
-mp4v2_install:opencvenv
-	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build/libmp4v2.so  $(ROOT_PATH)/opencv/lib
-	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/build/mp4info      $(ROOT_PATH)/opencv/bin
-	cp $(ROOT_PATH)/mp4v2-$(MP4V2_VER)/include/* $(ROOT_PATH)/opencv/include/ -rf
+
+mp4v2_install:
+	mkdir -p $(CURDIR)/../Libs/$(SOC)/mp4v2
+	cp $(ROOT_PATH)/opencv/mp4v2_install/lib  $(CURDIR)/../Libs/$(SOC)/mp4v2/ -rf
+	cp $(ROOT_PATH)/opencv/mp4v2_install/include $(CURDIR)/../Libs/$(SOC)/mp4v2/ -rf

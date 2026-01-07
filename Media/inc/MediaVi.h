@@ -3,9 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif/*__cplusplus*/
-#define MAX_VI_CHAN_SOC 8
-#define MAX_ENC_CHAN_SOC  16
-#define MAX_ENC_CHAN      16
+
 
 //视频输入配置参数
 typedef enum

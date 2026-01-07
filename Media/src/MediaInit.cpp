@@ -39,9 +39,9 @@ VI_CFG_PARAM_T *Media_Get_ViParam(void)
 		printf("[%s:%d]Media_Get_ViParam error YOU MSUT init media param\n", __FUNCTION__, __LINE__);
 		return NULL;
 	}
-    return pMediaInitParam->viCfgParam;
+    return pMediaInitParam->stViCfgParam;
 }
-
+#ifdef MEDIARKMPP
 RKrga *rkrga = nullptr;
 RKnpu * rknpu = nullptr;
 RKrga * Media_GetRkrga(void)
@@ -52,11 +52,15 @@ RKnpu * Media_GetRknpu(void)
 {
 	return rknpu;
 }
+#endif
 
-
-int Media_Init(void)
+INT32 Media_Init(MEDIA_PARAM_T* param)
 {
-	//int ret = -1;
+	if(param == NULL)
+	{
+		return ERROR;
+	}
+	pMediaInitParam = param;
 #ifdef HDAL_DEF
     ret = hdal_system_init(HDAL_PROFUCT_ID_A30051);
 	if(ret != 0)
@@ -82,6 +86,8 @@ int Media_Memalloc(unsigned int *phy_addr, void **virt_addr,unsigned int size)
 	int ret = -1;
 #ifdef HDAL_DEF
 	ret = hdal_Mem_Malloc(phy_addr,virt_addr,size);
+#endif
+#ifdef MEDIARKMPP
 #endif
 	return ret;
 }

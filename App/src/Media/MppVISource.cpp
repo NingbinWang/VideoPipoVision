@@ -94,7 +94,7 @@ void MppVISource::readFrame()
                 return;
             }
 #endif
-#ifdef MEDIARKAI
+#ifdef USE_AI
             IMAGE_FRAME_T srcimg = {0};
             size_t mpp_frame_size =MediaEncGetFrameSize();
             void* mpp_frame_addr = MediaEncGetInputFrameBufferAddr(vibuf);

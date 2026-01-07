@@ -78,12 +78,6 @@ typedef struct
 
 typedef struct 
 {
-    /*时间信息*/
-    UINT16            	time_type;             //0 无效 1 白天 2 晚上 3黎明黄昏
-	  /*人脸检测配置参数*/
-	float               faceScoreThred;        //人脸分数，范围0~1，默认0.2
-	UINT8               faceConfidThred;       //人脸置信度，范围0~100，默认25
-	UINT16              faceResultSkip;        //人脸检测结果选择传输
     /*预留信息*/
     UINT8              	reserved[16];          //保留字节(20)
 }SMART_DETECT_PARAM_T;
@@ -149,23 +143,25 @@ typedef struct
 
 typedef struct
 {
-    UINT32                    productid;         //产品ID
-    UINT32                    encChanCnt;         //编码主通道个数-接几路sensor就是几路编码数(只计算主码流)
-    UINT32                    decChanCnt;         //解码通道个数
-    UINT32                    VoChanCnt;        //视频输出通道个数
-    DATE_TIME_T               now;               //当前系统的日期、时间
+    UINT32                    u32EncChanCnt;         //编码主通道个数-接几路sensor就是几路编码数(只计算主码流)
+    //解码通道个数
+    UINT32                    u32DecChanCnt;         
+    //视频输出通道个数
+    UINT32                    u32VoChanCnt;       
+    //当前系统的日期、时间
+    DATE_TIME_T               stNow;               
     //LOGO
-	UINT8                     logoAddr[OSD_LOGO_LEN]; //logo图像
+	UINT8                     u8logoAddr[OSD_LOGO_LEN]; //logo图像
     // 视频输出 初始化参数
-    VO_CFG_PARAM_T            voCfgParam[MAX_VO_CHAN_SOC];
+    VO_CFG_PARAM_T            stVoCfgParam[MAX_VO_CHAN_SOC];
     // 视频输入初始化参数
-    VI_CFG_PARAM_T            viCfgParam[MAX_ENC_CHAN_SOC];
+    VI_CFG_PARAM_T            stViCfgParam[MAX_ENC_CHAN_SOC];
     // 音频初始化参数
-    AUDIO_CFG_PARAM_T         audioCfgParam;
-    //beep 共享缓存
-    BEEP_SOUND_BUF_T          audioBeepShare;
+    AUDIO_CFG_PARAM_T         stAudioCfgParam;
+    //beep 共享缓存 系统的提示生硬
+    BEEP_SOUND_BUF_T          staudioBeepShare;
     //alg osd 共享缓存
-    ALG_OSD_BUF_T               algOsdShare;
+    ALG_OSD_BUF_T             algOsdShare;
     //码流缓冲地址
     MEDIA_SHAREDATA_T         streamShareBuf;
     //音频码流缓冲地址
@@ -186,16 +182,10 @@ typedef struct
      0 1 为前二个通道的第一路码流，2 3分别为通道0和1的第二路码流
      */
     NET_POOL_INFO_T           NetPool[MAX_ENC_CHAN + MAX_USB_CHAN_SOC];
-     /*预留每个通道的多路码流都可以RTP网传
-     通道映射，在只有2个通道的输入的情况下
-     索引0 1 分别为通道0和1的第一路码流，索引2 3分别为通道0和1的第二路码流
-     */
-    NET_POOL_INFO_T           PsNetPool[MAX_ENC_CHAN + MAX_USB_CHAN_SOC];
      /*预留每个通道的多路码流都可以PS网传
      通道映射，在只有2个通道的输入的情况下
      索引0 1 分别为通道0和1的第一路码流，索引2 3分别为通道0和1的第二路码流
      */
-
      /*解码码流共享缓存区地址*/
     DEC_SHARE_BUF_T           decShareBuf[MAX_DEC_CHAN_SOC];/*解码码流下载*/
      
@@ -210,7 +200,7 @@ typedef struct
     ENC_STATUS_T              encStatus[MAX_ENC_CHAN];
 }MEDIA_PARAM_T;
 
-int Media_Init(void);
+INT32 Media_Init(MEDIA_PARAM_T* param);
 
 #ifdef __cplusplus
 }

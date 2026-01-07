@@ -6,12 +6,7 @@
 extern "C" {
 #endif/*__cplusplus*/
 
-/*解码通道个数*/
-#define MAX_DEC_CHAN_SOC  0
-/*显示通道个数*/
-#define MAX_VO_CHAN_SOC   0
-/*USB摄像头通道个数*/
-#define MAX_USB_CHAN_SOC  0
+
 
 /*****************************LOGO参数**********************************/
 /*LOGO配置参数*/
@@ -22,7 +17,6 @@ extern "C" {
 typedef struct
 {
     UINT32                  bHaveVo;
-    /*菜单共享缓存*/
     UINT32                  res[62];
     /**< 预留*/
 }VO_CFG_PARAM_T;
