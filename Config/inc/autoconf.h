@@ -10,8 +10,8 @@
 #define MODEL_PATH "/home/cat/yolov5s-640-640.rknn"
 
 //主子码流节点名
-#define V4L2DEVNAME   "/dev/video0"
-#define SUBV4L2DEVNAME   "/dev/video1"
+#define MAINDEVNAME   "/dev/video0"
+#define SUBDEVNAME   "/dev/video1"
 //RTSP是使用的网卡名
 #define RTSPNETDEVNAME "eth0"
 //lvgl的控制信息

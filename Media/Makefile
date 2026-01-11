@@ -6,7 +6,7 @@ MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Config/inc
 
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Utils/inc
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/Base
-
+MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Hal/inc/System
 ifeq ($(TARGET_MEDIA),mpp)
 MODULE_SUB_INC += $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/include
 MPP_LIB_PATH = $(MODULE_CUR_PATH)/../Libs/$(SOC)/mpp/lib

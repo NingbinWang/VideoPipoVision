@@ -1,37 +1,8 @@
 #include "MediaPriv.h"
-MEDIA_PARAM_T *pMediaInitParam = NULL;
-
-//MEDIA_PARAM_T * halmedia_GetMediaInitParam;
-
-int Media_Ipcinit(void)
-{
-#if SHMSHARE
-     int shmId = 0;
-	/* 创建直接共享内存 */
-	shmId = shmget((key_t)MEDIA_SHARE_SEGMENT_ID,sizeof(MEDIA_PARAM_T),IPC_CREAT|0666);
-	if(-1 == shmId)
-	{
-		printf("error shmKey = %d\n", shmId);
-		return -1;
-	}
-    
-	pMediaInitParam =(MEDIA_PARAM_T *)shmat(shmId, NULL, 0);
-	if ((void *)(-1) == (void *)(pMediaInitParam))
-	{
-		printf("!!! shmat pMediaInitParam SIZE=0x%x failed to exit !!!\n", sizeof(MEDIA_PARAM_T));
-		return -1;
-	}
-#else
-    pMediaInitParam =(MEDIA_PARAM_T*) malloc(sizeof(MEDIA_PARAM_T));
-	if(!pMediaInitParam)
-    {
-		printf("[%s:%d]malloc error\n", __FUNCTION__, __LINE__);
-        return -1;
-    }
-    memset(pMediaInitParam,0,sizeof(MEDIA_PARAM_T));
-#endif
-    return 0;
-}
+#include "New.h"
+#include "SysMemory.h"
+MEDIA_PARAM_T* pMediaInitParam = NULL;
+MEDIA_INNER_PARAM_T* pInnerParam = NULL;
 
 VI_CFG_PARAM_T *Media_Get_ViParam(void)
 {
@@ -41,6 +12,13 @@ VI_CFG_PARAM_T *Media_Get_ViParam(void)
 	}
     return pMediaInitParam->stViCfgParam;
 }
+
+MEDIA_INNER_PARAM_T* Media_Get_InnerParam(void)
+{
+	return pInnerParam;
+}
+
+
 #ifdef MEDIARKMPP
 RKrga *rkrga = nullptr;
 RKnpu * rknpu = nullptr;
@@ -54,40 +32,35 @@ RKnpu * Media_GetRknpu(void)
 }
 #endif
 
-INT32 Media_Init(MEDIA_PARAM_T* param)
+INT32 MediaInit(MEDIA_PARAM_T* pParam)
 {
-	if(param == NULL)
+	
+	UINT32 u32ViChan = 0;
+	if(pParam == NULL)
 	{
 		return ERROR;
 	}
-	pMediaInitParam = param;
-#ifdef HDAL_DEF
-    ret = hdal_system_init(HDAL_PROFUCT_ID_A30051);
-	if(ret != 0)
-	{
-		printf("hdal_system_init fail\n");
+	pMediaInitParam = pParam;
+	pInnerParam = (MEDIA_INNER_PARAM_T*)SysMemory_malloc(sizeof(MEDIA_INNER_PARAM_T));
+	if(!pInnerParam){
+		LOG_ERROR("Malloc MEDIA_INNER_PARAM_T fail \n");
 	}
-	ret = hdal_vi_init(HDAL_PROFUCT_ID_A30051);
-	if(ret != 0)
-	{
-		printf("hdal_system_init fail\n");
+	for(u32ViChan = 0;u32ViChan < pParam->u32ViChanCnt;u32ViChan++){
+		pInnerParam->pVi[u32ViChan] = MediaVi::createNew(pParam->astViCfgParam[u32ViChan]);
+		pParam->astStreamShareBuf[u32ViChan].stHeader.u32ImgHeight = pParam->astViCfgParam[u32ViChan].u32Image_viH;
+		pParam->astStreamShareBuf[u32ViChan].stHeader.u32ImgWidth = pParam->astViCfgParam[u32ViChan].u32Image_viW;
+		pInnerParam->pStream[u32ViChan] = MediaStream::createNew(pParam->astStreamShareBuf[u32ViChan]);
 	}
-#endif
+
+
+
+	
+
 #ifdef MEDIARKMPP
 	rkrga = new RKrga();
-	rknpu = new RKnpu();
+	rknpu = new RKnpu();	
 #endif
     return 0;
 }
 
-
-int Media_Memalloc(unsigned int *phy_addr, void **virt_addr,unsigned int size)
-{
-	int ret = -1;
-#ifdef HDAL_DEF
-	ret = hdal_Mem_Malloc(phy_addr,virt_addr,size);
-#endif
-#ifdef MEDIARKMPP
-#endif
-	return ret;
-}
+

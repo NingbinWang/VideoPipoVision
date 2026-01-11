@@ -4,14 +4,17 @@
 #include "MediaFrame.h"
 #include "RKnpu.h"
 #include "Logger.h"
+#include "Common.h"
 #include "RKrga.h"
 // Media内部参数
 typedef struct
 {
     BOOL                    algLoad;
-    /*linux启动完成*/
-    UINT32                  SysStart;	
+	MediaVi*                pVi[MAX_VI_CHAN_SOC];
+	MediaStream*            pStream[MAX_VI_CHAN_SOC];
 }MEDIA_INNER_PARAM_T;
+
+MEDIA_INNER_PARAM_T* Media_Get_InnerParam(void);
 
 #ifdef MEDIARKMPP
 RKrga * Media_GetRkrga(void);

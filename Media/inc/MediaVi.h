@@ -1,9 +1,11 @@
 #ifndef _MEDIA_VI_H_
 #define _MEDIA_VI_H_
+#include "Common.h"
 #ifdef __cplusplus
 extern "C" {
 #endif/*__cplusplus*/
 
+#define VI_DEVNAME_STR_LEN   64
 
 //视频输入配置参数
 typedef enum
@@ -33,23 +35,17 @@ typedef enum
 	VI_TYPE_MAX,
 }VI_INPUT_TYPE_E;
 
-typedef enum
-{
-	LENS_TYPE_MAX,
-} VIDEO_LENS_TYPE_E;
-
 
 typedef struct
 {
-	unsigned int dayNightMode; //白天黑夜模式切换 0:白天 1:夜晚 2：自动
-	unsigned char sensitive; //灵敏度0-7
-	unsigned char filtime;	//过滤时间0-120
+	UINT32   u32DayNightMode; //白天黑夜模式切换 0:白天 1:夜晚 2：自动
+	UINT8    u8Sensitive; //灵敏度0-7
 } VI_DATNIGHT_INFO_T;
 
 typedef struct
 {
-	unsigned char NRMode; //降噪开关 0:关闭 1:普通 2:专家
-	unsigned char NRLeve; //降噪等级（普通降噪等级）0-100
+	UINT8    u8NRMode; //降噪开关 0:关闭 1:普通 2:专家
+	UINT8    u8NRLeve; //降噪等级（普通降噪等级）0-100
 	unsigned char SpaNRLeve; //降噪等级（空域降噪等级）0-100
 	unsigned char TemNRLeve; //降噪等级（时域降噪等级）0-100
 } VI_NR_INFO_T;
@@ -100,18 +96,17 @@ typedef struct
 
 typedef struct
 {
-    unsigned int                          enable;            //是否进行配置 只管数组0上面的值
-    VI_INPUT_TYPE_E                       eType;             //Vi的输入框架
-    unsigned int                          image_viW;         //前端原始图像有效宽
-    unsigned int                          image_viH;         //前端原始图像有效高
-    unsigned int                          frame_rate;        //前端帧率
-    VI_SENSOR_TYPE_E                      vSensorType;       //Sensor类型
-    unsigned int                          ctlid;             //Media中的配置 只管数组0上面的值
-    VI_VIEW_FLIP_E                        viewMirror;        // 镜像选择方式 默认为0
-    VIDEO_LENS_TYPE_E                     vLensType;         //镜头类型
-    VI_DATNIGHT_INFO_T                    dayNightInfo;      //日夜模式   	0-day 1-night 2-自动模式 默认为2
-    unsigned char                         enWdr;             //宽动态开关 0:关闭 1:打开2：自动
-    unsigned char                         enWdrLevel;        //宽动态等级（只有在宽动态开启时生效）默认为50
+    BOOL                                   u32Enable;            //是否进行对该接入进行使能
+    VI_INPUT_TYPE_E                        eViType;              //Vi的输入框架
+    UINT32                                 u32Image_viW;         //前端原始图像有效宽
+    UINT32                                 u32Image_viH;         //前端原始图像有效高
+    UINT32                                 u32Frame_rate;        //前端帧率
+    VI_SENSOR_TYPE_E                       eSensorType;          //Sensor类型
+    CHAR                                   strDevname[VI_DEVNAME_STR_LEN];           
+    VI_VIEW_FLIP_E                         eViewMirror;          // 镜像选择方式 默认为0
+    VI_DATNIGHT_INFO_T                     stDayNightInfo;       //日夜模式   	0-day 1-night 2-自动模式 默认为2
+    UINT8                                  u8EnWdr;              //宽动态开关 0:关闭 1:打开2：自动
+    UINT8                                  u8WdrLevel;           //宽动态等级（只有在宽动态开启时生效）默认为50
     unsigned char                         uBrightnessLevel;  //亮度0-100> 默认为50
     unsigned char                         uStaturationLevel; // 饱和度0-100 默认为50
     unsigned char                         uContrastLevel;    //对比度0-100 默认为50
@@ -135,12 +130,12 @@ typedef struct
 
 class MediaVi
 {
-private:
+
     /* data */
 public:
-    MediaVi(const VI_CFG_PARAM_T &params);
+    static MediaVi* createNew(VI_CFG_PARAM_T&Params);
+    MediaVi(VI_CFG_PARAM_T* pParams);
     ~MediaVi();
-    bool initdev(const char *in_devname);
     int readFramebuf(char* buffer, int bufferSize);
     bool poll();
 #ifdef MEDIARKMPP
@@ -149,8 +144,8 @@ public:
     void * readtomppoutbuf(int* index,char* outbuf, int* size,int max_bufsize);
 #endif
 
-protected:
-    VI_CFG_PARAM_T m_params;
+private:
+    VI_CFG_PARAM_T* mpParams;
 };
 
 

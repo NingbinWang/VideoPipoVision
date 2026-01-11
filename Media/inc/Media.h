@@ -12,6 +12,23 @@
 extern "C" {
 #endif/*__cplusplus*/
 
+typedef struct
+{
+	UINT32                 u32ImgWidth;     //图像宽度
+    UINT32                 u32ImgHeight;    //图像高度
+    UINT32                 u32ImgSize;      //每个图像的大小
+}MEDIA_SHAREDATA_HEAD_T;
+
+//缓冲区的大小
+typedef struct
+{
+	MEDIA_SHAREDATA_HEAD_T    stHeader;
+    CPU_BITS    			  addr;        //多核/多进程访问地址 
+    volatile    UINT32    	  u32len;      //缓冲区长度
+    volatile    UINT32        rIdx;        //缓冲写索引
+    volatile    UINT32        wIdx;        //缓冲读索引
+}MEDIA_SHAREDATA_T;
+
 /*特殊应用*/
 typedef enum 
 {
@@ -64,16 +81,6 @@ typedef struct
     UINT16  startY[ALG_OSD_MAX_NUM];        /* ALG OSD数据  startY，叠加osd的起始位置*/
 	UINT8	res[4];
 } ALG_OSD_BUF_T; 
-
-
-typedef struct
-{
-    CPU_BITS    addr[MAX_SHARE_ADDR];   /*多核/多进程访问地址 */
-    volatile    UINT32    len;        /*缓冲长度*/
-    volatile    UINT32    rIdx;       /*缓冲写索引*/
-    volatile    UINT32    wIdx;       /*缓冲读索引*/
-	volatile    UINT8	  res[4];
-}MEDIA_SHAREDATA_T;
 
 
 typedef struct 
@@ -143,27 +150,31 @@ typedef struct
 
 typedef struct
 {
-    UINT32                    u32EncChanCnt;         //编码主通道个数-接几路sensor就是几路编码数(只计算主码流)
+	//接入通道个数
+    UINT32                    u32ViChanCnt;                
+    //视频输入初始化参数
+    VI_CFG_PARAM_T            astViCfgParam[MAX_VI_CHAN_SOC];
+	//码流缓冲地址 用来接接入的数据流
+    MEDIA_SHAREDATA_T         astStreamShareBuf[MAX_VI_CHAN_SOC];
+	//编码主通道个数-接几路sensor就是几路编码数(只计算主码流)
+    UINT32                    u32EncChanCnt;
+	ENC_STATUS_T              encStatus[MAX_ENC_CHAN_SOC];
     //解码通道个数
     UINT32                    u32DecChanCnt;         
     //视频输出通道个数
-    UINT32                    u32VoChanCnt;       
-    //当前系统的日期、时间
-    DATE_TIME_T               stNow;               
+    UINT32                    u32VoChanCnt;
+	
     //LOGO
-	UINT8                     u8logoAddr[OSD_LOGO_LEN]; //logo图像
+	UINT8                     au8logoAddr[OSD_LOGO_LEN]; //logo图像
     // 视频输出 初始化参数
-    VO_CFG_PARAM_T            stVoCfgParam[MAX_VO_CHAN_SOC];
-    // 视频输入初始化参数
-    VI_CFG_PARAM_T            stViCfgParam[MAX_ENC_CHAN_SOC];
+    VO_CFG_PARAM_T            astVoCfgParam[MAX_VO_CHAN_SOC];
     // 音频初始化参数
     AUDIO_CFG_PARAM_T         stAudioCfgParam;
-    //beep 共享缓存 系统的提示生硬
-    BEEP_SOUND_BUF_T          staudioBeepShare;
+    //beep 共享缓存 系统的提示声音
+    BEEP_SOUND_BUF_T          stAudioBeepShare;
     //alg osd 共享缓存
-    ALG_OSD_BUF_T             algOsdShare;
-    //码流缓冲地址
-    MEDIA_SHAREDATA_T         streamShareBuf;
+    ALG_OSD_BUF_T             stAlgOsdShare;
+
     //音频码流缓冲地址
     MEDIA_SHAREDATA_T         audiostreamShareBuf;
     //智能信息缓冲地址
@@ -197,7 +208,9 @@ typedef struct
 
     /* 状态缓存区 */
     DEC_STATUS_T              decStatus[MAX_DEC_CHAN_SOC];      /*dec Status  */
-    ENC_STATUS_T              encStatus[MAX_ENC_CHAN];
+    
+	//当前系统的日期、时间
+    DATE_TIME_T               stNow;  
 }MEDIA_PARAM_T;
 
 INT32 Media_Init(MEDIA_PARAM_T* param);

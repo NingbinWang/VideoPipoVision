@@ -32,7 +32,7 @@ extern "C" {
 #define MAX_VI_CHAN_SOC 8
 #define MAX_ENC_CHAN_SOC  16
 /*编码通道个数*/
-#define MAX_ENC_CHAN      16
+#define MAX_ENC_CHAN_SOC      16
 
 
 #endif
@@ -66,10 +66,10 @@ extern "C" {
 /*USB摄像头通道个数*/
 #define MAX_USB_CHAN_SOC  0
 
-#define MAX_VI_CHAN_SOC 8
+#define MAX_VI_CHAN_SOC   1
 #define MAX_ENC_CHAN_SOC  16
 /*编码通道个数*/
-#define MAX_ENC_CHAN      16
+#define MAX_ENC_CHAN_SOC      16
 
 
 #endif
