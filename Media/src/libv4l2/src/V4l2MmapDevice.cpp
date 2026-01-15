@@ -330,9 +330,9 @@ size_t V4l2MmapDevice::readInternal(char* buffer, size_t bufferSize)
 }
 
 #ifdef MEDIARKMPP
-MppBuffer V4l2MmapDevice::readtorkbuf(int* index)
+void* V4l2MmapDevice::readFromQueue(unsigned int *index)
 {
-	  MppBuffer buffer = NULL;
+	  void* buffer = NULL;
 	//int ret = -1;
 	if (n_buffers > 0)
 	{
@@ -361,8 +361,7 @@ MppBuffer V4l2MmapDevice::readtorkbuf(int* index)
 		if (buf.index < n_buffers)
 		{
 			buffer = m_buffer[buf.index].start;
-			mpp_buffer_sync_end(buffer);
-			*index = buf.index;
+    		*index = buf.index;
 		}else{
 			LOG_ERROR("buffer index out of bounds\n");
 			return nullptr;
@@ -371,7 +370,7 @@ MppBuffer V4l2MmapDevice::readtorkbuf(int* index)
 	return buffer;
 }
 
-bool V4l2MmapDevice::readputrkbuf(int index)
+bool V4l2MmapDevice::putFrameQueue(int index)
 {
     struct v4l2_buffer buf;
 

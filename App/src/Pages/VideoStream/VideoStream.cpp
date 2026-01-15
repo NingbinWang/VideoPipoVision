@@ -2,13 +2,11 @@
 #include "Media.h"
 #include <iostream>
 #include "Logger.h"
-#include "Media/V4L2VISource.h"
 #include "autoconf.h"
 #include "MediaDec.h"
 #include "lvgl/lvgl.h"
 #include "ResourcePool.h"
 
-V4L2VISource* pV4L2;
 using namespace Page;
 static lv_image_dsc_t videoimg ={0};
 static uint32_t framebuf[720 * 1080];
@@ -23,7 +21,6 @@ FILE* fp_output = nullptr;
 
 VideoStream::VideoStream()
 {
-	pV4L2 = new V4L2VISource(V4L2DEVNAME);
 #if MPPFILEOUT
 	fp_output = fopen("/userdata/mytest.yuv", "w+b");
 	if (nullptr == fp_output) {
@@ -110,9 +107,8 @@ void VideoStream::Update()
 	videoimg.header.w = 720;
 	videoimg.header.h = 1080;
 	videoimg.data_size = 720*1080*sizeof(uint32_t);
-	this->mFramebuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
-	this->mOutputbuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
-	size_t size = pV4L2->readFrame(this->mFramebuf);
+	//this->mFramebuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
+	//this->mOutputbuf = (char *)lv_malloc_core(V4L2_MAX_SIZE);
 	srcimg.width =  1920;
     srcimg.height = 1080;
     srcimg.width_stride = 1920;

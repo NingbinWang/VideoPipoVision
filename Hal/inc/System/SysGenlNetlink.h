@@ -1,5 +1,5 @@
-#ifndef SYS_NETLINK_GENERIC_H
-#define SYS_NETLINK_GENERIC_H
+#ifndef _SYS_NETLINK_GENERIC_H_
+#define _SYS_NETLINK_GENERIC_H_
 
 /* ========================================================================== */
 /*                             Include Files                                  */

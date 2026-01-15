@@ -97,13 +97,15 @@ typedef struct
 typedef struct
 {
     BOOL                                   u32Enable;            //是否进行对该接入进行使能
+    UINT32                                 u32Chn;
     VI_INPUT_TYPE_E                        eViType;              //Vi的输入框架
     UINT32                                 u32Image_viW;         //前端原始图像有效宽
     UINT32                                 u32Image_viH;         //前端原始图像有效高
     UINT32                                 u32Frame_rate;        //前端帧率
     VI_SENSOR_TYPE_E                       eSensorType;          //Sensor类型
-    CHAR                                   strDevname[VI_DEVNAME_STR_LEN];           
-    VI_VIEW_FLIP_E                         eViewMirror;          // 镜像选择方式 默认为0
+    CHAR                                   strDevname[VI_DEVNAME_STR_LEN];    //设备节点名
+    CHAR                                   strFormat[6];
+    VI_VIEW_FLIP_E                         eViewMirror;          // 镜像选择方式 默认为0 这个是否在编码的时候才能用到
     VI_DATNIGHT_INFO_T                     stDayNightInfo;       //日夜模式   	0-day 1-night 2-自动模式 默认为2
     UINT8                                  u8EnWdr;              //宽动态开关 0:关闭 1:打开2：自动
     UINT8                                  u8WdrLevel;           //宽动态等级（只有在宽动态开启时生效）默认为50
@@ -126,29 +128,6 @@ typedef struct
 	unsigned char                         ugrayscale;        //灰度范围0[0-255] 1[16-235]默认为0
     unsigned char                         res[7];
 } VI_CFG_PARAM_T;
-
-
-class MediaVi
-{
-
-    /* data */
-public:
-    static MediaVi* createNew(VI_CFG_PARAM_T&Params);
-    MediaVi(VI_CFG_PARAM_T* pParams);
-    ~MediaVi();
-    int readFramebuf(char* buffer, int bufferSize);
-    bool poll();
-#ifdef MEDIARKMPP
-    void * readtomppbuf(int* index);
-    bool readputmppbuf(int index);
-    void * readtomppoutbuf(int* index,char* outbuf, int* size,int max_bufsize);
-#endif
-
-private:
-    VI_CFG_PARAM_T* mpParams;
-};
-
-
 
 #ifdef __cplusplus
 }

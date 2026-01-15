@@ -38,7 +38,6 @@ private:
 private:
     UsageEnvironment* mEnv;
     std::string mDev;
-    MediaVi *mVi;
     int mWidth;
     int mHeight;
     char *mFramebuf=nullptr;

@@ -7,7 +7,6 @@ extern "C" {
 #ifdef HDAL_DEF
 #define MAX_MULTI_STREAM_CHAN       (2)
 #define MAX_SHARE_ADDR       	   (4)  
-#define CPU_BITS                        UINT32
 #define OSD_MAX_LINE                    (3)
 #define BEEP_MAX_SOUND_NUM              (64)
 
@@ -30,7 +29,6 @@ extern "C" {
 /*USB摄像头通道个数*/
 #define MAX_USB_CHAN_SOC  0
 #define MAX_VI_CHAN_SOC 8
-#define MAX_ENC_CHAN_SOC  16
 /*编码通道个数*/
 #define MAX_ENC_CHAN_SOC      16
 
@@ -39,8 +37,7 @@ extern "C" {
 
 #ifdef MEDIARKMPP
 #define MAX_MULTI_STREAM_CHAN       (2)
-#define MAX_SHARE_ADDR       	   (4)  
-#define CPU_BITS                        UINT32
+#define MAX_SHARE_ADDR       	   (2)  
 #define OSD_MAX_LINE                    (3)
 #define BEEP_MAX_SOUND_NUM              (64)
 
@@ -67,9 +64,8 @@ extern "C" {
 #define MAX_USB_CHAN_SOC  0
 
 #define MAX_VI_CHAN_SOC   1
-#define MAX_ENC_CHAN_SOC  16
 /*编码通道个数*/
-#define MAX_ENC_CHAN_SOC      16
+#define MAX_ENC_CHAN_SOC    2
 
 
 #endif

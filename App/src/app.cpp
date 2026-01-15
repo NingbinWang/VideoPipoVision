@@ -17,11 +17,12 @@
 #include "H264RtpSink.h"
 #include "Common.h"
 #include "autoconf.h"
-#ifdef MEDIARKMPP
-#include "Media/MppVISource.h"
-#else
 #include "Media/MediaVISource.h"
-#endif
+#include <sys/resource.h>
+#include "SysFile.h"
+#include <fcntl.h>      // 定义 O_RDWR, O_CREAT 等标志
+#include <unistd.h>     // 定义 open, read, write, close 等函数原型
+#include <sys/types.h>  // 通常也需要，定义 off_t 等类型（有时 unistd.h 会包含它）
 #ifdef USE_LVGL
 #include "LvThread.h"
 #endif
@@ -39,9 +40,7 @@ INT32 AppRtspServer(const char* strIp)
     Ipv4Address ipAddr(strIp, 5001);//创建IP
     RtspServer* server = RtspServer::createNew(env, ipAddr);//创建对应的RTSPServer
     MediaSession* session = MediaSession::createNew("live");//创建一个session
-#ifdef MEDIARKMPP
-    MediaSource* videoSource = MppVISource::createNew(env, V4L2DEVNAME);
-#endif  
+    MediaSource* videoSource = MediaVISource::createNew(env, MAINDEVNAME); 
     RtpSink* rtpSink = H264RtpSink::createNew(env, videoSource);
 	//MediaSource* audioSource = AlsaMediaSource::createNew(env);
     //RtpSink* audioRtpSink = AACRtpSink::createNew(env, audioSource);
@@ -55,6 +54,122 @@ INT32 AppRtspServer(const char* strIp)
     return 0;
 }
 
+
+/* @fn      sys_core_dump_open
+ * @brief   system core dump open.
+ * @brief   Author/Date huangjiangsheng/2013-08-01.
+ * @param   [in] pCorePid  : coredump pid mode.
+ * @param   [in] pCorePath : coredump path.
+ * @param   [out] N/A.
+ * @return  OK/ERROR.
+ */
+static int sys_core_dump_open(char *pCorePid, char *pCorePath)
+{
+    int iRet = -1;
+    int iFd1 = -1;
+    int iFd2 = -1;
+    struct rlimit limit;
+    struct rlimit limit_set;
+
+    do{
+        /* 1, set core ulimit */
+     	if (getrlimit(RLIMIT_CORE, &limit))
+        {
+            printf("get resource limit fail!\n");
+     		break;
+     	}
+     	limit_set.rlim_cur = limit_set.rlim_max = RLIM_INFINITY;
+     	if (setrlimit(RLIMIT_CORE, &limit_set))
+        {
+			limit_set.rlim_cur = limit_set.rlim_max = limit.rlim_max;
+			if (limit.rlim_max != RLIM_INFINITY)
+			{
+				printf("CORE: cur=0x%x, max=0x%x\n",
+				(UINT)limit.rlim_cur, (UINT)limit.rlim_max);
+			}
+			if (setrlimit(RLIMIT_CORE, &limit_set))
+			{
+				printf("set core ulimited fail!\n");
+				break;
+			}
+     	}
+        /* 2, set core use pid */
+        if (pCorePid && strlen(pCorePid) > 0)
+        {
+            iFd1 = open("/proc/sys/kernel/core_uses_pid", O_RDWR|O_NDELAY|O_TRUNC);
+            if (iFd1 < 0)
+            {
+                printf("open core_uses_pid fail! 0x%x\n", iFd1);
+                break;
+            }
+            if (strlen(pCorePid) != (unsigned int)write(iFd1, pCorePid, strlen(pCorePid)))
+            {
+                printf("set core_uses_pid fail!\n");
+                break;
+            }
+        }
+
+        /* 3, set core pattern */
+        if (pCorePath && strlen(pCorePath) > 0)
+        {
+            iFd2 = open("/proc/sys/kernel/core_pattern", O_RDWR|O_NDELAY|O_TRUNC);
+            if (iFd2 < 0)
+            {
+                printf("open core_pattern fail! %d\n", iFd1);
+                break;
+            }
+            if (strlen(pCorePath) != (unsigned int)write(iFd2, pCorePath, strlen(pCorePath)))
+            {
+                printf("set core_pattern fail!\n");
+                break;
+            }
+        }
+
+        /* 4, set core dump open succ */
+        iRet = OK;
+        printf("set core dump open succ!\n");
+    }while(0);
+
+    /* source free */
+    close(iFd1);
+    close(iFd2);
+
+    return iRet;
+}
+
+static void set_core_dump_enable(void)
+{
+	char szCorePid[32] = {0};
+	char szCorePath[128]={0};
+
+	/*为了唯一区分core文件,文件名格式追加IP地址及设备序列号*/
+	strcpy(szCorePid, "1");
+
+	/*core保存目录*/
+	strcpy(szCorePath, "/tmp/");
+
+	/*core 系统参数信息 */
+	strcat(szCorePath, "coreDump-%s-%e-%p-%t");
+
+	if (OK != sys_core_dump_open(szCorePid, szCorePath))
+	{
+		printf("========= gdb core dump open fail! =========\n\n");
+	}
+	else
+	{
+		printf("sys gdb core open succ ~~~ \n");
+	}
+}
+
+
+
+
+
+
+
+
+
+
 int app_main(void)
 {
   
@@ -67,6 +182,7 @@ int app_main(void)
 #ifdef USE_LVGL
    //LvThreadInit();
 #endif
+	set_core_dump_enable();
 	AppRtspServer("192.168.0.14");
    return 0;
 }

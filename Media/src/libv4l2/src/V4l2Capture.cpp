@@ -121,21 +121,17 @@ size_t V4l2Capture::read(char* buffer, size_t bufferSize)
 	return m_device->readInternal(buffer, bufferSize);
 }
 
-#ifdef MEDIARKMPP
-void * V4l2Capture::readtobuf(int* index)
+void * V4l2Capture::readFrame(unsigned int *index)
 {
-	return m_device->readtorkbuf(index);
+	return m_device->readFromQueue(index);
 }
 
-bool V4l2Capture::readputbuf(int index)
+bool V4l2Capture::releaseFrame(int index)
 {
-	return m_device->readputrkbuf(index);
-	//return false;
+	return m_device->putFrameQueue(index);
 }
-#endif
 
-
-bool V4l2Capture::capturepoll()
+bool V4l2Capture::capturepoll(int timeout)
 {
     int ret;
     struct pollfd poll_fds[1];
@@ -143,7 +139,7 @@ bool V4l2Capture::capturepoll()
     poll_fds[0].fd = m_device->getFd();
     poll_fds[0].events = POLLIN;
 
-    ret = poll(poll_fds, 1, 10000);
+    ret = poll(poll_fds, 1, timeout);
     if (ret < 0)
     {
         printf("ERR(%s):poll error\n", __func__);
@@ -152,7 +148,7 @@ bool V4l2Capture::capturepoll()
 
     if (ret == 0) 
     {
-        printf("ERR(%s):No data in 10 secs..\n", __func__);
+        printf("ERR(%s):No data in %d msecs..\n", __func__,timeout);
         return false;
     }
 	return true;

@@ -29,8 +29,8 @@ class V4l2MmapDevice : public V4l2Device
 		bool   endPartialWrite();
 		size_t readInternal(char* buffer, size_t bufferSize);
 #ifdef MEDIARKMPP
-	   MppBuffer readtorkbuf(int* index);
-	   bool      readputrkbuf(int index);
+	   MppBuffer readFromQueue(unsigned int *index);
+	   bool      putFrameQueue(int index);
 #endif		
 	public:
 		V4l2MmapDevice(const V4L2DeviceParameters & params, v4l2_buf_type deviceType);		

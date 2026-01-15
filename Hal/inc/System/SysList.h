@@ -1,6 +1,5 @@
-
-#ifndef SYS_LIST_H
-#define SYS_LIST_H
+#ifndef _SYS_LIST_H_
+#define _SYS_LIST_H_
 
 #include <stdio.h>
 #include <stddef.h>

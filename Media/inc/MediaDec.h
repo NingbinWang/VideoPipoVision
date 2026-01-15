@@ -36,7 +36,7 @@ typedef struct
 /*解码码流共享缓存接口定义*/
 typedef struct 
 {
-    CPU_BITS                addr[MAX_SHARE_ADDR];   /*多核/多进程访问地址 */
+    void *                addr[MAX_SHARE_ADDR];   /*多核/多进程访问地址 */
     volatile UINT32         totalLen;       		/*解码缓冲长度*/
     volatile UINT32         wIdx;           		/*解码缓冲写索引*/
     volatile UINT32         rIdx;           		/*解码缓冲读索引*/

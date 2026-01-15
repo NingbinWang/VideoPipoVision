@@ -11,6 +11,7 @@
 
 //主子码流节点名
 #define MAINDEVNAME   "/dev/video0"
+#define MAINFORMAT   "NV12"
 #define SUBDEVNAME   "/dev/video1"
 //RTSP是使用的网卡名
 #define RTSPNETDEVNAME "eth0"

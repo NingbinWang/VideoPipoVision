@@ -82,8 +82,8 @@ class V4l2Device
 		virtual bool   endPartialWrite()                   { return false; }
 		virtual size_t readInternal(char*, size_t)         { return -1;    }
 #ifdef MEDIARKMPP
-		virtual void * readtorkbuf(int*)             {return nullptr;}
-		virtual bool   readputrkbuf(int)               { return false; }
+		virtual void * readFromQueue(unsigned int *index)             {return nullptr;}
+		virtual bool   putFrameQueue(int)               { return false; }
 #endif
 	
 	public:

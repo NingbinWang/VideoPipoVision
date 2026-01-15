@@ -70,3 +70,22 @@ int MediaAi_VideoDrawRect(IMAGE_FRAME_T* img,DETECT_RESULT_GROUP_T *detect_resul
     mediarga->img_fillrectangle_array_virt((IMAGE_T *)img,osdrect,detect_result->count);
     return 0;
 }
+
+/*
+#ifdef USE_AI
+            IMAGE_FRAME_T srcimg = {0};
+            size_t mpp_frame_size =MediaEncGetFrameSize();
+            void* mpp_frame_addr = MediaEncGetInputFrameBufferAddr(vibuf);
+            int mpp_frame_fd = MediaEncGetInputFrameBufferFd(vibuf);
+            srcimg.width =  1920;
+            srcimg.height = 1080;
+            srcimg.width_stride = 1920;
+            srcimg.height_stride =  1080;
+            srcimg.virt_addr = (char *)mpp_frame_addr;
+            srcimg.fd = mpp_frame_fd;
+            DETECT_RESULT_GROUP_T result = {0};
+            MediaAi_VideoReport(&srcimg,&result);
+            MediaAi_VideoDrawRect(&srcimg,&result);
+#endif
+*/
+

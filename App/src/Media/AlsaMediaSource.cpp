@@ -8,8 +8,7 @@
 #include "New.h"
 #include "Logger.h"
 
-AlsaMediaSource::AlsaMediaSource( const std::string& dev) :
-    mDev(dev)
+AlsaMediaSource::AlsaMediaSource( const std::string& dev)
 {
 }
 
