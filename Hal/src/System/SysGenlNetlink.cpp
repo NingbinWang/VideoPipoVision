@@ -8,7 +8,7 @@
 #include <linux/netlink.h>
 
 #include "Common.h"
-#include "Syserrno.h"
+#include "SysErrno.h"
 #include "SysNetlink.h"
 #include "SysNetlinkGenericInner.h"
 #include "Logger.h"

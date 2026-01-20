@@ -14,6 +14,7 @@ int MediaManagerInit()
 {
 	UINT32 shareTotalSize = 0;
 	UINT32 uIndex = 0;
+	pthread_t id;
 	pManagerParm = (MEDIA_PARAM_T*)SysMemory_malloc(sizeof(MEDIA_PARAM_T));
 	//VI
 	pManagerParm->u32ViChanCnt = 1;
@@ -26,16 +27,14 @@ int MediaManagerInit()
 	pManagerParm->astViCfgParam[0].eSensorType = CMOS_OV_5969;
 	pManagerParm->astViCfgParam[0].u32Frame_rate = 30;
 
-	strncpy(pManagerParm->astViCfgParam[0].strDevname,MAINDEVNAME,VI_DEVNAME_STR_LEN-1);
-	pManagerParm->astViCfgParam[0].strDevname[VI_DEVNAME_STR_LEN-1]='/0';
+	strcpy(pManagerParm->astViCfgParam[0].strDevname,MAINDEVNAME);
     if(pManagerParm->astViCfgParam[0].eViType == VI_V4L2)
     {
     	if(strlen(MAINFORMAT) != 4){
 			LOG_ERROR("set in formate %s is not right length!\n",MAINFORMAT);
     	}
     }
-	strncpy(pManagerParm->astViCfgParam[0].strFormat,MAINFORMAT,sizeof(pManagerParm->astViCfgParam[0].strFormat)-1);
-	pManagerParm->astViCfgParam[0].strFormat[sizeof(pManagerParm->astViCfgParam[0].strFormat)-1]='/0';
+	strcpy(pManagerParm->astViCfgParam[0].strFormat,MAINFORMAT);
 	for(uIndex = 0;uIndex < pManagerParm->u32ViChanCnt;uIndex++){
 			pManagerParm->astViCfgParam[uIndex].eViewMirror = VIEW_NATURAL;
 			pManagerParm->astViCfgParam[uIndex].stDayNightInfo.u32DayNightMode = 0;
@@ -54,6 +53,7 @@ int MediaManagerInit()
 	pManagerParm->astEncCfgParam[0].uEncW = 1920;
 	pManagerParm->astEncCfgParam[0].uEncH = 1080;
 	pManagerParm->astEncCfgParam[0].eEncoderType = MEDIA_ENC_CODETYPE_AVC;
+	strcpy(pManagerParm->astEncCfgParam[0].strStreamType,MAINFORMAT);
 	//encoder status
 	pManagerParm->stEncoderStatus.stEncBasicParam.bEnable = true;
 	pManagerParm->stEncoderStatus.stEncBasicParam.encH = 1080;
@@ -70,6 +70,7 @@ int MediaManagerInit()
 	pManagerParm->astRecPool[2].totalLen = 4*1024*1024;//不使用
 	pManagerParm->astRecPool[0].addr[0] = SysMemory_malloc(pManagerParm->astRecPool[0].totalLen);
 	MediaInit(pManagerParm);
+	pthread_create(&id,NULL,MediaManagerGetStream,NULL);
 	return 0;
 }
 
@@ -77,8 +78,8 @@ MEDIA_PARAM_T * MediaManagerGet()
 {
 	return pManagerParm;
 }
-
-void  MediaManagerGetStream(UINT uChan,void* pUserdata)
+//获取PS流
+void*  MediaManagerGetStream(void *pUserData)
 {
    
     UINT uLen1 = 0;
@@ -89,9 +90,10 @@ void  MediaManagerGetStream(UINT uChan,void* pUserdata)
 	UINT uW = 0;
     REC_POOL_INFO_T *pPool = NULL;
     bool bHaveData = true;
+    UINT uChan = 0;
 	if(pManagerParm == NULL)
 	{
-		return;
+		return nullptr;
 	}
     while (1)
     {
@@ -131,9 +133,11 @@ void  MediaManagerGetStream(UINT uChan,void* pUserdata)
                     continue;
                 }                
                 pData = (UINT32 *)((PUINT8)pPool->addr[0] + uR);
+                LOG_INFO("[chan%d] get OK !\n",uChan);
 				//取流回调
         }
     }
+    return nullptr;
 }
 
 

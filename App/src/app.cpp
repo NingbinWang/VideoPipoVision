@@ -23,6 +23,7 @@
 #include <fcntl.h>      // 定义 O_RDWR, O_CREAT 等标志
 #include <unistd.h>     // 定义 open, read, write, close 等函数原型
 #include <sys/types.h>  // 通常也需要，定义 off_t 等类型（有时 unistd.h 会包含它）
+#include "SysTime.h"
 #ifdef USE_LVGL
 #include "LvThread.h"
 #endif
@@ -163,13 +164,6 @@ static void set_core_dump_enable(void)
 
 
 
-
-
-
-
-
-
-
 int app_main(void)
 {
   
@@ -177,12 +171,16 @@ int app_main(void)
    Logger::setLogLevel(Logger::LogDebug);
    MediaManagerInit();
 #ifdef USE_AI
-   AiModelInit();
+   //AiModelInit();
 #endif
 #ifdef USE_LVGL
    //LvThreadInit();
 #endif
 	set_core_dump_enable();
-	AppRtspServer("192.168.0.14");
+	//AppRtspServer("192.168.1.21");
+	while(1)
+	{
+	  SysTime_sleep_ms(1000);
+	}
    return 0;
 }

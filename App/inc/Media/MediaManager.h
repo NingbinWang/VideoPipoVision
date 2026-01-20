@@ -4,5 +4,6 @@
 
 int MediaManagerInit();
 MEDIA_PARAM_T * MediaManagerGet();
+void*  MediaManagerGetStream(void* pUserdata);
 
 #endif

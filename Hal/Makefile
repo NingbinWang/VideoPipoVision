@@ -27,6 +27,14 @@ MODULE_SUB_DIR += src/Notification
 endif
 
 
+ifeq ($(TRAGET_ARCH),aarch64)
+LD_C_FLAGS += -D_AARCH64_
+LD_CPP_FLAGS += -D_AARCH64_
+else
+LD_C_FLAGS += -D_ARM_
+LD_CPP_FLAGS += -D_ARM_
+endif
+
 MODULE_NAME = Hal
 LINK_SHARE=y
 include $(ROOT_PATH)/Rules/platform.mk

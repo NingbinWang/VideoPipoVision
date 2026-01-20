@@ -81,6 +81,7 @@ MediaEnc::MediaEnc(MEDIA_ENC_PARAM_T *pParams)
 {
 	 MEDIA_FORMAT_TYPE_E eType ;
 	 MppEncoderParams stEncoderParam;
+	 memset(&stEncoderParam,0,sizeof(MppEncoderParams));
 	 eType = MediaForccFrame(pParams->strStreamType);
 	 stEncoderParam.width = (RK_U32)pParams->uEncW;
      stEncoderParam.height = (RK_U32)pParams->uEncH;
@@ -110,9 +111,12 @@ VOID MediaEnc::MediaEncGetStreamFunc(void* pUserdata)
 	    pInnerParam->pStream->SendStreamToRawPool(muChan,(PUINT8)stFrameInfo.stYuvframe.pVirAddr,(UINT32)stFrameInfo.stVideoHeader.sSize);
 	    //设置OSD回调
 	    //设置AI回调
-        //送入编码
-		stEncFrame.iSize =  MediaEnc::MediaEncEncode(stFrameInfo.stYuvframe.pPhyAddr,(char *)stEncFrame.pVirAddr,MPPENCOERSIZE);
+		stEncFrame.iSize =  MediaEnc::MediaEncEncode(stFrameInfo.stYuvframe.pPhyAddr,(char *)stEncFrame.pVirAddr,MPPENCOERSIZE);  //送入编码
 		//stEncFrame.pVirAddr为H264的编码数据
+        //PS封装
+
+
+		//送PS流
 	    pInnerParam->pStream->SendStreamToRecPool(muChan,(PUINT8)stEncFrame.pVirAddr,stEncFrame.iSize,true, false);
 		pInnerParam->apVi[muChan]->PutFrameInQueue(&stFrameInfo);
 	}

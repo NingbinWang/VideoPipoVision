@@ -84,7 +84,7 @@ INT32 MediaInit(MEDIA_PARAM_T* pParam)
 	}
 	pInnerParam->pStream = MediaStream::createNew(pParam);
 
-	pInnerParam->apEnc[0].MediaEncStartThread();
+	pInnerParam->apEnc[0]->MediaEncStartThread();
 
 	
     return 0;

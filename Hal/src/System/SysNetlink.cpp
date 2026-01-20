@@ -9,7 +9,7 @@
 #include <pthread.h>
 
 #include "Common.h"
-#include "Syserrno.h"
+#include "SysErrno.h"
 #include "Logger.h"
 #include "SysNetlink.h"
 #include "SysNetlinkUeventInner.h"

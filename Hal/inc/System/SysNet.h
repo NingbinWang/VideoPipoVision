@@ -10,6 +10,34 @@
 /* ========================================================================== */
 /*                             Type Declaration                               */
 /* ========================================================================== */
+#define SYS_ARP_ENTRY_MAX_COUNT (128)
+/**
+ *  @struct   SYS_ARP_ATF_E
+ *  @brief    ARP的条目的状态信息
+ */
+
+typedef enum {
+	SYS_ATF_COM = 0x02,	/*条目已完成（Complete），表示 MAC 地址已解析成功（常见于缓存条目）*/
+	SYS_ATF_PERM = 0x04, 	/*永久条目（Permanent），静态配置的 ARP 记录，不会被自动刷新或删除*/
+	SYS_ATF_PUBL = 0x08,	/*发布模式（Publish），响应其他主机对该 IP 的 ARP 请求（代理 ARP）*/
+	SYS_ATF_DONTPUB= 0x40,	/*不发布（Don't Publish），禁止响应代理 ARP 请求。*/
+	SYS_ATF_USETRAILERS = 0x10, /*已废弃，原用于支持尾部封装（Trailer Encapsulation）*/
+	SYS_ATF_NETMASK = 0x20, /*使用网络掩码（Netmask），表示 arp_netmask 字段有效*/
+	SYS_ATF_UNKNOW = 0x0
+}SYSNET_ARP_ATF_E;
+
+/**
+ *  @struct   SYS_ARP_ENTRY_T
+ *  @brief    ARP的条目
+ */
+
+typedef struct {
+	CHAR 				strDevName[16];   /**<网络接口 */
+    CHAR 				strIP[64];    /**<IP 地址 */
+    CHAR 				strMac[64];   /**<MAC 地址 */
+	INT32               iFlags;		   /**<ARP的flags */
+}  SYSNET_ARP_ENTRY_T;
+
 
 /* ========================================================================== */
 /*                          Function Declarations                             */
@@ -137,6 +165,35 @@ INT32 SysNet_ifconfig(const CHAR *strDevName, const CHAR *strIP,const CHAR *strN
  * @return 成功返回0;错误，返回 -1
  */
 INT32 SysNet_ping(CHAR *pDstIpAddr, UINT32 *pTimeout, UINT32 *pTtl);
+
+
+
+/*
+ * @brief           查询ARP条目是否存在
+ * @param[in]       strDevName  网卡名称
+ * @param[in]   	strIp       ARP条目ip地址
+ * @return 存在返回 TRUE 不存在发挥 FALSE
+*/
+BOOL SysNet_arp_entry_exist(const CHAR* strDevName,const CHAR* strIp);
+
+
+/*
+ * @brief           添加ARP条目
+ * @param[in]       stEntry  ARP条目
+ * @return 成功返回0;错误，返回 -1
+ */
+INT32 SysNet_arp_entry_add(SYSNET_ARP_ENTRY_T* pstEntry);
+
+
+/*
+ * @brief           删除ARP条目
+ * @param[in]       strDevName  网卡名称
+ * @param[in]   	strIp       ARP条目ip地址
+ * @return 成功返回0;错误，返回 -1
+ */
+INT32 SysNet_arp_entry_delete(const CHAR* strDevName,const CHAR* strIp);
+
+
 
 #endif/* SysNet_INTERFACE_H */
 

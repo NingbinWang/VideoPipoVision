@@ -643,3 +643,168 @@ INT32 SysNet_ifconfig(const CHAR *strDevName, const CHAR *strIP,const CHAR *strN
     LOG_INFO("== set OK!!! if: %s, ip: %s mask: %s ip: %s==\n", strDevName,strIP,strNetMask,strGateWay);
     return OK;
 }
+
+
+/* @fn              SysNet_arp_entry_exist
+ * @brief           查询ARP条目是否存在
+ * @param[in]       strDevName  网卡名称
+ * @param[in]   	strIp       ARP条目ip地址
+ * @return 存在返回 TRUE 不存在发挥 FALSE
+*/
+BOOL SysNet_arp_entry_exist(const CHAR* strDevName,const CHAR* strIp)
+{
+	INT32 iSock;
+	INT32 iRet;
+	struct arpreq stArpreq = {0};
+	struct sockaddr_in *pstSin = NULL;
+	if(strDevName == NULL || strIp == NULL) {
+		  return ERROR;
+	}
+	/* 创建socket */
+	iSock  = socket(AF_INET, SOCK_DGRAM, 0);
+	if(iSock < 0)
+    {
+        LOG_ERROR("create socket failed - errno[%d:%s]\n", errno, strerror(errno));
+        return ERROR;
+    }
+	/* 设置要查询的IP地址*/
+	pstSin = (struct sockaddr_in *)&stArpreq.arp_pa;
+	pstSin->sin_family = AF_INET;
+	iRet = inet_pton(AF_INET, strIp, &pstSin->sin_addr);
+	if(iRet < 0)
+    {
+    	LOG_ERROR(" inet_pton ip to sin addr failed - errno[%d:%s]\n", errno, strerror(errno));
+    	close(iSock);
+        return ERROR;
+    }
+		
+	 /* 设置接口*/
+    strncpy(stArpreq.arp_dev, strDevName, sizeof(stArpreq.arp_dev)-1);
+    stArpreq.arp_dev[sizeof(stArpreq.arp_dev)-1] = '\0';
+    
+	/* 使用ioctl获取ARP条目*/
+	iRet  = ioctl(iSock, SIOCGARP, &stArpreq);
+	if (iRet< 0) {
+			close(iSock);
+			return FALSE;
+	}
+	close(iSock);
+	return TRUE;
+}
+
+/* @fn              SysNet_arp_entry_delete
+ * @brief           删除ARP条目
+ * @param[in]       strDevName  网卡名称
+ * @param[in]   	strIp       ARP条目ip地址
+ * @return 成功返回0;错误，返回 -1
+ */
+INT32 SysNet_arp_entry_delete(const CHAR* strDevName,const CHAR* strIp)
+{
+	INT32  iSock = ERROR;
+	INT32  iRet = ERROR;
+	struct arpreq stArpreq = {0};
+	struct sockaddr_in *pstSin = NULL;
+	if(strDevName == NULL || strIp == NULL) {
+		  return ERROR;
+	}
+
+	iSock = socket(AF_INET, SOCK_DGRAM, 0);
+	if (iSock < 0) {
+		LOG_ERROR("create socket failed - errno[%d:%s]\n", errno, strerror(errno));
+        return ERROR;
+	}
+	
+	/*设置协议地址*/
+	pstSin = (struct sockaddr_in *)&stArpreq.arp_pa;
+	pstSin->sin_family = AF_INET;
+	iRet = inet_pton(AF_INET, strIp, &pstSin->sin_addr);
+	if(iRet < 0)
+    {
+    	LOG_ERROR(" inet_pton ip to sin addr failed - errno[%d:%s]\n", errno, strerror(errno));
+    	close(iSock);
+        return ERROR;
+    }
+	 /* 设置接口*/
+    strncpy(stArpreq.arp_dev, strDevName, sizeof(stArpreq.arp_dev)-1);
+    stArpreq.arp_dev[sizeof(stArpreq.arp_dev)-1] = '\0';
+	
+		
+	/* 删除ARP条目 */
+	if (ioctl(iSock, SIOCDARP, &stArpreq) < 0) {
+		LOG_ERROR( "ioctl SIOCDARP failed\n");
+		close(iSock);
+		return ERROR;
+	}
+		
+	close(iSock);
+	return OK;
+}
+
+/* @fn              SysNet_arp_entry_add
+ * @brief           添加ARP条目
+ * @param[in]       stEntry  ARP条目
+ * @return 成功返回0;错误，返回 -1
+ */
+
+INT32 SysNet_arp_entry_add(SYSNET_ARP_ENTRY_T *pstEntry)
+{
+	INT32  iSock = ERROR;
+	INT32  iRet = ERROR;
+    struct arpreq stArpreq = {0};
+	struct sockaddr_in *pstSin = NULL;
+    UINT8  u8Mac[6] = {0};
+    iSock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (iSock < 0) {
+		LOG_ERROR("create socket failed - errno[%d:%s]\n", errno, strerror(errno));
+        return ERROR;
+	}
+    if(strlen(pstEntry->strMac) < 17)
+    {
+    	LOG_ERROR("Mac Address of ARP Entry is too short!\n");
+        close(iSock);
+        return ERROR;
+    }
+    /*解析MAC地址将字符串形式的转换成UINT8*/
+    if (sscanf(pstEntry->strMac, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",&u8Mac[0], &u8Mac[1], &u8Mac[2], &u8Mac[3], &u8Mac[4], &u8Mac[5]) != 6 &&
+		sscanf(pstEntry->strMac, "%02hhx-%02hhx-%02hhx-%02hhx-%02hhx-%02hhx",&u8Mac[0], &u8Mac[1], &u8Mac[2], &u8Mac[3], &u8Mac[4], &u8Mac[5]) != 6)
+	{
+        LOG_ERROR("Invalid MAC address format\n");
+        close(iSock);
+        return ERROR;
+    }
+     /* 设置硬件地址*/
+    memcpy(stArpreq.arp_ha.sa_data, u8Mac, 6);
+    stArpreq.arp_ha.sa_family = ARPHRD_ETHER;
+    
+    /* 设置协议地址*/
+    pstSin = (struct sockaddr_in *)&stArpreq.arp_pa;
+    pstSin->sin_family = AF_INET;
+    /*ip地址进行装换*/
+    iRet = inet_pton(AF_INET, pstEntry->strIP, &pstSin->sin_addr);
+    if(iRet < 0)
+    {
+    	LOG_ERROR(" inet_pton ip to sin addr failed - errno[%d:%s]\n", errno, strerror(errno));
+    	close(iSock);
+        return ERROR;
+    }
+    /* 设置接口*/
+    strncpy(stArpreq.arp_dev, pstEntry->strDevName, sizeof(stArpreq.arp_dev)-1);
+    stArpreq.arp_dev[sizeof(stArpreq.arp_dev)-1] = '\0';
+    
+    /* 设置标志*/
+    if(pstEntry->iFlags != SYS_ATF_UNKNOW){
+    	stArpreq.arp_flags = pstEntry->iFlags;
+    }
+        
+    /* 添加ARP条目*/
+    iRet =ioctl(iSock, SIOCSARP, &stArpreq);
+    if(iRet < 0){
+        LOG_ERROR( "ioctl SIOCSARP failed\n");
+		close(iSock);
+		return ERROR;
+    }
+    
+    close(iSock);
+    return OK;
+}
+
